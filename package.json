@@ -1,0 +1,26 @@
+{
+    "name": "CucumberAutoComplete",
+    "displayName": "CucumberAutoComplete",
+    "description": "Extension adding Gherkin language support with ability to autocomplete feature steps/page objects",
+    "version": "0.1.0",
+    "publisher": "AlexanderKrechik",
+    "engines": {
+        "vscode": "^1.5.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "feature",
+            "aliases": ["Gherkin", "feature"],
+            "extensions": [".feature"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "feature",
+            "scopeName": "text.gherkin.feature",
+            "path": "./syntaxes/feature.tmLanguage"
+        }]
+    }
+}
