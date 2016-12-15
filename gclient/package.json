@@ -1,5 +1,5 @@
 {
-    "name": "CucumberAutoComplete",
+    "name": "cucumberautocomplete",
     "displayName": "CucumberAutoComplete",
     "description": "Extension adding Gherkin language support with ability to autocomplete feature steps/page objects",
     "version": "0.1.0",
