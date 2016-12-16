@@ -1,26 +1,48 @@
 {
-    "name": "cucumberautocomplete",
-    "displayName": "CucumberAutoComplete",
-    "description": "Extension adding Gherkin language support with ability to autocomplete feature steps/page objects",
-    "version": "0.1.0",
-    "publisher": "AlexanderKrechik",
-    "engines": {
-        "vscode": "^1.5.0"
-    },
-    "categories": [
-        "Languages"
+  "name": "cucumberautocomplete-client",
+  "description": "VSCode part of a language server",
+  "author": "Alexander Krechik",
+  "version": "0.0.1",
+  "publisher": "vscode",
+  "engines": {"vscode": "^1.4.0"},
+  "categories": ["Languages"],
+  "activationEvents": ["onLanguage:feature"],
+  "main": "./out/src/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "feature",
+        "aliases": [
+          "feature",
+          "gherkin",
+          "Gherkin",
+          "cucumber"
+        ],
+        "extensions": [".feature"],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "contributes": {
-        "languages": [{
-            "id": "feature",
-            "aliases": ["Gherkin", "feature"],
-            "extensions": [".feature"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "feature",
-            "scopeName": "text.gherkin.feature",
-            "path": "./syntaxes/feature.tmLanguage"
-        }]
-    }
+    "grammars": [
+      {
+        "language": "feature",
+        "scopeName": "text.gherkin.feature",
+        "path": "./syntaxes/feature.tmLanguage"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "update-vscode": "node ./node_modules/vscode/bin/install",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.52",
+    "jscs": "^3.0.7",
+    "typescript": "^2.1.4",
+    "vscode": "^1.0.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^2.6.3"
+  }
 }
