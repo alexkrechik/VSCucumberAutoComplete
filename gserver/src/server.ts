@@ -1,6 +1,17 @@
 'use strict';
 
-import { IPCMessageReader, IPCMessageWriter, IConnection, createConnection, TextDocuments, InitializeResult, Diagnostic, DiagnosticSeverity } from 'vscode-languageserver';
+import { IPCMessageReader,
+    IPCMessageWriter,
+    IConnection,
+    createConnection,
+    TextDocuments,
+    InitializeResult,
+    Diagnostic,
+    DiagnosticSeverity,
+    TextDocumentPositionParams,
+    CompletionItemKind,
+    CompletionItem
+} from 'vscode-languageserver';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -12,19 +23,25 @@ connection.onInitialize((params): InitializeResult => {
     return {
         capabilities: {
             // Full text sync mode
-            textDocumentSync: documents.syncKind
+            textDocumentSync: documents.syncKind,
+            //Completion will be triggered after every character pressing
+            completionProvider: {
+				resolveProvider: true,
+			}
         }
     }
 });
 
 interface Step {
+    id: number,
     reg: RegExp,
-    text: String
+    text: string,
+    desc: string
 }
 
 let steps: Step[] = [
-    {reg: /^I do something$/, text: 'I do somethig'},
-    {reg: /I should have "[^"]*"/, text: 'I should have ""'}
+    {id: 1, reg: /^I do something$/, text: 'I do something', desc: 'I do somethig\n\rI do somethig'},
+    {id: 2, reg: /I should have "[^"]*"/, text: 'I should have ""', desc: 'I should have "[^"]*"\n\rI should have "[^"]*"'}
 ]
 
 function validate(text: String): Diagnostic[] {
@@ -59,6 +76,24 @@ function validate(text: String): Diagnostic[] {
     })
     return diagnostics;
 }
+
+connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+	var res = steps.map((step) => {
+        return {
+            label: step.text,
+            kind: CompletionItemKind.Function,
+            data: step.id
+        }
+    })
+    return res;
+});
+
+connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+	var step = steps.find((el)=>{return el.id === item.data});
+    item.detail = step.text;
+    item.documentation = step.desc;
+	return item;
+});
 
 documents.onDidChangeContent((change): void => {
     let changeText = change.document.getText();
