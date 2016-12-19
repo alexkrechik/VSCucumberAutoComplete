@@ -70,15 +70,20 @@ let steps: Step[] = [
 ]
 
 interface stepLine {
+    //Line without 'Given|When|Then|And' part
+    stepPart: string,
+    //Step, matched to the stepPart, or null if absent
     stepMatch: Step,
+    //Start position of line
     start: number,
+    //End position of line
     end: number
 }
 
 //Return start, end position and matched (if any) Gherkin step
 function handleLine(line: String): stepLine {
-    let gerkinRegEx = /^\s*(Given|When|Then) /;
-    let typeRegEx = /Given|When|Then/;
+    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
+    let typeRegEx = /Given |When |Then |And /;
     let typeMatch = line.match(typeRegEx);
     let typePart = typeMatch[0];
     let stepPart = line.replace(gerkinRegEx, '');
@@ -90,8 +95,9 @@ function handleLine(line: String): stepLine {
         }
     }
     let start = typeMatch.index;
-    let end = typeMatch.index + typePart.length + stepPart.length + 1;
+    let end = typeMatch.index + typePart.length + stepPart.length;
     return {
+        stepPart: stepPart,
         stepMatch: stepMatch,
         start: start,
         end: end
