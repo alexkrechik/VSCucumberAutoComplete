@@ -18,10 +18,6 @@ import {
     Position
 } from 'vscode-languageserver';
 
-import {
-    workspace
-} from 'vscode';
-
 import * as fs from 'fs';
 
 //Create connection and setup communication between the client and server
