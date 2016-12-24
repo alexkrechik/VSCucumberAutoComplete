@@ -2,7 +2,7 @@
   "name": "cucumberautocomplete-client",
   "description": "VSCode part of a language server",
   "author": "Alexander Krechik",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "vscode",
   "engines": {"vscode": "^1.4.0"},
   "categories": ["Languages"],
