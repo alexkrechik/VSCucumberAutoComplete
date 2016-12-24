@@ -18,13 +18,21 @@ import {
     Position
 } from 'vscode-languageserver';
 
+import {
+    workspace
+} from 'vscode';
+
+import * as fs from 'fs';
+
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 let workspaceRoot: string;
+let steps = [];
 connection.onInitialize((params): InitializeResult => {
     workspaceRoot = params.rootPath;
+    // setSteps();
     return {
         capabilities: {
             // Full text sync mode
@@ -39,35 +47,35 @@ connection.onInitialize((params): InitializeResult => {
 });
 
 interface Step {
-    id: number,
+    id: string,
     reg: RegExp,
     text: string,
     desc: string,
     def: Definition
 }
 
-let steps: Step[] = [
-    {
-        id: 1,
-        reg: /^I do something$/,
-        text: 'I do something',
-        desc: 'I do somethig\n\rI do somethig',
-        def: Location.create(
-            'file://' + __dirname + '/../../gclient/test/test.steps.js',
-            Range.create(Position.create(14, 17), Position.create(14, 17))
-        )
-    },
-    {
-        id: 2,
-        reg: /I should have "[^"]*"/,
-        text: 'I should have ""',
-        desc: 'I should have "[^"]*"\n\rI should have "[^"]*"',
-         def: Location.create(
-            'file://' + __dirname + '/../../gclient/test/test.steps.js', 
-            Range.create(Position.create(5, 17), Position.create(5, 17))
-        )
-    }
-]
+// let steps: Step[] = [
+//     {
+//         id: 'step1',
+//         reg: /^I do something$/,
+//         text: 'I do something',
+//         desc: 'I do somethig\n\rI do somethig',
+//         def: Location.create(
+//             'file://' + __dirname + '/../../gclient/test/test.steps.js',
+//             Range.create(Position.create(14, 17), Position.create(14, 17))
+//         )
+//     },
+//     {
+//         id: 'step2',
+//         reg: /I should have "[^"]*"/,
+//         text: 'I should have ""',
+//         desc: 'I should have "[^"]*"\n\rI should have "[^"]*"',
+//          def: Location.create(
+//             'file://' + __dirname + '/../../gclient/test/test.steps.js', 
+//             Range.create(Position.create(5, 17), Position.create(5, 17))
+//         )
+//     }
+// ]
 
 interface stepLine {
     //Line without 'Given|When|Then|And' part
@@ -126,6 +134,60 @@ function validate(text: String): Diagnostic[] {
         }
     })
     return diagnostics;
+}
+
+interface Settings {
+	languageServerExample: ExampleSettings;
+}
+
+interface ExampleSettings {
+    steps: string | string[];
+}
+
+connection.onDidChangeConfiguration((change) => {
+    let settings = <Settings>change.settings;
+    let pathes = [].concat(settings.languageServerExample.steps);
+    steps = [];
+    pathes.forEach((path) => {
+        path = workspaceRoot + '/' + path;
+        steps = steps.concat(getAllPathSteps(path));
+    })
+})
+
+function getAllPathSteps(stepsPath): Step[] {
+    let f = fs.lstatSync(stepsPath);
+    if (f.isFile()) {
+        return getFileSteps(stepsPath);
+    } else if(f.isDirectory()) {
+        let res = [];
+        fs.readdirSync(stepsPath).forEach(val => {
+            var filePath = stepsPath + '/' + val;
+            if (fs.lstatSync(filePath).isFile() && filePath.match(/\.js/)) {
+                res = res.concat(getFileSteps(filePath));
+            }
+        });
+        return res;
+    } else {
+        throw new Error(stepsPath + 'is not a valid path');
+    }
+}
+
+function getFileSteps(filePath: string): Step[] {
+    let steps = [];
+    fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
+        if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
+            let match = line.match(/\/[^\/]*\//);
+            let pos = Position.create(lineIndex, match.index);
+            steps.push({
+                id: 'step' + (new Date().getTime()),
+                reg: new RegExp(match[0].replace(/\//g, '')),
+                text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, ''),
+                desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
+                def: Location.create('file://' + filePath, Range.create(pos, pos))
+            });
+        }
+    });
+    return steps;
 }
 
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
