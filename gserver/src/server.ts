@@ -50,29 +50,6 @@ interface Step {
     def: Definition
 }
 
-// let steps: Step[] = [
-//     {
-//         id: 'step1',
-//         reg: /^I do something$/,
-//         text: 'I do something',
-//         desc: 'I do somethig\n\rI do somethig',
-//         def: Location.create(
-//             'file://' + __dirname + '/../../gclient/test/test.steps.js',
-//             Range.create(Position.create(14, 17), Position.create(14, 17))
-//         )
-//     },
-//     {
-//         id: 'step2',
-//         reg: /I should have "[^"]*"/,
-//         text: 'I should have ""',
-//         desc: 'I should have "[^"]*"\n\rI should have "[^"]*"',
-//          def: Location.create(
-//             'file://' + __dirname + '/../../gclient/test/test.steps.js', 
-//             Range.create(Position.create(5, 17), Position.create(5, 17))
-//         )
-//     }
-// ]
-
 interface stepLine {
     //Line without 'Given|When|Then|And' part
     stepPart: string,
