@@ -117,16 +117,7 @@ interface ExampleSettings {
     steps: string | string[];
 }
 
-connection.onDidChangeConfiguration((change) => {
-    let settings = <Settings>change.settings;
-    let pathes = [].concat(settings.languageServerExample.steps);
-    steps = [];
-    pathes.forEach((path) => {
-        path = workspaceRoot + '/' + path;
-        steps = steps.concat(getAllPathSteps(path));
-    })
-})
-
+//Check path, determine its type and get all the possible steps using getFileSteps()
 function getAllPathSteps(stepsPath): Step[] {
     let f = fs.lstatSync(stepsPath);
     if (f.isFile()) {
@@ -145,6 +136,7 @@ function getAllPathSteps(stepsPath): Step[] {
     }
 }
 
+//Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
@@ -162,6 +154,16 @@ function getFileSteps(filePath: string): Step[] {
     });
     return steps;
 }
+
+connection.onDidChangeConfiguration((change) => {
+    let settings = <Settings>change.settings;
+    let pathes = [].concat(settings.languageServerExample.steps);
+    steps = [];
+    pathes.forEach((path) => {
+        path = workspaceRoot + '/' + path;
+        steps = steps.concat(getAllPathSteps(path));
+    })
+})
 
 connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
 	var res = steps.map((step) => {
