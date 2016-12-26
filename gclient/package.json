@@ -1,6 +1,6 @@
 {
-  "name": "cucumberautocomplete-client",
-  "description": "VSCode part of a language server",
+  "name": "cucumberautocomplete",
+  "description": "VSCode Gherkin Language Autocompleter",
   "author": "Alexander Krechik",
   "version": "0.1.0",
   "publisher": "vscode",
