@@ -89,7 +89,7 @@ function handleLine(line: String): stepLine {
 function validate(text: String): Diagnostic[] {
     let lines = text.split(/\r?\n/g);
     let diagnostics: Diagnostic[] = [];
-    let gerkinRegEx = /^\s*(Given|When|Then) /;
+    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     lines.forEach((line, i) => {
         if (line.search(gerkinRegEx) !== -1) {
             let res = handleLine(line);
