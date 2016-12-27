@@ -11,7 +11,7 @@
     `cp -a gclient ~/.vscode/extensions/`
 1. Reopen vscode with app, that should use this extension
 1. In the opened app root create (if absent) `.vscode` folder with
-    `settings.json` file or just run `mkdir .vscode && touch .vscode/setting.json`
+    `settings.json` file or just run `mkdir .vscode && touch .vscode/settings.json`
 1. Add `languageServerExample.steps` var with array of files/folder pathes to
     your step definitions. Example of `settings.json` file:
 
