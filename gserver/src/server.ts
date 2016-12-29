@@ -150,7 +150,7 @@ function getFileSteps(filePath: string): Step[] {
             steps.push({
                 id: 'step' + (new Date().getTime()),
                 reg: new RegExp(match[0].replace(/\//g, '')),
-                text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, ''),
+                text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""'),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
                 def: Location.create('file://' + filePath, Range.create(pos, pos))
             });
