@@ -25,22 +25,10 @@ let connection: IConnection = createConnection(new IPCMessageReader(process), ne
 let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 let workspaceRoot: string;
+//Array will be populated with all the steps found
 let steps = [];
-connection.onInitialize((params): InitializeResult => {
-    workspaceRoot = params.rootPath;
-    // setSteps();
-    return {
-        capabilities: {
-            // Full text sync mode
-            textDocumentSync: documents.syncKind,
-            //Completion will be triggered after every character pressing
-            completionProvider: {
-                resolveProvider: true,
-            },
-            definitionProvider : true
-        }
-    }
-});
+// Object will be populated with all the pages found
+let pages = {};
 
 interface Step {
     id: string,
@@ -59,6 +47,21 @@ interface stepLine {
     start: number,
     //End position of line
     end: number
+}
+
+interface PageObject {
+    id: string,
+    text: string,
+    desc: string,
+    def: Definition
+}
+
+interface Page {
+    id: string,
+    text: string,
+    desc: string,
+    def: Definition,
+    objects: PageObject[]
 }
 
 //Return start, end position and matched (if any) Gherkin step
@@ -110,11 +113,12 @@ function validate(text: String): Diagnostic[] {
 }
 
 interface Settings {
-	languageServerExample: ExampleSettings;
+	languageServerExample: ExampleSettings
 }
 
 interface ExampleSettings {
-    steps: string | string[];
+    steps: string | string[],
+    pages?: Object
 }
 
 //Check path, determine its type and get all the possible steps using getFileSteps()
@@ -155,25 +159,120 @@ function getFileSteps(filePath: string): Step[] {
     return steps;
 }
 
-connection.onDidChangeConfiguration((change) => {
-    let settings = <Settings>change.settings;
-    let pathes = [].concat(settings.languageServerExample.steps);
-    steps = [];
-    pathes.forEach((path) => {
-        path = workspaceRoot + '/' + path;
-        steps = steps.concat(getAllPathSteps(path));
+function getPageObjects(text: string, path: string): PageObject[] {
+    let pageObects = eval(text)();
+    let zeroPos = Position.create(0, 0);
+    return Object.keys(pageObects).map((key) => {
+        return {
+            id: 'pageObect' + (new Date().getTime()),
+            text: key,
+            desc: pageObects[key],
+            def: Location.create('file://' + path, Range.create(zeroPos, zeroPos))
+        }
     })
-})
+}
 
-connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-	var res = steps.map((step) => {
+//Get Page object
+function getPage(name: string, path: string): Page {
+    let text = fs.readFileSync(path, 'utf8');
+    let zeroPos = Position.create(0, 0);
+    return {
+        id: 'page' + (new Date().getTime()),
+        text: name,
+        desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
+        def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
+        objects: getPageObjects(text, path)
+    }
+}
+
+//Get steps completion
+function getStepsCompletion(): CompletionItem[] {
+    return steps.map((step) => {
         return {
             label: step.text,
             kind: CompletionItemKind.Function,
             data: step.id
         }
     })
-    return res;
+}
+
+function getPageCompletion(): CompletionItem[] {
+    return Object.keys(pages).map((page) => {
+        return {
+            label: pages[page].text,
+            kind: CompletionItemKind.Function,
+            data: pages[page].id
+        }
+    });
+}
+
+function getPageObjectCompletion(page: string): CompletionItem[] {
+    return pages[page].objects.map((pageObject) => {
+        return {
+            label: pageObject.text,
+            kind: CompletionItemKind.Function,
+            data: pageObject.id
+        }
+    })
+}
+
+connection.onInitialize((params): InitializeResult => {
+    workspaceRoot = params.rootPath;
+    // setSteps();
+    return {
+        capabilities: {
+            // Full text sync mode
+            textDocumentSync: documents.syncKind,
+            //Completion will be triggered after every character pressing
+            completionProvider: {
+                resolveProvider: true,
+            },
+            definitionProvider : true
+        }
+    }
+});
+
+connection.onDidChangeConfiguration((change) => {
+    
+    //Get settings object
+    let settings = <Settings>change.settings;
+
+    //Populate steps array
+    let stepsPathes = [].concat(settings.languageServerExample.steps);
+    steps = [];
+    stepsPathes.forEach((path) => {
+        path = workspaceRoot + '/' + path;
+        steps = steps.concat(getAllPathSteps(path));
+    })
+
+    //Populate pages array
+    let pagesObj = settings.languageServerExample.pages;
+    pages = {};
+    Object.keys(pagesObj).forEach((key) => {
+        let path = workspaceRoot + '/' + pagesObj[key];
+        pages[key] = getPage(key, path);
+    })
+
+})
+
+connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
+	let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
+    let line = text[position.position.line];
+    let slicedLine = line.slice(0, position.position.character);
+    let match = slicedLine.match(/"/g);
+    if (match && match.length % 2) {
+        //Double quote was opened but was not closed
+        let pageMatch = slicedLine.match(/"([^"]*)"\."[^"]*$/);
+        if (pageMatch) {
+            //We have some page so should show all the page objects
+            let page = pageMatch[1];
+            return getPageObjectCompletion(page);
+        } else {
+            return getPageCompletion();
+        }
+    } else {
+        return getStepsCompletion();
+    }
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
