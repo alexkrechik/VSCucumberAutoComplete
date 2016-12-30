@@ -103,9 +103,40 @@ function validate(text: String): Diagnostic[] {
                         start: { line: i, character: res.start },
                         end: { line: i, character: res.end }
                     },
-                    message: `Was unable to found step for "${line}"`,
+                    message: `Was unable to find step for "${line}"`,
                     source: 'ex'
                 });
+            } else {
+                let match = line.match(/"[^"]*"."[^"]*"/g);
+                if (match) {
+                    match.forEach(m => {
+                        let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, '')});
+                        if (!pages[page]) {
+                            let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Warning,
+                                range: {
+                                    start: { line: i, character: pagePos },
+                                    end: { line: i, character: pagePos + page.length }
+                                },
+                                message: `"${page}" page doesn't exists`,
+                                source: 'ex'
+                            });
+                        }
+                        if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject})) {
+                            let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
+                            diagnostics.push({
+                                severity: DiagnosticSeverity.Warning,
+                                range: {
+                                    start: { line: i, character: pageObjectPos },
+                                    end: { line: i, character: pageObjectPos + pageObject.length }
+                                },
+                                message: `"${pageObject}" page object for "${page}" page doesn't exists`,
+                                source: 'ex'
+                            });
+                        }
+                    })
+                }
             }
         }
     })
@@ -113,10 +144,10 @@ function validate(text: String): Diagnostic[] {
 }
 
 interface Settings {
-	languageServerExample: ExampleSettings
+	cucumberautocomplete: AppSettings
 }
 
-interface ExampleSettings {
+interface AppSettings {
     steps: string | string[],
     pages?: Object
 }
@@ -129,7 +160,7 @@ function getAllPathSteps(stepsPath): Step[] {
     } else if(f.isDirectory()) {
         let res = [];
         fs.readdirSync(stepsPath).forEach(val => {
-            var filePath = stepsPath + '/' + val;
+            let filePath = stepsPath + '/' + val;
             if (fs.lstatSync(filePath).isFile() && filePath.match(/\.js/)) {
                 res = res.concat(getFileSteps(filePath));
             }
@@ -238,7 +269,7 @@ connection.onDidChangeConfiguration((change) => {
     let settings = <Settings>change.settings;
 
     //Populate steps array
-    let stepsPathes = [].concat(settings.languageServerExample.steps);
+    let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
         path = workspaceRoot + '/' + path;
@@ -246,7 +277,7 @@ connection.onDidChangeConfiguration((change) => {
     })
 
     //Populate pages array
-    let pagesObj = settings.languageServerExample.pages;
+    let pagesObj = settings.cucumberautocomplete.pages;
     pages = {};
     Object.keys(pagesObj).forEach((key) => {
         let path = workspaceRoot + '/' + pagesObj[key];
@@ -276,7 +307,7 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	var step = steps.find((el)=>{return el.id === item.data});
+	let step = steps.find((el)=>{return el.id === item.data});
     item.detail = step.text;
     item.documentation = step.desc;
 	return item;
