@@ -107,35 +107,37 @@ function validate(text: String): Diagnostic[] {
                     source: 'ex'
                 });
             } else {
-                let match = line.match(/"[^"]*"."[^"]*"/g);
-                if (match) {
-                    match.forEach(m => {
-                        let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, '')});
-                        if (!pages[page]) {
-                            let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Warning,
-                                range: {
-                                    start: { line: i, character: pagePos },
-                                    end: { line: i, character: pagePos + page.length }
-                                },
-                                message: `"${page}" page doesn't exists`,
-                                source: 'ex'
-                            });
-                        }
-                        if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject})) {
-                            let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
-                            diagnostics.push({
-                                severity: DiagnosticSeverity.Warning,
-                                range: {
-                                    start: { line: i, character: pageObjectPos },
-                                    end: { line: i, character: pageObjectPos + pageObject.length }
-                                },
-                                message: `"${pageObject}" page object for "${page}" page doesn't exists`,
-                                source: 'ex'
-                            });
-                        }
-                    })
+                if (Object.keys(pages).length) {
+                    let match = line.match(/"[^"]*"."[^"]*"/g);
+                    if (match) {
+                        match.forEach(m => {
+                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, '')});
+                            if (!pages[page]) {
+                                let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
+                                diagnostics.push({
+                                    severity: DiagnosticSeverity.Warning,
+                                    range: {
+                                        start: { line: i, character: pagePos },
+                                        end: { line: i, character: pagePos + page.length }
+                                    },
+                                    message: `"${page}" page doesn't exists`,
+                                    source: 'ex'
+                                });
+                            }
+                            if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject})) {
+                                let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
+                                diagnostics.push({
+                                    severity: DiagnosticSeverity.Warning,
+                                    range: {
+                                        start: { line: i, character: pageObjectPos },
+                                        end: { line: i, character: pageObjectPos + pageObject.length }
+                                    },
+                                    message: `"${pageObject}" page object for "${page}" page doesn't exists`,
+                                    source: 'ex'
+                                });
+                            }
+                        })
+                    }
                 }
             }
         }
