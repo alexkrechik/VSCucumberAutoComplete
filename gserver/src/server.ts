@@ -88,7 +88,7 @@ function handleLine(line: String): stepLine {
     };
 }
 
-//Validate all the Gherkin lines using steps[]
+//Validate all the Gherkin lines using steps[] and pages{}
 function validate(text: String): Diagnostic[] {
     let lines = text.split(/\r?\n/g);
     let diagnostics: Diagnostic[] = [];
@@ -249,6 +249,43 @@ function getPageObjectCompletion(page: string): CompletionItem[] {
     })
 }
 
+//Current position of our cursor
+enum PositionType {
+    Step,
+    Page,
+    PageObject
+}
+
+interface PositionObject {
+    type: PositionType,
+    page?: string,
+    pageObject?: string
+}
+
+function getPositionObject(line: string, position: number): PositionObject {
+    let slicedLine = line.slice(0, position);
+    let match = slicedLine.match(/"/g);
+    if (match && match.length % 2) {
+        //Double quote was opened but was not closed
+        let pageMatch = slicedLine.match(/"([^"]*)"\."([^"]*)$/);
+        let endLine = line.slice(position).replace(/".*/, '');
+        if (pageMatch) {
+            return {
+                type: PositionType.PageObject,
+                page: pageMatch[1],
+                pageObject: pageMatch[2] + endLine
+            }
+        } else {
+            return {
+                type: PositionType.Page,
+                page: slicedLine.match(/([^"]*)$/)[1] + endLine
+            };
+        }
+    } else {
+        return {type: PositionType.Step};
+    }
+}
+
 connection.onInitialize((params): InitializeResult => {
     workspaceRoot = params.rootPath;
     // setSteps();
@@ -291,20 +328,15 @@ connection.onDidChangeConfiguration((change) => {
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
 	let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
-    let slicedLine = line.slice(0, position.position.character);
-    let match = slicedLine.match(/"/g);
-    if (match && match.length % 2) {
-        //Double quote was opened but was not closed
-        let pageMatch = slicedLine.match(/"([^"]*)"\."[^"]*$/);
-        if (pageMatch) {
-            //We have some page so should show all the page objects
-            let page = pageMatch[1];
-            return getPageObjectCompletion(page);
-        } else {
+    let char = position.position.character;
+    let positionObj = getPositionObject(line, char);
+    switch(positionObj.type) {
+        case PositionType.Page:
             return getPageCompletion();
-        }
-    } else {
-        return getStepsCompletion();
+        case PositionType.Step:
+            return getStepsCompletion();
+        case PositionType.PageObject:
+            return getPageObjectCompletion(positionObj.page);
     }
 });
 
@@ -324,9 +356,19 @@ documents.onDidChangeContent((change): void => {
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
+    let char = position.position.character;
     let match = handleLine(line);
     if (match.stepMatch) {
-        return match.stepMatch.def;
+        let positionObj = getPositionObject(line, char);
+        switch (positionObj.type) {
+            case PositionType.Page:
+                return pages[positionObj.page].def;
+            case PositionType.Step:
+                return match.stepMatch.def;
+            case PositionType.PageObject:
+                return pages[positionObj.page].objects
+                    .find((el)=>{return positionObj.pageObject === el.text}).def;
+        }
     }
 })
 
