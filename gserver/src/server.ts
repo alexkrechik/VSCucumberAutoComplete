@@ -193,16 +193,22 @@ function getFileSteps(filePath: string): Step[] {
 }
 
 function getPageObjects(text: string, path: string): PageObject[] {
-    let pageObects = eval(text)();
-    let zeroPos = Position.create(0, 0);
-    return Object.keys(pageObects).map((key) => {
-        return {
-            id: 'pageObect' + (new Date().getTime()),
-            text: key,
-            desc: pageObects[key],
-            def: Location.create('file://' + path, Range.create(zeroPos, zeroPos))
+    let res = [];
+    text.split(/\r?\n/g).forEach((line, i) => {
+        let poMatch = line.match(/[\s\.]([a-zA-z][^\s^\.]*)\s*[:=]/);
+        if (poMatch) {
+            let pos = Position.create(i, 0);
+            if (!res.find(v => {return v.text === poMatch[1]})) {
+                res.push({
+                    id: 'pageObect' + (new Date().getTime()),
+                    text: poMatch[1],
+                    desc: line,
+                    def: Location.create('file://' + path, Range.create(pos, pos))
+                });                
+            }
         }
-    })
+    });
+    return res;
 }
 
 //Get Page object
