@@ -3,7 +3,7 @@
   "description": "VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete",
   "author": "Alexander Krechik",
   "version": "0.1.0",
-  "publisher": "vscode",
+  "publisher": "alexkrechik",
   "engines": {"vscode": "^1.4.0"},
   "categories": ["Languages"],
   "activationEvents": ["onLanguage:feature"],
