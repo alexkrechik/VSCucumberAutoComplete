@@ -17,9 +17,17 @@
 
 ```javascript
 {
-    "languageServerExample.steps": [
+    "cucumberautocomplete.steps": [
         "test/features/step_definitions",
         "node_modules/@revjet/csp-qa/src/steps"
-    ]
+    ],
+    "cucumberautocomplete.pages": {
+        "users": "test/features/support/page_objects/users.storage.js",
+        "pathes": "test/features/support/page_objects/pathes.storage.js",
+        "login": "test/features/support/page_objects/login.page.js",
+        "storymode": "test/features/support/page_objects/storymode.page.js",
+        "main": "test/features/support/page_objects/main.page.js",
+        "adProperties": "test/features/support/page_objects/ad.properties.storage.js"
+    }
 }
 ```
