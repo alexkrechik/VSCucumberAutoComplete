@@ -3,12 +3,15 @@
   "description": "Server part of VsCucumberAutoComplete extension",
   "version": "0.0.1",
   "author": "Alexander Krechik",
-  "engines": {"node": "*"},
+  "engines": {
+    "node": "*"
+  },
   "dependencies": {
     "vscode-languageserver": "^2.6.2"
   },
   "devDependencies": {
     "@types/node": "^6.0.52",
+    "tslint": "^4.2.0",
     "typescript": "^2.1.4",
     "vscode": "^1.0.3"
   },
