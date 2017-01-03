@@ -38,7 +38,7 @@ interface Step {
     def: Definition
 }
 
-interface stepLine {
+interface StepLine {
     //Line without 'Given|When|Then|And' part
     stepPart: string,
     //Step, matched to the stepPart, or null if absent
@@ -65,7 +65,7 @@ interface Page {
 }
 
 //Return start, end position and matched (if any) Gherkin step
-function handleLine(line: String): stepLine {
+function handleLine(line: String): StepLine {
     let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     let typeRegEx = /Given |When |Then |And /;
     let typeMatch = line.match(typeRegEx);
@@ -111,7 +111,7 @@ function validate(text: String): Diagnostic[] {
                     let match = line.match(/"[^"]*"."[^"]*"/g);
                     if (match) {
                         match.forEach(m => {
-                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, '')});
+                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, ''); });
                             if (!pages[page]) {
                                 let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
                                 diagnostics.push({
@@ -124,7 +124,7 @@ function validate(text: String): Diagnostic[] {
                                     source: 'ex'
                                 });
                             }
-                            if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject})) {
+                            if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject; })) {
                                 let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
                                 diagnostics.push({
                                     severity: DiagnosticSeverity.Warning,
@@ -136,17 +136,17 @@ function validate(text: String): Diagnostic[] {
                                     source: 'ex'
                                 });
                             }
-                        })
+                        });
                     }
                 }
             }
         }
-    })
+    });
     return diagnostics;
 }
 
 interface Settings {
-	cucumberautocomplete: AppSettings
+    cucumberautocomplete: AppSettings
 }
 
 interface AppSettings {
@@ -159,7 +159,7 @@ function getAllPathSteps(stepsPath): Step[] {
     let f = fs.lstatSync(stepsPath);
     if (f.isFile()) {
         return getFileSteps(stepsPath);
-    } else if(f.isDirectory()) {
+    } else if (f.isDirectory()) {
         let res = [];
         fs.readdirSync(stepsPath).forEach(val => {
             let filePath = stepsPath + '/' + val;
@@ -198,13 +198,13 @@ function getPageObjects(text: string, path: string): PageObject[] {
         let poMatch = line.match(/[\s\.]([a-zA-z][^\s^\.]*)\s*[:=]/);
         if (poMatch) {
             let pos = Position.create(i, 0);
-            if (!res.find(v => {return v.text === poMatch[1]})) {
+            if (!res.find(v => {return v.text === poMatch[1]; })) {
                 res.push({
                     id: 'pageObect' + (new Date().getTime()),
                     text: poMatch[1],
                     desc: line,
                     def: Location.create('file://' + path, Range.create(pos, pos))
-                });                
+                });
             }
         }
     });
@@ -221,7 +221,7 @@ function getPage(name: string, path: string): Page {
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
         def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
         objects: getPageObjects(text, path)
-    }
+    };
 }
 
 //Get steps completion
@@ -231,8 +231,8 @@ function getStepsCompletion(): CompletionItem[] {
             label: step.text,
             kind: CompletionItemKind.Function,
             data: step.id
-        }
-    })
+        };
+    });
 }
 
 function getPageCompletion(): CompletionItem[] {
@@ -241,7 +241,7 @@ function getPageCompletion(): CompletionItem[] {
             label: pages[page].text,
             kind: CompletionItemKind.Function,
             data: pages[page].id
-        }
+        };
     });
 }
 
@@ -251,8 +251,8 @@ function getPageObjectCompletion(page: string): CompletionItem[] {
             label: pageObject.text,
             kind: CompletionItemKind.Function,
             data: pageObject.id
-        }
-    })
+        };
+    });
 }
 
 //Current position of our cursor
@@ -280,7 +280,7 @@ function getPositionObject(line: string, position: number): PositionObject {
                 type: PositionType.PageObject,
                 page: pageMatch[1],
                 pageObject: pageMatch[2] + endLine
-            }
+            };
         } else {
             return {
                 type: PositionType.Page,
@@ -305,11 +305,11 @@ connection.onInitialize((params): InitializeResult => {
             },
             definitionProvider : true
         }
-    }
+    };
 });
 
 connection.onDidChangeConfiguration((change) => {
-    
+
     //Get settings object
     let settings = <Settings>change.settings;
 
@@ -319,7 +319,7 @@ connection.onDidChangeConfiguration((change) => {
     stepsPathes.forEach((path) => {
         path = workspaceRoot + '/' + path;
         steps = steps.concat(getAllPathSteps(path));
-    })
+    });
 
     //Populate pages array
     let pagesObj = settings.cucumberautocomplete.pages;
@@ -327,16 +327,16 @@ connection.onDidChangeConfiguration((change) => {
     Object.keys(pagesObj).forEach((key) => {
         let path = workspaceRoot + '/' + pagesObj[key];
         pages[key] = getPage(key, path);
-    })
+    });
 
-})
+});
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
-	let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
+    let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
     let positionObj = getPositionObject(line, char);
-    switch(positionObj.type) {
+    switch (positionObj.type) {
         case PositionType.Page:
             return getPageCompletion();
         case PositionType.Step:
@@ -347,17 +347,17 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	let step = steps.find((el)=>{return el.id === item.data});
+    let step = steps.find((el) => {return el.id === item.data; });
     item.detail = step.text;
     item.documentation = step.desc;
-	return item;
+    return item;
 });
 
 documents.onDidChangeContent((change): void => {
     let changeText = change.document.getText();
     let diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
-})
+});
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
@@ -373,9 +373,9 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
                 return match.stepMatch.def;
             case PositionType.PageObject:
                 return pages[positionObj.page].objects
-                    .find((el)=>{return positionObj.pageObject === el.text}).def;
+                    .find((el) => {return positionObj.pageObject === el.text; }).def;
         }
     }
-})
+});
 
 connection.listen();
