@@ -1,6 +1,6 @@
 {
   "name": "cucumberautocomplete",
-  "description": "VSCode Gherkin Language Autocompleter",
+  "description": "VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete",
   "author": "Alexander Krechik",
   "version": "0.1.0",
   "publisher": "vscode",
