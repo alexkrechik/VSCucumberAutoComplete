@@ -233,10 +233,22 @@ function getPage(name: string, path: string): Page {
 }
 
 //Get steps completion
-function getStepsCompletion(): CompletionItem[] {
-    return steps.map((step) => {
+function getStepsCompletion(line: string): CompletionItem[] {
+    //Get line part without gherkin (Given When Then)
+    let stepPart = line.replace(gerkinRegEx, '');
+    //Return all the braces into default state
+    stepPart = stepPart.replace(/"[^"]*"/g, '""');
+    //We should not obtain last word
+    stepPart = stepPart.replace(/[^\s]+$/, '');
+    //We should replace/search only string beginning
+    let stepPartRe = new RegExp('^' + stepPart);
+    return steps
+    .filter(el => {
+        return el.text.search(stepPartRe) !== -1;
+    })
+    .map(step => {
         return {
-            label: step.text,
+            label: step.text.replace(stepPartRe, ''),
             kind: CompletionItemKind.Function,
             data: step.id
         };
@@ -349,7 +361,7 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
             case PositionType.Page:
                 return getPageCompletion();
             case PositionType.Step:
-                return getStepsCompletion();
+                return getStepsCompletion(line);
             case PositionType.PageObject:
                 return getPageObjectCompletion(positionObj.page);
         }
