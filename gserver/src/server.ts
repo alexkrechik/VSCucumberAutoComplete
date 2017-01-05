@@ -32,6 +32,14 @@ let pages = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And) /;
 
+//get unique id for the elements ids
+let id = {
+    x: 0,
+    get() {
+        return this.x++;
+    }
+};
+
 interface Step {
     id: string,
     reg: RegExp,
@@ -181,7 +189,7 @@ function getFileSteps(filePath: string): Step[] {
             let match = line.match(/\/[^\/]*\//);
             let pos = Position.create(lineIndex, match.index);
             steps.push({
-                id: 'step' + (new Date().getTime()),
+                id: 'step' + id.get(),
                 reg: new RegExp(match[0].replace(/\//g, '')),
                 text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""'),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
@@ -200,7 +208,7 @@ function getPageObjects(text: string, path: string): PageObject[] {
             let pos = Position.create(i, 0);
             if (!res.find(v => {return v.text === poMatch[1]; })) {
                 res.push({
-                    id: 'pageObect' + (new Date().getTime()),
+                    id: 'pageObect' + id.get(),
                     text: poMatch[1],
                     desc: line,
                     def: Location.create('file://' + path, Range.create(pos, pos))
@@ -216,7 +224,7 @@ function getPage(name: string, path: string): Page {
     let text = fs.readFileSync(path, 'utf8');
     let zeroPos = Position.create(0, 0);
     return {
-        id: 'page' + (new Date().getTime()),
+        id: 'page' + id.get(),
         text: name,
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
         def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
