@@ -29,6 +29,8 @@ let workspaceRoot: string;
 let steps = [];
 // Object will be populated with all the pages found
 let pages = {};
+//Gerkin Reg ex
+let gerkinRegEx = /^\s*(Given|When|Then|And) /;
 
 interface Step {
     id: string,
@@ -66,7 +68,6 @@ interface Page {
 
 //Return start, end position and matched (if any) Gherkin step
 function handleLine(line: String): StepLine {
-    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     let typeRegEx = /Given |When |Then |And /;
     let typeMatch = line.match(typeRegEx);
     let typePart = typeMatch[0];
@@ -92,7 +93,6 @@ function handleLine(line: String): StepLine {
 function validate(text: String): Diagnostic[] {
     let lines = text.split(/\r?\n/g);
     let diagnostics: Diagnostic[] = [];
-    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     lines.forEach((line, i) => {
         if (line.search(gerkinRegEx) !== -1) {
             let res = handleLine(line);
@@ -336,13 +336,15 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     let line = text[position.position.line];
     let char = position.position.character;
     let positionObj = getPositionObject(line, char);
-    switch (positionObj.type) {
-        case PositionType.Page:
-            return getPageCompletion();
-        case PositionType.Step:
-            return getStepsCompletion();
-        case PositionType.PageObject:
-            return getPageObjectCompletion(positionObj.page);
+    if (line.search(gerkinRegEx) !== -1) {
+        switch (positionObj.type) {
+            case PositionType.Page:
+                return getPageCompletion();
+            case PositionType.Step:
+                return getStepsCompletion();
+            case PositionType.PageObject:
+                return getPageObjectCompletion(positionObj.page);
+        }
     }
 });
 
