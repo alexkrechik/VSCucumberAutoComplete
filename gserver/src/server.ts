@@ -15,7 +15,12 @@ import {
     Definition,
     Location,
     Range,
-    Position
+    Position,
+    DocumentFormattingParams,
+    TextEdit,
+    DocumentRangeFormattingParams,
+    FormattingOptions,
+    DocumentOnTypeFormattingParams
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
@@ -323,7 +328,9 @@ connection.onInitialize((params): InitializeResult => {
             completionProvider: {
                 resolveProvider: true,
             },
-            definitionProvider : true
+            definitionProvider : true,
+            documentFormattingProvider : true,
+            documentRangeFormattingProvider: true
         }
     };
 });
@@ -398,6 +405,74 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
                     .find((el) => {return positionObj.pageObject === el.text; }).def;
         }
     }
+});
+
+interface FormatConf {
+    text: string,
+    indents: number
+}
+
+let formatConf = [
+    {text: 'Feature:', indents: 0},
+    {text: 'Scenario:', indents: 1},
+    {text: 'Given', indents: 2},
+    {text: 'When', indents: 2},
+    {text: 'Then', indents: 2},
+    {text: 'And', indents: 2},
+    {text: '#', indents: 2}
+];
+
+function format(options: FormattingOptions, text: string, range?: Range): TextEdit  {
+
+    //Get indent
+    let spaces = options.insertSpaces;
+    let tabSize = options.tabSize;
+    let indent;
+    if (spaces) {
+        indent = ' '.repeat(tabSize);
+    } else {
+        indent = '\t';
+    }
+
+    //Get text array
+    let textArr = text.split(/\r?\n/g);
+
+    //Use whole document if no range provided
+    if (range) {
+        range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
+        textArr = textArr.splice(range.start.line, range.end.line - range.start.line + 1);
+    } else {
+        range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+    }
+
+    //Get formatted array
+    let indentsCount = 0;
+    let newTextArr = textArr.map(line => {
+        if (line.search(/^\s*$/) !== -1) {
+            return '';
+        } else {
+            let foundFormat = formatConf.find(conf => {
+                return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
+            });
+            if (foundFormat) {
+                indentsCount = foundFormat.indents;
+            }
+            return line.replace(/^\s*/, indent.repeat(indentsCount));
+        }
+    });
+
+    //Return TextEdit
+    return TextEdit.replace(range, newTextArr.join('\r\n'));
+}
+
+connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
+    let text = documents.get(params.textDocument.uri).getText();
+    return [format(params.options, text)];
+});
+
+connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
+    let text = documents.get(params.textDocument.uri).getText();
+    return [format(params.options, text, params.range)];
 });
 
 connection.listen();
