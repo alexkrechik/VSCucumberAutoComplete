@@ -19,8 +19,7 @@ import {
     DocumentFormattingParams,
     TextEdit,
     DocumentRangeFormattingParams,
-    FormattingOptions,
-    DocumentOnTypeFormattingParams
+    FormattingOptions
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
