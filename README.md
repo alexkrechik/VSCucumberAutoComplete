@@ -9,7 +9,7 @@ VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete
 * Definitions support for all the steps parts
 * Document format support
 
-![](img/vscode.gif)
+![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/img/vscode.gif)
 ## How to use:
 1. Open your app in vscode
 2. Install cucumberautocomplete extension
