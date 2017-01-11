@@ -120,7 +120,7 @@ function validate(text: String): Diagnostic[] {
                 });
             } else {
                 if (Object.keys(pages).length) {
-                    let match = line.match(/"[^"]*"."[^"]*"/g);
+                    let match = line.match(/"[^"^\s]*"."[^"^\s]*"/g);
                     if (match) {
                         match.forEach(m => {
                             let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, ''); });
