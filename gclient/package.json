@@ -1,48 +1,66 @@
 {
-  "name": "cucumberautocomplete",
-  "description": "VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete",
-  "author": "Alexander Krechik",
-  "version": "0.1.0",
-  "publisher": "vscode",
-  "engines": {"vscode": "^1.4.0"},
-  "categories": ["Languages"],
-  "activationEvents": ["onLanguage:feature"],
-  "main": "./out/src/extension",
-  "contributes": {
-    "languages": [
-      {
-        "id": "feature",
-        "aliases": [
-          "feature",
-          "gherkin",
-          "Gherkin",
-          "cucumber"
-        ],
-        "extensions": [".feature"],
-        "configuration": "./language-configuration.json"
-      }
+    "name": "cucumberautocomplete",
+    "version": "1.0.5",
+    "publisher": "alexkrechik",
+    "engines": {
+        "vscode": "^1.4.0"
+    },
+    "license": "MIT",
+    "displayName": "Cucumber Auto Complete",
+    "description": "VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete",
+    "categories": [
+        "Languages"
     ],
-    "grammars": [
-      {
-        "language": "feature",
-        "scopeName": "text.gherkin.feature",
-        "path": "./syntaxes/feature.tmLanguage"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
-    "update-vscode": "node ./node_modules/vscode/bin/install",
-    "postinstall": "node ./node_modules/vscode/bin/install"
-  },
-  "devDependencies": {
-    "@types/node": "^6.0.52",
-    "jscs": "^3.0.7",
-    "typescript": "^2.1.4",
-    "vscode": "^1.0.3"
-  },
-  "dependencies": {
-    "vscode-languageclient": "^2.6.3"
-  }
+    "keywords": [
+        "gherkin",
+        "cucumber",
+        "feature",
+        "autocomplete"
+    ],
+    "main": "./out/src/extension",
+    "activationEvents": [
+        "onLanguage:feature"
+    ],
+    "author": "Alexander Krechik",
+    "icon": "img/icon.png",
+    "contributes": {
+        "languages": [
+            {
+                "id": "feature",
+                "aliases": [
+                    "feature",
+                    "gherkin",
+                    "Gherkin",
+                    "cucumber"
+                ],
+                "extensions": [
+                    ".feature"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "feature",
+                "scopeName": "text.gherkin.feature",
+                "path": "./syntaxes/feature.tmLanguage"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "update-vscode": "node ./node_modules/vscode/bin/install",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@types/node": "^6.0.52",
+        "jscs": "^3.0.7",
+        "typescript": "^2.1.4",
+        "vscode": "^1.0.3"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^2.6.3"
+    }
 }

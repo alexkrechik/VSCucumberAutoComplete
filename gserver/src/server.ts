@@ -15,7 +15,11 @@ import {
     Definition,
     Location,
     Range,
-    Position
+    Position,
+    DocumentFormattingParams,
+    TextEdit,
+    DocumentRangeFormattingParams,
+    FormattingOptions
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
@@ -29,6 +33,16 @@ let workspaceRoot: string;
 let steps = [];
 // Object will be populated with all the pages found
 let pages = {};
+//Gerkin Reg ex
+let gerkinRegEx = /^\s*(Given|When|Then|And) /;
+
+//get unique id for the elements ids
+let id = {
+    x: 0,
+    get() {
+        return this.x++;
+    }
+};
 
 interface Step {
     id: string,
@@ -66,7 +80,6 @@ interface Page {
 
 //Return start, end position and matched (if any) Gherkin step
 function handleLine(line: String): StepLine {
-    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     let typeRegEx = /Given |When |Then |And /;
     let typeMatch = line.match(typeRegEx);
     let typePart = typeMatch[0];
@@ -92,7 +105,6 @@ function handleLine(line: String): StepLine {
 function validate(text: String): Diagnostic[] {
     let lines = text.split(/\r?\n/g);
     let diagnostics: Diagnostic[] = [];
-    let gerkinRegEx = /^\s*(Given|When|Then|And) /;
     lines.forEach((line, i) => {
         if (line.search(gerkinRegEx) !== -1) {
             let res = handleLine(line);
@@ -181,7 +193,7 @@ function getFileSteps(filePath: string): Step[] {
             let match = line.match(/\/[^\/]*\//);
             let pos = Position.create(lineIndex, match.index);
             steps.push({
-                id: 'step' + (new Date().getTime()),
+                id: 'step' + id.get(),
                 reg: new RegExp(match[0].replace(/\//g, '')),
                 text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""'),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
@@ -200,7 +212,7 @@ function getPageObjects(text: string, path: string): PageObject[] {
             let pos = Position.create(i, 0);
             if (!res.find(v => {return v.text === poMatch[1]; })) {
                 res.push({
-                    id: 'pageObect' + (new Date().getTime()),
+                    id: 'pageObect' + id.get(),
                     text: poMatch[1],
                     desc: line,
                     def: Location.create('file://' + path, Range.create(pos, pos))
@@ -216,7 +228,7 @@ function getPage(name: string, path: string): Page {
     let text = fs.readFileSync(path, 'utf8');
     let zeroPos = Position.create(0, 0);
     return {
-        id: 'page' + (new Date().getTime()),
+        id: 'page' + id.get(),
         text: name,
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
         def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
@@ -225,10 +237,22 @@ function getPage(name: string, path: string): Page {
 }
 
 //Get steps completion
-function getStepsCompletion(): CompletionItem[] {
-    return steps.map((step) => {
+function getStepsCompletion(line: string): CompletionItem[] {
+    //Get line part without gherkin (Given When Then)
+    let stepPart = line.replace(gerkinRegEx, '');
+    //Return all the braces into default state
+    stepPart = stepPart.replace(/"[^"]*"/g, '""');
+    //We should not obtain last word
+    stepPart = stepPart.replace(/[^\s]+$/, '');
+    //We should replace/search only string beginning
+    let stepPartRe = new RegExp('^' + stepPart);
+    return steps
+    .filter(el => {
+        return el.text.search(stepPartRe) !== -1;
+    })
+    .map(step => {
         return {
-            label: step.text,
+            label: step.text.replace(stepPartRe, ''),
             kind: CompletionItemKind.Function,
             data: step.id
         };
@@ -303,7 +327,9 @@ connection.onInitialize((params): InitializeResult => {
             completionProvider: {
                 resolveProvider: true,
             },
-            definitionProvider : true
+            definitionProvider : true,
+            documentFormattingProvider : true,
+            documentRangeFormattingProvider: true
         }
     };
 });
@@ -336,13 +362,15 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     let line = text[position.position.line];
     let char = position.position.character;
     let positionObj = getPositionObject(line, char);
-    switch (positionObj.type) {
-        case PositionType.Page:
-            return getPageCompletion();
-        case PositionType.Step:
-            return getStepsCompletion();
-        case PositionType.PageObject:
-            return getPageObjectCompletion(positionObj.page);
+    if (line.search(gerkinRegEx) !== -1) {
+        switch (positionObj.type) {
+            case PositionType.Page:
+                return getPageCompletion();
+            case PositionType.Step:
+                return getStepsCompletion(line);
+            case PositionType.PageObject:
+                return getPageObjectCompletion(positionObj.page);
+        }
     }
 });
 
@@ -376,6 +404,74 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
                     .find((el) => {return positionObj.pageObject === el.text; }).def;
         }
     }
+});
+
+interface FormatConf {
+    text: string,
+    indents: number
+}
+
+let formatConf = [
+    {text: 'Feature:', indents: 0},
+    {text: 'Scenario:', indents: 1},
+    {text: 'Given', indents: 2},
+    {text: 'When', indents: 2},
+    {text: 'Then', indents: 2},
+    {text: 'And', indents: 2},
+    {text: '#', indents: 2}
+];
+
+function format(options: FormattingOptions, text: string, range?: Range): TextEdit  {
+
+    //Get indent
+    let spaces = options.insertSpaces;
+    let tabSize = options.tabSize;
+    let indent;
+    if (spaces) {
+        indent = ' '.repeat(tabSize);
+    } else {
+        indent = '\t';
+    }
+
+    //Get text array
+    let textArr = text.split(/\r?\n/g);
+
+    //Use whole document if no range provided
+    if (range) {
+        range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
+        textArr = textArr.splice(range.start.line, range.end.line - range.start.line + 1);
+    } else {
+        range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+    }
+
+    //Get formatted array
+    let indentsCount = 0;
+    let newTextArr = textArr.map(line => {
+        if (line.search(/^\s*$/) !== -1) {
+            return '';
+        } else {
+            let foundFormat = formatConf.find(conf => {
+                return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
+            });
+            if (foundFormat) {
+                indentsCount = foundFormat.indents;
+            }
+            return line.replace(/^\s*/, indent.repeat(indentsCount));
+        }
+    });
+
+    //Return TextEdit
+    return TextEdit.replace(range, newTextArr.join('\r\n'));
+}
+
+connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
+    let text = documents.get(params.textDocument.uri).getText();
+    return [format(params.options, text)];
+});
+
+connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
+    let text = documents.get(params.textDocument.uri).getText();
+    return [format(params.options, text, params.range)];
 });
 
 connection.listen();
