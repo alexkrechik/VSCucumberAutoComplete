@@ -391,18 +391,18 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
-    let match = handleLine(line);
-    if (match.stepMatch) {
-        let positionObj = getPositionObject(line, char);
-        switch (positionObj.type) {
-            case PositionType.Page:
-                return pages[positionObj.page].def;
-            case PositionType.Step:
+    let positionObj = getPositionObject(line, char);
+    switch (positionObj.type) {
+        case PositionType.Page:
+            return pages[positionObj.page].def;
+        case PositionType.Step:
+            let match = handleLine(line);
+            if (match.stepMatch) {
                 return match.stepMatch.def;
-            case PositionType.PageObject:
-                return pages[positionObj.page].objects
-                    .find((el) => {return positionObj.pageObject === el.text; }).def;
-        }
+            }
+        case PositionType.PageObject:
+            return pages[positionObj.page].objects
+                .find((el) => { return positionObj.pageObject === el.text; }).def;
     }
 });
 
