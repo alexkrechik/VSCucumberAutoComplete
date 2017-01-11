@@ -1,6 +1,6 @@
 {
     "name": "cucumberautocomplete",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.4.0"
