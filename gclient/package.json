@@ -45,7 +45,20 @@
                 "scopeName": "text.gherkin.feature",
                 "path": "./syntaxes/feature.tmLanguage"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "Cucumber Auto Complete settings",
+            "properties": {
+                "cucumberautocomplete.steps": {
+                    "title": "Path or array of pathes to the steps files or folders with steps files",
+                    "type": ["array", "string"]
+                },
+                "cucumberautocomplete.pages": {
+                    "title": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
+                    "type": ["null", "object"]
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
