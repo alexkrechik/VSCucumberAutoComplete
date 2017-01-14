@@ -190,12 +190,16 @@ function getFileSteps(filePath: string): Step[] {
     let steps = [];
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
         if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
-            let match = line.match(/\/[^\/]*\//);
+            //Get the '//' match
+            let match = line.match(/\/.*\//);
+            //Get matched text, remove start and finish slashes
+            let matchText = match[0].replace(/^\/|\/$/g, '');
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
-                reg: new RegExp(match[0].replace(/\//g, '')),
-                text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""'),
+                reg: new RegExp(matchText),
+                //We should remove text between quotes, '^|$' regexp marks and backslashes
+                text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
                 def: Location.create('file://' + filePath, Range.create(pos, pos))
             });
