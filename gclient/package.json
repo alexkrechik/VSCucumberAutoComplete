@@ -50,11 +50,11 @@
             "title": "Cucumber Auto Complete settings",
             "properties": {
                 "cucumberautocomplete.steps": {
-                    "title": "Path or array of pathes to the steps files or folders with steps files",
+                    "description": "Path or array of pathes to the steps files or folders with steps files",
                     "type": ["array", "string"]
                 },
                 "cucumberautocomplete.pages": {
-                    "title": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
+                    "description": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
                     "type": ["null", "object"]
                 }
             }
