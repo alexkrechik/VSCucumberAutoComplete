@@ -4,10 +4,12 @@ VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete
 ## This extension adds rich language support for the Cucumber (Gherkin) language to VS Code, including:
 * Syntax highlight
 * Auto-parsing of feature steps and page objects from pathes, provided in settings.json
-* Autocomplete of steps, page and page objects
+* Autocomplete of steps, pages and page objects
 * Ontype validation for all the steps and, if present, pages and page objects
 * Definitions support for all the steps parts
 * Document format support
+
+All the steps and page objects will be re-populated after every .feature file opened or after every symbol in .featyre file typed.
 
 ![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
 ## How to use:

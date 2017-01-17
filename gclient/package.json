@@ -1,6 +1,6 @@
 {
     "name": "cucumberautocomplete",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.4.0"
@@ -45,7 +45,20 @@
                 "scopeName": "text.gherkin.feature",
                 "path": "./syntaxes/feature.tmLanguage"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "Cucumber Auto Complete settings",
+            "properties": {
+                "cucumberautocomplete.steps": {
+                    "description": "Path or array of pathes to the steps files or folders with steps files",
+                    "type": ["array", "string"]
+                },
+                "cucumberautocomplete.pages": {
+                    "description": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
+                    "type": ["null", "object"]
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",

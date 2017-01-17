@@ -35,6 +35,8 @@ let steps = [];
 let pages = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And) /;
+// Object, which contains current configuration
+let settings;
 
 //get unique id for the elements ids
 let id = {
@@ -120,7 +122,7 @@ function validate(text: String): Diagnostic[] {
                 });
             } else {
                 if (Object.keys(pages).length) {
-                    let match = line.match(/"[^"]*"."[^"]*"/g);
+                    let match = line.match(/"[^"^\s]*"."[^"^\s]*"/g);
                     if (match) {
                         match.forEach(m => {
                             let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, ''); });
@@ -190,12 +192,16 @@ function getFileSteps(filePath: string): Step[] {
     let steps = [];
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
         if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
-            let match = line.match(/\/[^\/]*\//);
+            //Get the '//' match
+            let match = line.match(/\/.*\//);
+            //Get matched text, remove start and finish slashes
+            let matchText = match[0].replace(/^\/|\/$/g, '');
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
-                reg: new RegExp(match[0].replace(/\//g, '')),
-                text: match[0].replace(/\//g, '').replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""'),
+                reg: new RegExp(matchText),
+                //We should remove text between quotes, '^|$' regexp marks and backslashes
+                text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
                 def: Location.create('file://' + filePath, Range.create(pos, pos))
             });
@@ -334,11 +340,7 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
-connection.onDidChangeConfiguration((change) => {
-
-    //Get settings object
-    let settings = <Settings>change.settings;
-
+function populateStepsAndPageObjects() {
     //Populate steps array
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
@@ -354,7 +356,15 @@ connection.onDidChangeConfiguration((change) => {
         let path = workspaceRoot + '/' + pagesObj[key];
         pages[key] = getPage(key, path);
     });
+}
 
+connection.onDidChangeConfiguration((change) => {
+    //Get settings object
+    settings = <Settings>change.settings;
+});
+
+documents.onDidOpen(() => {
+    settings && populateStepsAndPageObjects();
 });
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
@@ -385,24 +395,26 @@ documents.onDidChangeContent((change): void => {
     let changeText = change.document.getText();
     let diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
+    //Populate steps and page objects after every symbol typed
+    settings && populateStepsAndPageObjects();
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
-    let match = handleLine(line);
-    if (match.stepMatch) {
-        let positionObj = getPositionObject(line, char);
-        switch (positionObj.type) {
-            case PositionType.Page:
-                return pages[positionObj.page].def;
-            case PositionType.Step:
+    let positionObj = getPositionObject(line, char);
+    switch (positionObj.type) {
+        case PositionType.Page:
+            return pages[positionObj.page].def;
+        case PositionType.Step:
+            let match = handleLine(line);
+            if (match.stepMatch) {
                 return match.stepMatch.def;
-            case PositionType.PageObject:
-                return pages[positionObj.page].objects
-                    .find((el) => {return positionObj.pageObject === el.text; }).def;
-        }
+            }
+        case PositionType.PageObject:
+            return pages[positionObj.page].objects
+                .find((el) => { return positionObj.pageObject === el.text; }).def;
     }
 });
 
