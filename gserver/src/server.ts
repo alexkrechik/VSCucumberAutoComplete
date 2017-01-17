@@ -35,6 +35,8 @@ let steps = [];
 let pages = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And) /;
+// Object, which contains current configuration
+let settings;
 
 //get unique id for the elements ids
 let id = {
@@ -338,11 +340,7 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
-connection.onDidChangeConfiguration((change) => {
-
-    //Get settings object
-    let settings = <Settings>change.settings;
-
+function populateStepsAndPageObjects() {
     //Populate steps array
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
@@ -358,7 +356,15 @@ connection.onDidChangeConfiguration((change) => {
         let path = workspaceRoot + '/' + pagesObj[key];
         pages[key] = getPage(key, path);
     });
+}
 
+connection.onDidChangeConfiguration((change) => {
+    //Get settings object
+    settings = <Settings>change.settings;
+});
+
+documents.onDidOpen(() => {
+    settings && populateStepsAndPageObjects();
 });
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
@@ -389,6 +395,8 @@ documents.onDidChangeContent((change): void => {
     let changeText = change.document.getText();
     let diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
+    //Populate steps and page objects after every symbol typed
+    settings && populateStepsAndPageObjects();
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
