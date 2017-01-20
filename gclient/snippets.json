@@ -1,0 +1,66 @@
+{
+    "Insert 'Given' Step": {
+        "prefix": "Given",
+        "body": [
+            "Given ${Start to type your Given step here}"
+        ]
+    },
+    "Insert 'When' Step": {
+        "prefix": "When",
+        "body": [
+            "When ${Start to type your When step here}"
+        ]
+    },
+    "Insert 'Then' Step": {
+        "prefix": "Then",
+        "body": [
+            "Then ${Start to type your Then step here}"
+        ]
+    },
+    "Insert 'But' Step": {
+        "prefix": "But",
+        "body": [
+            "But ${Start to type your But step here}"
+        ]
+    },
+    "Insert 'And' Step": {
+        "prefix": "And",
+        "body": [
+            "And ${Start to type your And step here}"
+        ]
+    },
+    "Insert Feature": {
+        "prefix": "Feature",
+        "body": [
+            "Feature: ${Feature name}",
+            "",
+            "   ${Feature Description}"
+        ]
+    },
+    "Insert Scenario": {
+        "prefix": "Scenario",
+        "body": [
+            "Scenario: ${Scenario name}"
+        ]
+    },
+    "Insert Background": {
+        "prefix": "Background",
+        "body": [
+            "Background: ${Background name}"
+        ]
+    },
+    "Insert Scenario Outline": {
+        "prefix": "Scenario Outline",
+        "body": [
+            "Scenario Outline: ${Scenario Outline name}"
+        ]
+    },
+    "Insert Examples": {
+        "prefix": "Examples",
+        "body": [
+            "Examples:",
+                "| ${Header 1} | ${Header 2} | ${Header 3} |",
+                "| ${Value 1}  | ${Value 2}  | ${Value 3}  |"
+        ]
+    }
+}

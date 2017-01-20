@@ -21,7 +21,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for Cucumber feature files
 		documentSelector: ['feature'],
 		synchronize: {
-			configurationSection: 'cucumberautocomplete-server',
+			configurationSection: 'cucumberautocomplete',
 			// Notify the server about file changes to '.clientrc files contain in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
 		}
