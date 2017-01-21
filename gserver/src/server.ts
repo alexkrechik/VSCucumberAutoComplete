@@ -23,6 +23,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
+import * as glob from 'glob-fs';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -166,25 +167,6 @@ interface Settings {
 interface AppSettings {
     steps: string | string[],
     pages?: Object
-}
-
-//Check path, determine its type and get all the possible steps using getFileSteps()
-function getAllPathSteps(stepsPath): Step[] {
-    let f = fs.lstatSync(stepsPath);
-    if (f.isFile()) {
-        return getFileSteps(stepsPath);
-    } else if (f.isDirectory()) {
-        let res = [];
-        fs.readdirSync(stepsPath).forEach(val => {
-            let filePath = stepsPath + '/' + val;
-            if (fs.lstatSync(filePath).isFile() && filePath.match(/\.js/)) {
-                res = res.concat(getFileSteps(filePath));
-            }
-        });
-        return res;
-    } else {
-        throw new Error(stepsPath + 'is not a valid path');
-    }
 }
 
 //Get all the steps from provided file
@@ -345,8 +327,9 @@ function populateStepsAndPageObjects() {
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
-        path = workspaceRoot + '/' + path;
-        steps = steps.concat(getAllPathSteps(path));
+        glob({ gitignore: true }).readdirSync(path).forEach(f => {
+            steps = steps.concat(getFileSteps(f));
+        });
     });
 
     //Populate pages array

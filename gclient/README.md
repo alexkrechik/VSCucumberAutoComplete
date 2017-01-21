@@ -19,16 +19,12 @@ All the steps and page objects will be re-populated after every .feature file op
 4. Add all the needed settings to the settings.json file
 5. Reload app to apply all the extension changes
 
-## Cucumberautocomplete settings:
-1. **cucumberautocomplete.steps** array of files/folders, which contains steps_definition files. All the regexps, which will be found in these files, will be used as steps.
-2. **cucumberautocomplete.pages** - object, which consists of "page name" => "page object file path" pairs. All the variables-like words will be used as page objects.
-
 ### settings example:
 ```javascript
 {
     "cucumberautocomplete.steps": [
-        "test/features/step_definitions",
-        "node_modules/qa-lib/src/step_definitions"
+        "test/features/step_definitions/**/*.js",
+        "node_modules/qa-lib/src/step_definitions/*.js"
     ],
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
