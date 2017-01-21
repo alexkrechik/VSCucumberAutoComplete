@@ -171,10 +171,10 @@ interface AppSettings {
 
 //Add 'file://' for the non-windows OS's and file:/// for windows
 function getOSPath(path) {
-    if (/win/.test(require('process').platform)) {
-        path = 'file:///' + path;
+    if (/^win/.test(require('process').platform)) {
+        path = 'file:///' + workspaceRoot + '/' + path;
     } else {
-        path = 'file://' + path;
+        path = 'file:' + workspaceRoot + '/' + path;
     }
     return path;
 }
@@ -354,7 +354,7 @@ function populateStepsAndPageObjects() {
     let pagesObj = settings.cucumberautocomplete.pages;
     pages = {};
     Object.keys(pagesObj).forEach((key) => {
-        let path = workspaceRoot + '/' + pagesObj[key];
+        let path = pagesObj[key];
         pages[key] = getPage(key, path);
     });
 }
