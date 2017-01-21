@@ -7,7 +7,7 @@
     },
     "license": "MIT",
     "displayName": "Cucumber Auto Complete",
-    "description": "VSCode Cucumber (Gherkin) Language Support + Steps/PageObjects Autocomplete",
+    "description": "VSCode Cucumber (Gherkin) Full Language Support + Steps/PageObjects Autocomplete",
     "categories": [
         "Languages"
     ],
