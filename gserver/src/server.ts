@@ -169,6 +169,16 @@ interface AppSettings {
     pages?: Object
 }
 
+//Add 'file://' for the non-windows OS's and file:/// for windows
+function getOSPath(path) {
+    if (/win/.test(require('process').platform)) {
+        path = 'file:///' + path;
+    } else {
+        path = 'file://' + path;
+    }
+    return path;
+}
+
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
@@ -193,7 +203,7 @@ function getFileSteps(filePath: string): Step[] {
                 //We should remove text between quotes, '^|$' regexp marks and backslashes
                 text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create('file://' + filePath, Range.create(pos, pos))
+                def: Location.create(getOSPath(filePath), Range.create(pos, pos))
             });
         }
     });
@@ -211,7 +221,7 @@ function getPageObjects(text: string, path: string): PageObject[] {
                     id: 'pageObect' + id.get(),
                     text: poMatch[1],
                     desc: line,
-                    def: Location.create('file://' + path, Range.create(pos, pos))
+                    def: Location.create(getOSPath(path), Range.create(pos, pos))
                 });
             }
         }
@@ -227,7 +237,7 @@ function getPage(name: string, path: string): Page {
         id: 'page' + id.get(),
         text: name,
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-        def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
+        def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
         objects: getPageObjects(text, path)
     };
 }
