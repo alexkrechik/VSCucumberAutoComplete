@@ -1,3 +1,12 @@
+## 2.0.0 / 2017-01-21
+### Features:
+* [#24](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/24) Settings config file does not consider files on multiple levels
+* [#29](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/29) Snippets support
+* [#28](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/28) Multi - language extension support
+* [#26](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/26) Add support for Cucumber-TSFlow
+### Bugfixes:
+* [#25](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/25) Add support for Cucumber-TSFlow
+
 ## 1.1.0 / 2017-01-13
 ### Features:
 * [#15](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/15) Add some 'Steps and Page Objects refreshing' command

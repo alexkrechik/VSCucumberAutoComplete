@@ -23,6 +23,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
+import * as glob from 'glob-fs';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -168,34 +169,33 @@ interface AppSettings {
     pages?: Object
 }
 
-//Check path, determine its type and get all the possible steps using getFileSteps()
-function getAllPathSteps(stepsPath): Step[] {
-    let f = fs.lstatSync(stepsPath);
-    if (f.isFile()) {
-        return getFileSteps(stepsPath);
-    } else if (f.isDirectory()) {
-        let res = [];
-        fs.readdirSync(stepsPath).forEach(val => {
-            let filePath = stepsPath + '/' + val;
-            if (fs.lstatSync(filePath).isFile() && filePath.match(/\.js/)) {
-                res = res.concat(getFileSteps(filePath));
-            }
-        });
-        return res;
+//Add 'file://' for the non-windows OS's and file:/// for windows
+function getOSPath(path) {
+    if (/win/.test(require('process').platform)) {
+        path = 'file:///' + path;
     } else {
-        throw new Error(stepsPath + 'is not a valid path');
+        path = 'file://' + path;
     }
+    return path;
 }
 
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
+    let regExpStart, regExpEnd;
+    if (settings) {
+        regExpStart = settings.cucumberautocomplete.regExpStart || '\/';
+        regExpEnd = settings.cucumberautocomplete.regExpEnd || '\/';
+    } else {
+        regExpStart = '\/';
+        regExpEnd = '\/';
+    }
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
+        if (line.search(new RegExp('(Given|When|Then).*' + regExpStart + '.+' + regExpEnd)) !== -1) {
             //Get the '//' match
-            let match = line.match(/\/.*\//);
+            let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
             //Get matched text, remove start and finish slashes
-            let matchText = match[0].replace(/^\/|\/$/g, '');
+            let matchText = match[1];
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
@@ -203,7 +203,7 @@ function getFileSteps(filePath: string): Step[] {
                 //We should remove text between quotes, '^|$' regexp marks and backslashes
                 text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create('file://' + filePath, Range.create(pos, pos))
+                def: Location.create(getOSPath(filePath), Range.create(pos, pos))
             });
         }
     });
@@ -221,7 +221,7 @@ function getPageObjects(text: string, path: string): PageObject[] {
                     id: 'pageObect' + id.get(),
                     text: poMatch[1],
                     desc: line,
-                    def: Location.create('file://' + path, Range.create(pos, pos))
+                    def: Location.create(getOSPath(path), Range.create(pos, pos))
                 });
             }
         }
@@ -237,7 +237,7 @@ function getPage(name: string, path: string): Page {
         id: 'page' + id.get(),
         text: name,
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-        def: Location.create('file://' + path, Range.create(zeroPos, zeroPos)),
+        def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
         objects: getPageObjects(text, path)
     };
 }
@@ -345,8 +345,9 @@ function populateStepsAndPageObjects() {
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
-        path = workspaceRoot + '/' + path;
-        steps = steps.concat(getAllPathSteps(path));
+        glob({ gitignore: true }).readdirSync(path).forEach(f => {
+            steps = steps.concat(getFileSteps(f));
+        });
     });
 
     //Populate pages array
