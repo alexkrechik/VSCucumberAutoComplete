@@ -56,12 +56,22 @@
             "title": "Cucumber Auto Complete settings",
             "properties": {
                 "cucumberautocomplete.steps": {
-                    "description": "Path or array of pathes to the steps files or folders with steps files",
+                    "description": "Path or array of glob-style-pathes to the steps files",
                     "type": ["array", "string"]
                 },
                 "cucumberautocomplete.pages": {
                     "description": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
                     "type": ["null", "object"]
+                },
+                "cucumberautocomplete.regExpStart": {
+                    "description": "Start of regexp, that will be used for getting steps from cucumberautocomplete.steps files.",
+                    "type": ["null", "string"],
+                    "default": "\/"
+                },
+                "cucumberautocomplete.regExpEnd": {
+                    "description": "End of regexp, that will be used for getting steps from cucumberautocomplete.steps files.",
+                    "type": ["null", "string"],
+                    "default": "\/"
                 }
             }
         }

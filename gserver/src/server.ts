@@ -172,12 +172,20 @@ interface AppSettings {
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
+    let regExpStart, regExpEnd;
+    if (settings) {
+        regExpStart = settings.cucumberautocomplete.regExpStart || '\/';
+        regExpEnd = settings.cucumberautocomplete.regExpEnd || '\/';
+    } else {
+        regExpStart = '\/';
+        regExpEnd = '\/';
+    }
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
+        if (line.search(new RegExp('(Given|When|Then).*' + regExpStart + '.+' + regExpEnd)) !== -1) {
             //Get the '//' match
-            let match = line.match(/\/.*\//);
+            let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
             //Get matched text, remove start and finish slashes
-            let matchText = match[0].replace(/^\/|\/$/g, '');
+            let matchText = match[1];
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
