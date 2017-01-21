@@ -23,6 +23,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
+import * as glob from 'glob-fs';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -168,25 +169,6 @@ interface AppSettings {
     pages?: Object
 }
 
-//Check path, determine its type and get all the possible steps using getFileSteps()
-function getAllPathSteps(stepsPath): Step[] {
-    let f = fs.lstatSync(stepsPath);
-    if (f.isFile()) {
-        return getFileSteps(stepsPath);
-    } else if (f.isDirectory()) {
-        let res = [];
-        fs.readdirSync(stepsPath).forEach(val => {
-            let filePath = stepsPath + '/' + val;
-            if (fs.lstatSync(filePath).isFile() && filePath.match(/\.js/)) {
-                res = res.concat(getFileSteps(filePath));
-            }
-        });
-        return res;
-    } else {
-        throw new Error(stepsPath + 'is not a valid path');
-    }
-}
-
 //Add 'file://' for the non-windows OS's and file:/// for windows
 function getOSPath(path) {
     if (/win/.test(require('process').platform)) {
@@ -200,12 +182,20 @@ function getOSPath(path) {
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
+    let regExpStart, regExpEnd;
+    if (settings) {
+        regExpStart = settings.cucumberautocomplete.regExpStart || '\/';
+        regExpEnd = settings.cucumberautocomplete.regExpEnd || '\/';
+    } else {
+        regExpStart = '\/';
+        regExpEnd = '\/';
+    }
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        if (line.search(/(Given|When|Then).*\/.*\//) !== -1) {
+        if (line.search(new RegExp('(Given|When|Then).*' + regExpStart + '.+' + regExpEnd)) !== -1) {
             //Get the '//' match
-            let match = line.match(/\/.*\//);
+            let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
             //Get matched text, remove start and finish slashes
-            let matchText = match[0].replace(/^\/|\/$/g, '');
+            let matchText = match[1];
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
@@ -355,8 +345,9 @@ function populateStepsAndPageObjects() {
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
-        path = workspaceRoot + '/' + path;
-        steps = steps.concat(getAllPathSteps(path));
+        glob({ gitignore: true }).readdirSync(path).forEach(f => {
+            steps = steps.concat(getFileSteps(f));
+        });
     });
 
     //Populate pages array
