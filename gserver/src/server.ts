@@ -23,7 +23,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
-import * as glob from 'glob-fs';
+import * as glob from 'glob';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -89,7 +89,7 @@ function handleLine(line: String): StepLine {
     let stepPart = line.replace(gerkinRegEx, '');
     let stepMatch;
     for (let i = 0; i < steps.length; i++) {
-        if (stepPart.search(steps[i].reg) !== -1) {
+        if (line.trim().match(steps[i].reg)) {
             stepMatch = steps[i];
             break;
         }
@@ -345,7 +345,7 @@ function populateStepsAndPageObjects() {
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
-        glob({ gitignore: true }).readdirSync(path).forEach(f => {
+        glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
             steps = steps.concat(getFileSteps(f));
         });
     });
