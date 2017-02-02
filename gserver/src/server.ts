@@ -204,7 +204,7 @@ function getFileSteps(filePath: string): Step[] {
                 //We should remove text between quotes, '^|$' regexp marks and backslashes
                 text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create(getOSPath(filePath), Range.create(pos, pos))
+                def: Location.create('file://' + filePath, Range.create(pos, pos))
             });
         }
     });
