@@ -23,7 +23,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as fs from 'fs';
-import * as glob from 'glob-fs';
+import * as glob from 'glob';
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -35,7 +35,7 @@ let steps = [];
 // Object will be populated with all the pages found
 let pages = {};
 //Gerkin Reg ex
-let gerkinRegEx = /^\s*(Given|When|Then|And) /;
+let gerkinRegEx = /^\s*(Given|When|Then|And|But) /;
 // Object, which contains current configuration
 let settings;
 
@@ -83,13 +83,13 @@ interface Page {
 
 //Return start, end position and matched (if any) Gherkin step
 function handleLine(line: String): StepLine {
-    let typeRegEx = /Given |When |Then |And /;
+    let typeRegEx = /Given |When |Then |And |But /;
     let typeMatch = line.match(typeRegEx);
     let typePart = typeMatch[0];
     let stepPart = line.replace(gerkinRegEx, '');
     let stepMatch;
     for (let i = 0; i < steps.length; i++) {
-        if (stepPart.search(steps[i].reg) !== -1) {
+        if (line.trim().match(steps[i].reg) || stepPart.search(steps[i].reg) !== -1) {
             stepMatch = steps[i];
             break;
         }
@@ -191,7 +191,8 @@ function getFileSteps(filePath: string): Step[] {
         regExpEnd = '\/';
     }
     fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        if (line.search(new RegExp('(Given|When|Then).*' + regExpStart + '.+' + regExpEnd)) !== -1) {
+        // We need to figure out how to ommit the comments, otherwise this will also parse commented lines
+        if (line.search(new RegExp('(Given|When|Then|And|But).*' + regExpStart + '.+' + regExpEnd, 'i')) !== -1) {
             //Get the '//' match
             let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
             //Get matched text, remove start and finish slashes
@@ -345,7 +346,7 @@ function populateStepsAndPageObjects() {
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
     stepsPathes.forEach((path) => {
-        glob({ gitignore: true }).readdirSync(path).forEach(f => {
+        glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
             steps = steps.concat(getFileSteps(f));
         });
     });
@@ -431,6 +432,7 @@ let formatConf = [
     {text: 'When', indents: 2},
     {text: 'Then', indents: 2},
     {text: 'And', indents: 2},
+    {text: 'But', indents: 2},
     {text: '#', indents: 2}
 ];
 

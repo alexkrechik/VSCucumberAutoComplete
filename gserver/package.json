@@ -7,7 +7,7 @@
     "node": "*"
   },
   "dependencies": {
-    "glob-fs": "^0.1.6",
+    "glob": "^7.1.1",
     "vscode-languageserver": "^2.6.2"
   },
   "devDependencies": {
