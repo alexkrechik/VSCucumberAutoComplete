@@ -172,39 +172,75 @@ interface AppSettings {
 //Add 'file://' for the non-windows OS's and file:/// for windows
 function getOSPath(path) {
     if (/^win/.test(require('process').platform)) {
-        path = 'file:///' + workspaceRoot + '/' + path;
+        return 'file:///' + workspaceRoot + '/' + path;
     } else {
-        path = 'file:' + workspaceRoot + '/' + path;
+        return 'file:' + workspaceRoot + '/' + path;
     }
-    return path;
+}
+
+function getFileContent(filePath: string): string {
+    return fs.readFileSync(filePath, 'utf8');
+}
+
+function getStepRegExp() {
+
+    //Actually, we dont care what the symbols are before our 'Gherkin' word
+    let startPart = '^(.*)';
+
+    //All the steps should be declared using Given, When or Then keyword
+    let gherkinPart = '(Given|When|Then)';
+
+    //All the symbols, except of symbols, using as step start could be between gherkin word and our step
+    let nonStepStartSymbols = '[^\'|^"|^\\/]*';
+
+    //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
+    let stepStart = `('|"|\\/)`;
+
+    //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
+    let stepBody = '([^\\3]+)';
+
+    //Step should be ended with same symbol it begins
+    let stepEnd = '\\3';
+
+    //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
+    let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
+
+    return r;
+
+}
+
+function clearComments(text: string): string {
+
+    //Replace multi-line comments like /* <COMMENT> */
+    text = text.replace(/\/\*[\s\S]*?\*\/(\n\r?)?/g, '');
+
+    //Replace lines, thet begin from '//' or '#'
+    text = text.replace(/(?:\n\r?)?\s*(?:\/\/|#).*(\n\r?)?/g, '$1');
+
+    //Return our multi-line text without comments
+    return text;
+
 }
 
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
-    let regExpStart, regExpEnd;
-    if (settings) {
-        regExpStart = settings.cucumberautocomplete.regExpStart || '\/';
-        regExpEnd = settings.cucumberautocomplete.regExpEnd || '\/';
-    } else {
-        regExpStart = '\/';
-        regExpEnd = '\/';
-    }
-    fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        // We need to figure out how to ommit the comments, otherwise this will also parse commented lines
-        if (line.search(new RegExp('(Given|When|Then|And|But).*' + regExpStart + '.+' + regExpEnd, 'i')) !== -1) {
-            //Get the '//' match
-            let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
-            //Get matched text, remove start and finish slashes
-            let matchText = match[1];
+    let definitionFile = getFileContent(filePath);
+    definitionFile = clearComments(definitionFile);
+    let stepRegExp = getStepRegExp();
+    definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
+        let match = line.match(stepRegExp);
+        if (match) {
+            let beforeGherkin = match[1];
+            let stepText = match[4];
             let pos = Position.create(lineIndex, match.index);
             steps.push({
                 id: 'step' + id.get(),
-                reg: new RegExp(matchText),
+                reg: new RegExp(stepText),
                 //We should remove text between quotes, '^|$' regexp marks and backslashes
-                text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
+                text: stepText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create('file://' + filePath, Range.create(pos, pos))
+                def: Location.create(getOSPath(filePath), Range.create(pos, pos))
             });
         }
     });
@@ -345,10 +381,14 @@ function populateStepsAndPageObjects() {
     //Populate steps array
     let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
     steps = [];
+    let stepsFiles = [];
     stepsPathes.forEach((path) => {
         glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
-            steps = steps.concat(getFileSteps(f));
+            stepsFiles.push(f);
         });
+    });
+    stepsFiles.forEach(f => {
+        steps = steps.concat(getFileSteps(f));
     });
 
     //Populate pages array
