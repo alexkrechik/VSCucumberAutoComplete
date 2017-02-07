@@ -22,7 +22,7 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 
-import { Step, getFileSteps, getPage} from './objects.getter';
+import { Step, getSteps, Page, getPage} from './objects.getter';
 
 import * as glob from 'glob';
 
@@ -32,9 +32,9 @@ let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 let workspaceRoot: string;
 //Array will be populated with all the steps found
-let steps = [];
+let steps: Step[] = [];
 // Object will be populated with all the pages found
-let pages = {};
+let pages: { [key: string]: Page } = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And|But) /;
 // Object, which contains current configuration
@@ -249,7 +249,7 @@ function populateStepsAndPageObjects() {
         });
     });
     stepsFiles.forEach(f => {
-        steps = steps.concat(getFileSteps(workspaceRoot + '/' + f));
+        steps = steps.concat(getSteps(workspaceRoot + '/' + f));
     });
 
     //Populate pages array

@@ -42,7 +42,7 @@ function getStepRegExp() {
 }
 
 //Get all the steps from provided file
-export function getFileSteps(filePath: string): Step[] {
+export function getSteps(filePath: string): Step[] {
     let steps = [];
     let definitionFile = getFileContent(filePath);
     definitionFile = clearComments(definitionFile);
