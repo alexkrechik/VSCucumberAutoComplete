@@ -22,7 +22,8 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 
-import * as fs from 'fs';
+import {getOSPath, getFileContent, clearComments} from './util.js';
+
 import * as glob from 'glob';
 
 //Create connection and setup communication between the client and server
@@ -169,19 +170,6 @@ interface AppSettings {
     pages?: Object
 }
 
-//Add 'file://' for the non-windows OS's and file:/// for windows
-function getOSPath(path) {
-    if (/^win/.test(require('process').platform)) {
-        return 'file:///' + workspaceRoot + '/' + path;
-    } else {
-        return 'file:' + workspaceRoot + '/' + path;
-    }
-}
-
-function getFileContent(filePath: string): string {
-    return fs.readFileSync(filePath, 'utf8');
-}
-
 function getStepRegExp() {
 
     //Actually, we dont care what the symbols are before our 'Gherkin' word
@@ -209,19 +197,6 @@ function getStepRegExp() {
 
 }
 
-function clearComments(text: string): string {
-
-    //Replace multi-line comments like /* <COMMENT> */
-    text = text.replace(/\/\*[\s\S]*?\*\/(\n\r?)?/g, '');
-
-    //Replace lines, thet begin from '//' or '#'
-    text = text.replace(/(?:\n\r?)?\s*(?:\/\/|#).*(\n\r?)?/g, '$1');
-
-    //Return our multi-line text without comments
-    return text;
-
-}
-
 //Get all the steps from provided file
 function getFileSteps(filePath: string): Step[] {
     let steps = [];
@@ -233,14 +208,14 @@ function getFileSteps(filePath: string): Step[] {
         if (match) {
             let beforeGherkin = match[1];
             let stepText = match[4];
-            let pos = Position.create(lineIndex, match.index);
+            let pos = Position.create(lineIndex, beforeGherkin.length);
             steps.push({
                 id: 'step' + id.get(),
                 reg: new RegExp(stepText),
                 //We should remove text between quotes, '^|$' regexp marks and backslashes
                 text: stepText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                 desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create(getOSPath(filePath), Range.create(pos, pos))
+                def: Location.create(getOSPath(workspaceRoot + '/' + filePath), Range.create(pos, pos))
             });
         }
     });
@@ -258,7 +233,7 @@ function getPageObjects(text: string, path: string): PageObject[] {
                     id: 'pageObect' + id.get(),
                     text: poMatch[1],
                     desc: line,
-                    def: Location.create(getOSPath(path), Range.create(pos, pos))
+                    def: Location.create(getOSPath(workspaceRoot + '/' + path), Range.create(pos, pos))
                 });
             }
         }
@@ -268,13 +243,13 @@ function getPageObjects(text: string, path: string): PageObject[] {
 
 //Get Page object
 function getPage(name: string, path: string): Page {
-    let text = fs.readFileSync(path, 'utf8');
+    let text = getFileContent(path);
     let zeroPos = Position.create(0, 0);
     return {
         id: 'page' + id.get(),
         text: name,
         desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-        def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
+        def: Location.create(getOSPath(workspaceRoot + '/' + path), Range.create(zeroPos, zeroPos)),
         objects: getPageObjects(text, path)
     };
 }
