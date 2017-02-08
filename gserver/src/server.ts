@@ -22,7 +22,9 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 
-import { Step, getSteps, Page, getPage} from './objects.getter';
+import { Step, getSteps, Page, getPage } from './objects.getter';
+
+import { format } from './format';
 
 import * as glob from 'glob';
 
@@ -38,7 +40,7 @@ let pages: { [key: string]: Page } = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And|But) /;
 // Object, which contains current configuration
-let settings;
+let settings: Settings;
 
 interface StepLine {
     //Line without 'Given|When|Then|And' part
@@ -97,7 +99,7 @@ function validate(text: String): Diagnostic[] {
                     let match = line.match(/"[^"^\s]*"."[^"^\s]*"/g);
                     if (match) {
                         match.forEach(m => {
-                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, ''); });
+                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => { return v.replace(/"/g, ''); });
                             if (!pages[page]) {
                                 let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
                                 diagnostics.push({
@@ -110,7 +112,7 @@ function validate(text: String): Diagnostic[] {
                                     source: 'ex'
                                 });
                             }
-                            if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject; })) {
+                            if (!pages[page] || !pages[page].objects.find((val) => { return val.text === pageObject; })) {
                                 let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
                                 diagnostics.push({
                                     severity: DiagnosticSeverity.Warning,
@@ -151,16 +153,16 @@ function getStepsCompletion(line: string): CompletionItem[] {
     //We should replace/search only string beginning
     let stepPartRe = new RegExp('^' + stepPart);
     return steps
-    .filter(el => {
-        return el.text.search(stepPartRe) !== -1;
-    })
-    .map(step => {
-        return {
-            label: step.text.replace(stepPartRe, ''),
-            kind: CompletionItemKind.Function,
-            data: step.id
-        };
-    });
+        .filter(el => {
+            return el.text.search(stepPartRe) !== -1;
+        })
+        .map(step => {
+            return {
+                label: step.text.replace(stepPartRe, ''),
+                kind: CompletionItemKind.Function,
+                data: step.id
+            };
+        });
 }
 
 function getPageCompletion(): CompletionItem[] {
@@ -216,7 +218,7 @@ function getPositionObject(line: string, position: number): PositionObject {
             };
         }
     } else {
-        return {type: PositionType.Step};
+        return { type: PositionType.Step };
     }
 }
 
@@ -231,8 +233,8 @@ connection.onInitialize((params): InitializeResult => {
             completionProvider: {
                 resolveProvider: true,
             },
-            definitionProvider : true,
-            documentFormattingProvider : true,
+            definitionProvider: true,
+            documentFormattingProvider: true,
             documentRangeFormattingProvider: true
         }
     };
@@ -288,7 +290,7 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    let step = steps.find((el) => {return el.id === item.data; });
+    let step = steps.find((el) => { return el.id === item.data; });
     item.detail = step.text;
     item.documentation = step.desc;
     return item;
@@ -321,25 +323,7 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     }
 });
 
-interface FormatConf {
-    text: string,
-    indents: number
-}
-
-let formatConf = [
-    {text: 'Feature:', indents: 0},
-    {text: 'Scenario:', indents: 1},
-    {text: 'Given', indents: 2},
-    {text: 'When', indents: 2},
-    {text: 'Then', indents: 2},
-    {text: 'And', indents: 2},
-    {text: 'But', indents: 2},
-    {text: '#', indents: 2}
-];
-
-function format(options: FormattingOptions, text: string, range?: Range): TextEdit  {
-
-    //Get indent
+function getIndent(options: FormattingOptions): string {
     let spaces = options.insertSpaces;
     let tabSize = options.tabSize;
     let indent;
@@ -348,46 +332,25 @@ function format(options: FormattingOptions, text: string, range?: Range): TextEd
     } else {
         indent = '\t';
     }
-
-    //Get text array
-    let textArr = text.split(/\r?\n/g);
-
-    //Use whole document if no range provided
-    if (range) {
-        range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
-        textArr = textArr.splice(range.start.line, range.end.line - range.start.line + 1);
-    } else {
-        range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
-    }
-
-    //Get formatted array
-    let indentsCount = 0;
-    let newTextArr = textArr.map(line => {
-        if (line.search(/^\s*$/) !== -1) {
-            return '';
-        } else {
-            let foundFormat = formatConf.find(conf => {
-                return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
-            });
-            if (foundFormat) {
-                indentsCount = foundFormat.indents;
-            }
-            return line.replace(/^\s*/, indent.repeat(indentsCount));
-        }
-    });
-
-    //Return TextEdit
-    return TextEdit.replace(range, newTextArr.join('\r\n'));
+    return indent;
 }
 
 connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
     let text = documents.get(params.textDocument.uri).getText();
-    return [format(params.options, text)];
+    let textArr = text.split(/\r?\n/g);
+    let indent = getIndent(params.options);
+    let range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+    return [TextEdit.replace(range, format(indent, range, text))];
 });
 
 connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
     let text = documents.get(params.textDocument.uri).getText();
-    return [format(params.options, text, params.range)];
+    let textArr = text.split(/\r?\n/g);
+    let range = params.range;
+    let indent = getIndent(params.options);
+    range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
+    text = textArr.splice(range.start.line, range.end.line - range.start.line + 1).join('\r\n');
+    return [TextEdit.replace(range, format(indent, range, text))];
 });
 
 connection.listen();
