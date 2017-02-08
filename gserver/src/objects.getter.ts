@@ -14,7 +14,7 @@ export interface Step {
     def: Definition
 }
 
-function getStepRegExp() {
+export function getStepRegExp() {
 
     //Actually, we dont care what the symbols are before our 'Gherkin' word
     let startPart = '^(.*)';
