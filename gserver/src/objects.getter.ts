@@ -1,7 +1,7 @@
 
-import {getOSPath, getFileContent, clearComments, getId} from './util.js';
+import { getOSPath, getFileContent, clearComments, getId } from './util';
 
-import {Definition, Position, Range, Location} from 'vscode-languageserver';
+import { Definition, Position, Range, Location } from 'vscode-languageserver';
 
 
 // ************************************* STEPS ************************************* //
