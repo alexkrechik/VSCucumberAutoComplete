@@ -323,11 +323,6 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     }
 });
 
-interface FormatConf {
-    text: string,
-    indents: number
-}
-
 function getIndent(options: FormattingOptions): string {
     let spaces = options.insertSpaces;
     let tabSize = options.tabSize;

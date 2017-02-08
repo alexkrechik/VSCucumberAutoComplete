@@ -1,6 +1,11 @@
 import {Range} from 'vscode-languageserver';
 
-const formatConf = [
+interface FormatConf {
+    text: string,
+    indents: number
+}
+
+const formatConf: FormatConf[] = [
     { text: 'Feature:', indents: 0 },
     { text: 'Scenario:', indents: 1 },
     { text: 'Given', indents: 2 },
