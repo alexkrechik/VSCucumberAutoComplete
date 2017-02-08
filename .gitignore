@@ -1,0 +1,16 @@
+# Logs
+logs
+*.log
+
+# Dependency directory
+node_modules
+
+*.DS_Store
+.*
+!.travis.yml
+!.editorconfig
+!.eslintrc.js
+*.xml
+.settings
+downloads
+*~
