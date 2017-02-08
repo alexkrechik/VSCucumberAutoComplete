@@ -1,5 +1,5 @@
-let expect = require("chai").expect;
-let objectsGetter = require("../../gclient/server/objects.getter.js");
+import { expect } from 'chai';
+import * as objectsGetter from '../src/objects.getter';
 
 describe("Gserver unit tests", function () {
 
