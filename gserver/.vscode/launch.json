@@ -13,7 +13,7 @@
 			"runtimeArgs": [
 				"-r",
 				"ts-node/register",
-				"${workspaceRoot}/test/**/spec*.ts"
+				"${workspaceRoot}/test/**/*.spec.ts"
 			],
 			"internalConsoleOptions": "openOnSessionStart"
 		},
