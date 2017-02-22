@@ -102,6 +102,10 @@ export interface Page {
     objects: PageObject[]
 }
 
+export interface Pages {
+    [key: string]: Page ;
+}
+
 //Get Page object
 export function getPage(name: string, path: string): Page {
     let text = getFileContent(path);

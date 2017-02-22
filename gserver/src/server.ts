@@ -22,7 +22,7 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 
-import { Step, getSteps, Page, getPage } from './objects.getter';
+import { Step, getSteps, Page, Pages, getPage } from './objects.getter';
 
 import { format } from './format';
 
@@ -36,7 +36,7 @@ let workspaceRoot: string;
 //Array will be populated with all the steps found
 let steps: Step[] = [];
 // Object will be populated with all the pages found
-let pages: { [key: string]: Page } = {};
+let pages: Pages = {};
 //Gerkin Reg ex
 let gerkinRegEx = /^\s*(Given|When|Then|And|But) /;
 // Object, which contains current configuration
