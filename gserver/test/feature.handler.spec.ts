@@ -24,56 +24,61 @@ let steps: objectsGetter.Step[] = [
     }
 ];
 
-describe('handleLine()', () => {
+describe('isGherkin()', () => {
 
-    it('should correctly parse line beginning with "Given" gherkin keyword', () => {
-            let res = featureHandler.handleLine('Given I do something', steps);
-            expect(res.isGherkin).to.be.equals(true);
+    it('should correctly determine line beginning with "Given" gherkin keyword', () => {
+            let res = featureHandler.isGherkin('Given I do something');
+            expect(res).to.be.equals(true);
     });
 
-    it('should correctly parse line beginning with "When" gherkin keyword', () => {
-            let res = featureHandler.handleLine('When I do something', steps);
-            expect(res.isGherkin).to.be.equals(true);
+    it('should correctly determine line beginning with "When" gherkin keyword', () => {
+            let res = featureHandler.isGherkin('When I do something');
+            expect(res).to.be.equals(true);
     });
 
-    it('should correctly parse line beginning with "Then" gherkin keyword', () => {
-            let res = featureHandler.handleLine('Then I do something', steps);
-            expect(res.isGherkin).to.be.equals(true);
+    it('should correctly determine line beginning with "Then" gherkin keyword', () => {
+            let res = featureHandler.isGherkin('Then I do something');
+            expect(res).to.be.equals(true);
     });
 
-    it('should correctly parse line beginning with "And" gherkin keyword', () => {
-            let res = featureHandler.handleLine('And I do something', steps);
-            expect(res.isGherkin).to.be.equals(true);
+    it('should correctly determine line beginning with "And" gherkin keyword', () => {
+            let res = featureHandler.isGherkin('And I do something');
+            expect(res).to.be.equals(true);
     });
 
-    it('should correctly parse line beginning with "But" gherkin keyword', () => {
-            let res = featureHandler.handleLine('But I do something', steps);
-            expect(res.isGherkin).to.be.equals(true);
+    it('should correctly determine line beginning with "But" gherkin keyword', () => {
+            let res = featureHandler.isGherkin('But I do something');
+            expect(res).to.be.equals(true);
     });
 
     it('should not determine as gherkin line, that doesn\'t begin from gherkin word ', () => {
-            let res = featureHandler.handleLine('Scenario: I do something', steps);
-            expect(res.isGherkin).to.be.equals(false);
+            let res = featureHandler.isGherkin('Scenario: I do something');
+            expect(res).to.be.equals(false);
     });
 
     it('should not determine as gherkin line, then begins from lowercase gherkin word ', () => {
-            let res = featureHandler.handleLine('when I do something', steps);
-            expect(res.isGherkin).to.be.equals(false);
+            let res = featureHandler.isGherkin('when I do something');
+            expect(res).to.be.equals(false);
     });
 
     it('should not determine as gherkin line with typos', () => {
-            let res = featureHandler.handleLine('WhenI do something', steps);
-            expect(res.isGherkin).to.be.equals(false);
+            let res = featureHandler.isGherkin('WhenI do something');
+            expect(res).to.be.equals(false);
     });
 
+});
+
+
+describe('getStep()', () => {
+
     it('should not get step from wrong lines', () => {
-        let stepWithoutGherkin = featureHandler.handleLine('I do something', steps);
-        expect(stepWithoutGherkin.step).to.be.equal(null);
+        let stepWithoutGherkin = featureHandler.getStep('I do something', steps);
+        expect(stepWithoutGherkin).to.be.equal(null);
     });
 
     it('should correctly fill all the handled step memebers for missing step', () => {
-        let missingStep = featureHandler.handleLine('   When I do something else', steps);
-        expect(missingStep.step).to.be.deep.equals({
+        let missingStep = featureHandler.getStep('   When I do something else', steps);
+        expect(missingStep).to.be.deep.equals({
             text: 'When I do something else',
             step: null,
             interval: {
@@ -84,8 +89,8 @@ describe('handleLine()', () => {
     });
 
     it('should correctly fill all the handled step memebers for present step', () => {
-        let correctStep = featureHandler.handleLine('   When I do something', steps);
-        expect(correctStep.step).to.be.deep.equals({
+        let correctStep = featureHandler.getStep('   When I do something', steps);
+        expect(correctStep).to.be.deep.equals({
             text: 'When I do something',
             step: steps[0],
             interval: {

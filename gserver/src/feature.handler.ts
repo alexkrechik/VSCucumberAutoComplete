@@ -13,13 +13,15 @@ interface HandledStep {
     interval: Interval
 }
 
-interface HandledLine {
-    isGherkin: boolean,
-    step: HandledStep
+export function isGherkin(line: string) {
+    return line.search(gherkinRegEx) !== -1;
 }
 
-function getStep(line: string, steps: Step[]): HandledStep | null {
+export function getStep(line: string, steps: Step[]): HandledStep | null {
     let match = line.match(gherkinRegEx);
+    if ( !match ) {
+        return null;
+    }
     let beforeGherkin = match[1];
     let gherkinPart = match[2];
     let stepText = match[3];
@@ -32,19 +34,4 @@ function getStep(line: string, steps: Step[]): HandledStep | null {
             end: line.length
         }
     };
-}
-
-export function handleLine(line: string, steps: Step[] ): HandledLine {
-    let stepMatch = line.match(gherkinRegEx);
-    if (line.search(gherkinRegEx) === -1) {
-        return {
-            isGherkin: false,
-            step: null
-        };
-    } else {
-        return {
-            isGherkin: true,
-            step: getStep(line, steps)
-        };
-    }
 }
