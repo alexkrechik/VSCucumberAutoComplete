@@ -85,7 +85,8 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
         });
     }
 
-    private gherkinRegEx = /^(\s*)(Given|When|Then|And|But)(.)(.*)/;
+    private gherkinWords = 'Given|When|Then|And|But';
+    private gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
 
     private getStepByText(text) {
         return this.elements.find(s => { return s.reg.test(text); });
@@ -115,13 +116,20 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
 
     getDefinition(line: string, char: number): Definition | null {
         let match = line.match(this.gherkinRegEx);
+        if (!match) {
+            return null;
+        }
         let step = this.getStepByText(match[4]);
         return step ? step.def : null;
     }
 
-    getCompletion(line: string, char: number): CompletionItem[] | void {
-        //Get line part without gherkin (Given When Then)
-        let stepPart = line.replace(this.gherkinRegEx, '');
+    getCompletion(line: string, char: number): CompletionItem[] | null {
+        //Get line part without gherkin part
+        let match = line.match(this.gherkinRegEx);
+        if (!match) {
+            return null;
+        }
+        let stepPart = match[4];
         //Return all the braces into default state
         stepPart = stepPart.replace(/"[^"]*"/g, '""');
         //We should not obtain last word
