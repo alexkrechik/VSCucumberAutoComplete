@@ -149,8 +149,8 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
             });
     }
 
-    getCompletionResolve(item: CompletionItem): CompletionItem[] {
-        return [item];
+    getCompletionResolve(item: CompletionItem): CompletionItem {
+        return item;
     };
 
 }

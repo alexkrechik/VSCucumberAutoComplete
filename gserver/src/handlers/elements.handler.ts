@@ -32,10 +32,10 @@ abstract class ElementsHandler <D> {
     abstract getDefinition(line: string, char: number): Definition | null;
 
     //Get list of completion items differs from line and position
-    abstract getCompletion(line: string, char: number): CompletionItem[] | void;
+    abstract getCompletion(line: string, char: number): CompletionItem[] | null;
 
     //Just return an item
-    abstract getCompletionResolve(item: CompletionItem): CompletionItem[];
+    abstract getCompletionResolve(item: CompletionItem): CompletionItem;
 
 }
 
