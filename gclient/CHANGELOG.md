@@ -1,3 +1,7 @@
+## 2.0.1 / 2017-03-09
+### Bugfixes:
+* [#49](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/49) Unable to parse some step definitions from feature files
+
 ## 2.0.0 / 2017-01-21
 ### Features:
 * [#24](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/24) Settings config file does not consider files on multiple levels

@@ -347,7 +347,7 @@ function populateStepsAndPageObjects() {
     steps = [];
     stepsPathes.forEach((path) => {
         glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
-            steps = steps.concat(getFileSteps(f));
+            steps = steps.concat(getFileSteps(workspaceRoot + '/' + f));
         });
     });
 
