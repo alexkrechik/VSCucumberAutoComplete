@@ -26,8 +26,8 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         let startPart = '^(.*)';
 
-        //All the steps should be declared using Given, When or Then keyword
-        let gherkinPart = '(Given|When|Then)';
+        //All the steps should be declared using any gherkin keyword
+        let gherkinPart = '(Given|When|Then|And|But)';
 
         //All the symbols, except of symbols, using as step start could be between gherkin word and our step
         let nonStepStartSymbols = '[^\'|^"|^\\/]*';
