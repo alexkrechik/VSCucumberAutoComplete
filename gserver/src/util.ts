@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 export function getOSPath(path) {
-    /* Add suffics for the provided path - 
+    /* Add suffics for the provided path
      * 'file://' for the non-windows OS's or file:/// for Windows */
     if (/^win/.test(require('process').platform)) {
         return 'file:///' + path;
@@ -37,4 +37,8 @@ let id = {
 
 export function getId() {
     return id.get();
+}
+
+export function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }

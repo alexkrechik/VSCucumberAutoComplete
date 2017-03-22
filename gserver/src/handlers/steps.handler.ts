@@ -1,5 +1,5 @@
 import ElementsHandler, { Element } from './elements.handler';
-import { getOSPath, getFileContent, clearComments, getId } from '../util';
+import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from '../util';
 import {
     Definition,
     CompletionItem,
@@ -24,16 +24,17 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
     private getStepRegExp() {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
-        let startPart = '^(.*)';
+        //But they shouldn't end with letter
+        let startPart = '^((?:.*[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword
         let gherkinPart = '(Given|When|Then|And|But)';
 
-        //All the symbols, except of symbols, using as step start could be between gherkin word and our step
-        let nonStepStartSymbols = '[^\'|^"|^\\/]*';
+        //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
+        let nonStepStartSymbols = `[^\/^'^"^\\w]*`;
 
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        let stepStart = `('|"|\\/)`;
+        let stepStart = `(\/|'|")`;
 
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
         let stepBody = '([^\\3]+)';
@@ -43,25 +44,27 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
-
         return r;
 
+    }
+
+    getMatch(line) {
+        return line.match(this.getStepRegExp());
     }
 
     private getSteps(filePath: string): Element[] {
         let steps = [];
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
-        let stepRegExp = this.getStepRegExp();
         definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
-            let match = line.match(stepRegExp);
+            let match = this.getMatch(line);
             if (match) {
                 let beforeGherkin = match[1];
                 let stepText = match[4];
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 steps.push({
                     id: 'step' + getId(),
-                    reg: new RegExp(stepText),
+                    reg: new RegExp(escapeRegExp(stepText)),
                     //We should remove text between quotes, '^|$' regexp marks and backslashes
                     text: stepText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                     desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
@@ -80,7 +83,7 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
                 stepsFiles.push(f);
             });
         });
-        stepsFiles.forEach(f => {
+         stepsFiles.forEach(f => {
             this.elements = this.elements.concat(this.getSteps(f));
         });
     }

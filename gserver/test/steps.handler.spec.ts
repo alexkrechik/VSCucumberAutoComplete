@@ -6,9 +6,74 @@ let data = [
 ];
 let s = new StepsHandler(data);
 
+describe('getMatch', () => {
+    describe('gherkin strings types', () => {
+        let strings = [
+            `Given(/I do something/, function(){);`,
+            `@Given('I do something')`,
+            `@Given("I do something")`,
+            `@Given /I do something/`,
+            `Given(~'I do something');`
+        ];
+        strings.forEach(str => {
+            it(`should parse "${str}" step string`, () => {
+                let match = s.getMatch(str);
+                expect(match).to.not.be.null;
+                expect(match[4]).to.be.equal('I do something');
+            });
+        });
+    });
+
+    describe('all the gherkin words strings', () => {
+        let gherkinWords = [
+            `Given`,
+            `When`,
+            `Then`,
+            `And`,
+            `But`,
+        ];
+        gherkinWords.forEach(g => {
+            it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
+                let match = s.getMatch(`${g}(/I do something/, function(){);`);
+                expect(match).to.not.be.null;
+                expect(match[4]).to.be.equal('I do something');
+            });
+        });
+    });
+
+    describe('non-standard strings', () => {
+        let nonStandardStrings = [
+            [`Given(/I do "aa" something/);`, `I do "aa" something`],
+            [`When('I do \' something');`, `I do \' something`],
+            [`    When('I do something');`, `I do something`]
+        ];
+        nonStandardStrings.forEach(str => {
+            it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
+                let match = s.getMatch(str[0]);
+                expect(match).to.not.be.null;
+                expect(match[4]).to.be.equals(str[1]);
+            });
+        });
+    });
+
+    describe('invalid lines', () => {
+        let inbvalidStrings = [
+            `iGiven('I do something')`,
+            `Giveni('I do something')`,
+            `console.log("but i do 'Something'");`
+        ];
+        inbvalidStrings.forEach(str => {
+            it(`should not parse "${str}" string`, () => {
+                let match = s.getMatch(str);
+                expect(match).to.be.null;
+            });
+        });
+    });
+});
+
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.elements.length).to.be.equal(2);
+        expect(s.elements.length).to.be.deep.equal(2);
     });
 });
 
