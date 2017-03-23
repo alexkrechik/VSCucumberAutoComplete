@@ -92,7 +92,9 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
     private gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
 
     private getStepByText(text) {
-        return this.elements.find(s => { return s.reg.test(text); });
+        return this.elements.find(s => {
+            return s.reg.test(text);
+        });
     }
 
     validate(line: string, lineNum: number): Diagnostic | null {
@@ -139,7 +141,7 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
         stepPart = stepPart.replace(/[^\s]+$/, '');
         //We should replace/search only string beginning
         let stepPartRe = new RegExp('^' + stepPart);
-        return this.elements
+        let res = this.elements
             .filter(el => {
                 return el.text.search(stepPartRe) !== -1;
             })
@@ -150,6 +152,7 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
                     data: step.id
                 };
             });
+        return res.length ? res : null;
     }
 
     getCompletionResolve(item: CompletionItem): CompletionItem {

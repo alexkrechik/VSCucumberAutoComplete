@@ -140,4 +140,12 @@ describe('getCompletion', () => {
         expect(completion.length).to.be.equal(1);
         expect(completion[0].label).to.be.equal('thing');
     });
+    it('should not return completion for non-gherkin lines', () => {
+        let completion = s.getCompletion('I do another th', 14);
+        expect(completion).to.be.null;
+    });
+    it('should not return completion for non-existing steps', () => {
+        let completion = s.getCompletion('When non-existent step', 14);
+        expect(completion).to.be.null;
+    });
 });
