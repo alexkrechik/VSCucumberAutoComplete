@@ -63,10 +63,10 @@ connection.onDidChangeConfiguration((change) => {
     //Steps settings. Pathes should be completed with workspaceRoot
     let steps = settings.cucumberautocomplete.steps;
     steps = Array.isArray(steps) ? steps : [steps];
-    steps = steps.map(s => {
+    settings.cucumberautocomplete.steps = steps.map(s => {
         return workspaceRoot + '/' + s;
     });
-    stepsHandler = new StepsHandler(steps);
+    stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
 });
 
 
