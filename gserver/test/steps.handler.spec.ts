@@ -45,7 +45,8 @@ describe('getMatch', () => {
         let nonStandardStrings = [
             [`Given(/I do "aa" something/);`, `I do "aa" something`],
             [`When('I do \' something');`, `I do \' something`],
-            [`    When('I do something');`, `I do something`]
+            [`    When('I do something');`, `I do something`],
+            [`"Given(/^Me and "([^"]*)"$/, function ()"`, `^Me and "([^"]*)"$`]
         ];
         nonStandardStrings.forEach(str => {
             it(`should get "${str[1]}" step from "${str[0]}" string`, () => {

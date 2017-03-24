@@ -91,7 +91,8 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 
 function validate(text: string): Diagnostic[] {
     let res = [];
-    text.split(/\r?\n/g).forEach( (line, i) => {
+    let textArr = text.split(/\r?\n/g);
+    textArr.forEach( (line, i) => {
         let diagnostic;
         if (diagnostic = stepsHandler.validate(line, i)) {
             res.push(diagnostic);

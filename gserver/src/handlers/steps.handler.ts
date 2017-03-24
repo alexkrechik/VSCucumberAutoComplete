@@ -25,13 +25,13 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
-        let startPart = '^((?:.*[^\\w])|.{0})';
+        let startPart = '^((?:.*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword
         let gherkinPart = '(Given|When|Then|And|But)';
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-        let nonStepStartSymbols = `[^\/^'^"^\\w]*`;
+        let nonStepStartSymbols = `[^\/'"\\w]*?`;
 
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
         let stepStart = `(\/|'|")`;
