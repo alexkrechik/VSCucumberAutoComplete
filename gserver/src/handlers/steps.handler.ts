@@ -15,10 +15,24 @@ import * as glob from 'glob';
 
 export type StepSettings = string[];
 
-export default class StepsHandler extends ElementsHandler<StepSettings> {
+export type Step = {
+    id: string,
+    reg: RegExp,
+    text: string,
+    desc: string,
+    def: Definition
+};
+
+export default class StepsHandler {
+
+    private elements: Step[];
 
     constructor(stepsPathes: StepSettings) {
-        super(stepsPathes);
+        this.populate(stepsPathes);
+    }
+
+    getElements() {
+        return this.elements;
     }
 
     private getStepRegExp() {
@@ -52,7 +66,7 @@ export default class StepsHandler extends ElementsHandler<StepSettings> {
         return line.match(this.getStepRegExp());
     }
 
-    private getSteps(filePath: string): Element[] {
+    private getSteps(filePath: string): Step[] {
         let steps = [];
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);

@@ -74,14 +74,14 @@ describe('getMatch', () => {
 
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.elements.length).to.be.deep.equal(2);
+        expect(s.getElements().length).to.be.deep.equal(2);
     });
 });
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(data);
-        expect(s.elements.length).to.be.equal(2);
+        expect(s.getElements().length).to.be.equal(2);
     });
 });
 
