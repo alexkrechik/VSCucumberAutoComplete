@@ -19,14 +19,13 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 import { format } from './format';
-import StepsHandler from './handlers/steps.handler';
+import StepsHandler, {StepSettings} from './handlers/steps.handler';
 
 interface Settings {
     cucumberautocomplete: {
-        steps: StepsSettings
+        steps: StepSettings
     }
 }
-type StepsSettings = string[];
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -56,16 +55,22 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
-connection.onDidChangeConfiguration((change) => {
-    //Get settings object
-    settings = <Settings>change.settings;
+function getSettings(settings) {
 
-    //Steps settings. Pathes should be completed with workspaceRoot
+    //Steps settings.
+    //Path to steps should be converted to array if string provided
+    //Pathes should be completed with workspaceRoot
     let steps = settings.cucumberautocomplete.steps;
     steps = Array.isArray(steps) ? steps : [steps];
     settings.cucumberautocomplete.steps = steps.map(s => {
         return workspaceRoot + '/' + s;
     });
+
+    return settings;
+}
+
+connection.onDidChangeConfiguration((change) => {
+    settings = getSettings(<Settings>change.settings);
     stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
 });
 
