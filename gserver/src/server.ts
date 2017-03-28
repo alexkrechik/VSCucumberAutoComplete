@@ -55,7 +55,7 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
-function getSettings(settings) {
+function getSettings(settings: Settings): Settings {
 
     //Steps settings.
     //Path to steps should be converted to array if string provided

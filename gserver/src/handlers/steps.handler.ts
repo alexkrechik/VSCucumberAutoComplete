@@ -31,11 +31,11 @@ export default class StepsHandler {
         this.populate(stepsPathes);
     }
 
-    getElements() {
+    getElements(): Step[] {
         return this.elements;
     }
 
-    private getStepRegExp() {
+    private getStepRegExp(): RegExp {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
@@ -62,7 +62,7 @@ export default class StepsHandler {
 
     }
 
-    getMatch(line) {
+    getMatch(line): RegExpMatchArray {
         return line.match(this.getStepRegExp());
     }
 
