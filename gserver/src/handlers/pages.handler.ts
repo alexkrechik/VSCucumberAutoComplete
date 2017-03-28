@@ -54,7 +54,7 @@ export default class PagesHandler {
                 let pos = Position.create(i, 0);
                 if (!res.find(v => { return v.text === poMatch[1]; })) {
                     res.push({
-                        id: 'pageObect' + getId(),
+                        id: 'pageObject' + getId(),
                         text: poMatch[1],
                         desc: line,
                         def: Location.create(getOSPath(path), Range.create(pos, pos))
@@ -67,6 +67,7 @@ export default class PagesHandler {
 
     private getPage(name: string, path: string): Page {
         let text = getFileContent(path);
+        text = clearComments(text);
         let zeroPos = Position.create(0, 0);
         return {
             id: 'page' + getId(),
