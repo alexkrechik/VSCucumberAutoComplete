@@ -34,6 +34,10 @@ export default class PagesHandler {
 
     private elements: Page[];
 
+    getElements(): Page[] {
+        return this.elements;
+    }
+
     constructor(settings: PagesSettings) {
         this.populate(settings);
     }
