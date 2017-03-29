@@ -6,7 +6,8 @@ import {
     Position,
     Location,
     Range,
-    Diagnostic
+    Diagnostic,
+    DiagnosticSeverity
 } from 'vscode-languageserver';
 
 import ElementsHandler, { Element } from './elements.handler';
@@ -100,7 +101,40 @@ export default class PagesHandler {
     }
 
     validate(line: string, lineNum: number): Diagnostic[] | null {
-        return null;
+        let res = [];
+        if (~line.search(/"[^"^\s]*"."[^"^\s]*"/)) {
+            let lineArr = line.split('"');
+            let curr = 0;
+            lineArr.forEach((l, i) => {
+                if (l === '.') {
+                    let page = lineArr[i - 1];
+                    let pageObject = lineArr[i + 1];
+                    if (!this.getElements(page)) {
+                        res.push({
+                            severity: DiagnosticSeverity.Warning,
+                            range: {
+                                start: { line: lineNum, character: curr - page.length - 1 },
+                                end: { line: lineNum, character: curr + 3 + pageObject.length }
+                            },
+                            message: `Was unable to find page "${page}"`,
+                            source: 'ex'
+                        });
+                    } else if (!this.getElements(page, pageObject)) {
+                        res.push({
+                            severity: DiagnosticSeverity.Warning,
+                            range: {
+                                start: { line: lineNum, character: curr + 2 },
+                                end: { line: lineNum, character: curr + 3 + pageObject.length }
+                            },
+                            message: `Was unable to find page object "${pageObject}" for page "${page}"`,
+                            source: 'ex'
+                        });
+                    }
+                }
+                curr += l.length + 1;
+            });
+        }
+        return res.length ? res : null;
     }
 
     getDefinition(line: string, char: number): Definition | null {

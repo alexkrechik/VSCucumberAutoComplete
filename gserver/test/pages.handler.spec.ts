@@ -39,18 +39,18 @@ describe('getPoMatch', () => {
 });
 
 describe('populate', () => {
-    it ('should return all the elements if no parameters provided', () => {
+    it('should return all the elements if no parameters provided', () => {
         let res = pagesHandler.getElements();
         expect(res['length']).to.be.equal(2);
         expect(res[0].text === 'page');
     });
-    it ('should return page if provided', () => {
+    it('should return page if provided', () => {
         let res = pagesHandler.getElements('page');
         expect(res['id']).to.contains('page');
         expect(res['text']).to.be.equals('page');
         expect(res['objects'].length).to.be.equals(2);
     });
-    it ('should return page object if provided', () => {
+    it('should return page object if provided', () => {
         let res = pagesHandler.getElements('page', 'a');
         expect(res['id']).to.contains('pageObject');
         expect(res['text']).to.be.equals('a');
@@ -92,5 +92,47 @@ describe('populate', () => {
         expect(pageObject2.text).to.be.equals('b');
         expect(pageObject1.def['uri']).to.contains('page.objects.js');
         expect(pageObject2.def['uri']).to.contains('page.objects.js');
+    });
+});
+
+describe.only('validate', () => {
+    it('should not return Diagnostic for correct lines', () => {
+        expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2)).to.be.null;
+    });
+    it('should return corrext Diagnostic for non-existent page', () => {
+        let d = pagesHandler.validate('I use "pag"."a"', 2);
+        expect(d.length).to.be.equal(1);
+        expect(d[0]).to.be.deep.equal({
+            severity: 2,
+            range:
+            {
+                start: { line: 2, character: 7 },
+                end: { line: 2, character: 15 }
+            },
+            message: 'Was unable to find page "pag"',
+            source: 'ex'
+        });
+    });
+    it('should return corrext Diagnostic for non-existent page object', () => {
+        let d = pagesHandler.validate('I use "page"."c"', 2);
+        expect(d.length).to.be.equal(1);
+        expect(d[0]).to.be.deep.equal({
+            severity: 2,
+            range:
+            {
+                start: { line: 2, character: 14 },
+                end: { line: 2, character: 16 }
+            },
+            message: 'Was unable to find page object "c" for page "page"',
+            source: 'ex'
+        });
+    });
+    it('it should return diagnostic for several nono-existent pages', () => {
+        let d = pagesHandler.validate('I use "pag"."a" and "pag"."a"', 2);
+        expect(d.length).to.be.equal(2);
+        expect(d[0].range.start.character).to.be.equal(7);
+        expect(d[0].range.end.character).to.be.equal(15);
+        expect(d[1].range.start.character).to.be.equal(21);
+        expect(d[1].range.end.character).to.be.equal(29);
     });
 });
