@@ -2,7 +2,8 @@ import PagesHandler from '../src/handlers/pages.handler';
 import { expect } from 'chai';
 
 let pagesSettings = {
-    page: __dirname + '/data/page.objects.js'
+    page: __dirname + '/data/page.objects.js',
+    page2: __dirname + '/data/page2.objects.js',
 };
 let pagesHandler = new PagesHandler(pagesSettings);
 
@@ -38,13 +39,39 @@ describe('getPoMatch', () => {
 });
 
 describe('populate', () => {
+    it ('should return all the elements if no parameters provided', () => {
+        let res = pagesHandler.getElements();
+        expect(res['length']).to.be.equal(2);
+        expect(res[0].text === 'page');
+    });
+    it ('should return page if provided', () => {
+        let res = pagesHandler.getElements('page');
+        expect(res['id']).to.contains('page');
+        expect(res['text']).to.be.equals('page');
+        expect(res['objects'].length).to.be.equals(2);
+    });
+    it ('should return page object if provided', () => {
+        let res = pagesHandler.getElements('page', 'a');
+        expect(res['id']).to.contains('pageObject');
+        expect(res['text']).to.be.equals('a');
+    });
+});
+
+
+describe('populate', () => {
     it('should populate the elements after constructor call', () => {
-        expect(pagesHandler.getElements()[0].objects.length).to.be.equal(2);
+        let elements = pagesHandler.getElements();
+        expect(elements['length']).to.be.equal(2);
+        expect(elements[0].objects.length).to.be.equal(2);
+        expect(elements[1].objects.length).to.be.equal(1);
     });
 
     it('should not concat elements after repopulating', () => {
         pagesHandler.populate(pagesSettings);
-        expect(pagesHandler.getElements()[0].objects.length).to.be.equal(2);
+        let elements = pagesHandler.getElements();
+        expect(elements['length']).to.be.equal(2);
+        expect(elements[0].objects.length).to.be.equal(2);
+        expect(elements[1].objects.length).to.be.equal(1);
     });
 
     it('should correctly populate the page from file', () => {

@@ -34,8 +34,21 @@ export default class PagesHandler {
 
     private elements: Page[];
 
-    getElements(): Page[] {
-        return this.elements;
+    getElements(page?: string, pageObject?: string): Page[] | Page | PageObject {
+        if (page) {
+            let pageElement = this.elements.find((e) => {
+                return e.text === page;
+            });
+            if (pageObject) {
+                return pageElement.objects.find((e) => {
+                    return e.text === pageObject;
+                });
+            } else {
+                return pageElement;
+            }
+        } else {
+            return this.elements;
+        }
     }
 
     constructor(settings: PagesSettings) {
