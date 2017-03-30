@@ -95,7 +95,7 @@ describe('populate', () => {
     });
 });
 
-describe.only('validate', () => {
+describe('validate', () => {
     it('should not return Diagnostic for correct lines', () => {
         expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2)).to.be.null;
     });
@@ -127,12 +127,34 @@ describe.only('validate', () => {
             source: 'ex'
         });
     });
-    it('it should return diagnostic for several nono-existent pages', () => {
+    it('it should return diagnostic for several same non-existent pages', () => {
         let d = pagesHandler.validate('I use "pag"."a" and "pag"."a"', 2);
         expect(d.length).to.be.equal(2);
         expect(d[0].range.start.character).to.be.equal(7);
         expect(d[0].range.end.character).to.be.equal(15);
         expect(d[1].range.start.character).to.be.equal(21);
         expect(d[1].range.end.character).to.be.equal(29);
+    });
+});
+
+describe('getFeaturePosition', () => {
+    it('should correctly determine feature line position', () => {
+        let line = '  When I use use "page1"."object1" and "page2"."object2"';
+        expect(pagesHandler.getFeaturePosition(line, 5)).to.be.null;
+        expect(pagesHandler.getFeaturePosition(line, 19)).to.be.deep.equals({
+            page: 'page1'
+        });
+        expect(pagesHandler.getFeaturePosition(line, 27)).to.be.deep.equals({
+            page: 'page1',
+            object: 'object1'
+        });
+        expect(pagesHandler.getFeaturePosition(line, 36)).to.be.null;
+        expect(pagesHandler.getFeaturePosition(line, 41)).to.be.deep.equals({
+            page: 'page2'
+        });
+        expect(pagesHandler.getFeaturePosition(line, 49)).to.be.deep.equals({
+            page: 'page2',
+            object: 'object2'
+        });
     });
 });

@@ -31,6 +31,8 @@ export type PageObject = {
     def: Definition
 };
 
+type FeaturePosition = {page: string, object: string} | {page: string} | null;
+
 export default class PagesHandler {
 
     private elements: Page[];
@@ -135,6 +137,27 @@ export default class PagesHandler {
             });
         }
         return res.length ? res : null;
+    }
+
+    getFeaturePosition(line: string, char: number): FeaturePosition {
+        let startLine = line.slice(0, char);
+        let endLine = line.slice(char).replace(/".*/, '');
+        let match = startLine.match(/"/g);
+        if (match && match.length % 2) {
+            let poMatch = startLine.match(/"([^"]*)?(?:"\.")?([^"]*)$/);
+            if (poMatch[2]) {
+                return {
+                    page: poMatch[1],
+                    object: poMatch[2] + endLine
+                };
+            } else {
+                return {
+                    page: poMatch[1] + endLine
+                };
+            }
+        } else {
+            return null;
+        }
     }
 
     getDefinition(line: string, char: number): Definition | null {
