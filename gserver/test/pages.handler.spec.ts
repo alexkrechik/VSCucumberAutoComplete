@@ -38,7 +38,7 @@ describe('getPoMatch', () => {
     });
 });
 
-describe('populate', () => {
+describe('getElements', () => {
     it('should return all the elements if no parameters provided', () => {
         let res = pagesHandler.getElements();
         expect(res['length']).to.be.equal(2);
@@ -54,6 +54,11 @@ describe('populate', () => {
         let res = pagesHandler.getElements('page', 'a');
         expect(res['id']).to.contains('pageObject');
         expect(res['text']).to.be.equals('a');
+    });
+    it('should return null if wrong page/page object provided', () => {
+        expect(pagesHandler.getElements('page55')).to.be.null;
+        expect(pagesHandler.getElements('page', 'x')).to.be.null;
+        expect(pagesHandler.getElements('page2', 'a')).to.be.null;
     });
 });
 
@@ -141,10 +146,10 @@ describe('getFeaturePosition', () => {
     it('should correctly determine feature line position', () => {
         let line = '  When I use use "page1"."object1" and "page2"."object2"';
         expect(pagesHandler.getFeaturePosition(line, 5)).to.be.null;
-        expect(pagesHandler.getFeaturePosition(line, 19)).to.be.deep.equals({
+        expect(pagesHandler.getFeaturePosition(line, 18)).to.be.deep.equals({
             page: 'page1'
         });
-        expect(pagesHandler.getFeaturePosition(line, 27)).to.be.deep.equals({
+        expect(pagesHandler.getFeaturePosition(line, 26)).to.be.deep.equals({
             page: 'page1',
             object: 'object1'
         });
@@ -156,5 +161,37 @@ describe('getFeaturePosition', () => {
             page: 'page2',
             object: 'object2'
         });
+    });
+});
+
+describe('getDefinition', () => {
+    it('should correctly get page definition', () => {
+        let line = 'When I use "page"."a"';
+        let page = pagesHandler.getElements('page');
+        expect(pagesHandler.getDefinition(line, 13)).to.be.deep.equals(page['def']);
+    });
+    it('should correctly get page object definition', () => {
+        let line = 'When I use "page"."a"';
+        let pageObject = pagesHandler.getElements('page', 'a');
+        expect(pagesHandler.getDefinition(line, 20)).to.be.deep.equals(pageObject['def']);
+    });
+    it('should not return definition for wrong cases', () => {
+        expect(pagesHandler.getDefinition('When I use "page"."a"', 2)).to.be.null;
+        expect(pagesHandler.getDefinition('When I use "pagx"."a"', 13)).to.be.null;
+        expect(pagesHandler.getDefinition('When I use "page"."e"', 20)).to.be.null;
+        expect(pagesHandler.getDefinition('When I use "pagx"."a"', 20)).to.be.null;
+    });
+});
+
+describe('getCompletion', () => {
+    it('should return all the pages', () => {
+        let line = 'When I use "';
+        expect(pagesHandler.getCompletion(line, 12).length).to.be.equals(2);
+    });
+    it('should return correct page objects', () => {
+        let page1Line = 'When I use "page"."a';
+        let page2Line = 'When I use "page2"."';
+        expect(pagesHandler.getCompletion(page1Line, 21).length).to.be.equals(2);
+        expect(pagesHandler.getCompletion(page2Line, 20).length).to.be.equals(1);
     });
 });

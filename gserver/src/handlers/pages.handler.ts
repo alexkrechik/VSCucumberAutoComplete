@@ -7,7 +7,8 @@ import {
     Location,
     Range,
     Diagnostic,
-    DiagnosticSeverity
+    DiagnosticSeverity,
+    CompletionItemKind
 } from 'vscode-languageserver';
 
 import ElementsHandler, { Element } from './elements.handler';
@@ -31,21 +32,25 @@ export type PageObject = {
     def: Definition
 };
 
-type FeaturePosition = {page: string, object: string} | {page: string} | null;
+type FeaturePosition = { page: string, object: string } | { page: string } | null;
 
 export default class PagesHandler {
 
     private elements: Page[];
 
-    getElements(page?: string, pageObject?: string): Page[] | Page | PageObject {
+    getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page) {
             let pageElement = this.elements.find((e) => {
                 return e.text === page;
             });
+            if (!pageElement) {
+                return null;
+            }
             if (pageObject) {
-                return pageElement.objects.find((e) => {
+                let pageObjectElement = pageElement.objects.find((e) => {
                     return e.text === pageObject;
                 });
+                return pageObjectElement || null;
             } else {
                 return pageElement;
             }
@@ -144,15 +149,15 @@ export default class PagesHandler {
         let endLine = line.slice(char).replace(/".*/, '');
         let match = startLine.match(/"/g);
         if (match && match.length % 2) {
-            let poMatch = startLine.match(/"([^"]*)?(?:"\.")?([^"]*)$/);
-            if (poMatch[2]) {
+            let poMatch = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
+            if (poMatch[1]) {
                 return {
                     page: poMatch[1],
                     object: poMatch[2] + endLine
                 };
             } else {
                 return {
-                    page: poMatch[1] + endLine
+                    page: poMatch[2] + endLine
                 };
             }
         } else {
@@ -161,11 +166,48 @@ export default class PagesHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        return null;
+        let position = this.getFeaturePosition(line, char);
+        if (position) {
+            if (position['object']) {
+                let el = this.getElements(position['page'], position['object']);
+                return el ? el['def'] : null;
+            } else {
+                let el = this.getElements(position['page']);
+                return el ? el['def'] : null;
+            }
+        } else {
+            return null;
+        }
     };
 
     getCompletion(line: string, char: number): CompletionItem[] | null {
-        return null;
+        let position = this.getFeaturePosition(line, char);
+        let page = position['page'];
+        let object = position['object'];
+        if (object !== undefined && page !== undefined) {
+            let pageElement = this.getElements(page);
+            if (pageElement) {
+                return pageElement['objects'].map(o => {
+                    return {
+                        label: o.text,
+                        kind: CompletionItemKind.Function,
+                        data: o.id
+                    };
+                });
+            } else {
+                return null;
+            }
+        } else if (page !== undefined) {
+            return this.getElements()['map'](p => {
+                return {
+                    label: p.text,
+                    kind: CompletionItemKind.Function,
+                    data: p.id
+                };
+            });
+        } else {
+            return null;
+        }
     };
 
     getCompletionResolve(item: CompletionItem): CompletionItem {
