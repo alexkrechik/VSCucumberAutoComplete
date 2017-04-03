@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 let pagesSettings = {
     page: __dirname + '/data/page.objects.js',
-    page2: __dirname + '/data/page2.objects.js',
+    page2: __dirname + '/data/page.objects.java',
 };
 let pagesHandler = new PagesHandler(pagesSettings);
 
@@ -90,13 +90,20 @@ describe('populate', () => {
     it('should correctly populate the page Objects from file', () => {
         let pageObject1 = pagesHandler.getElements()[0].objects[0];
         let pageObject2 = pagesHandler.getElements()[0].objects[1];
+        let pageObject3 = pagesHandler.getElements()[1].objects[0];
         expect(pageObject1.id).to.contains('pageObject');
-        expect(pageObject2.id).to.contains('pageObject');
         expect(pageObject1.id).to.not.be.equals(pageObject2.id);
         expect(pageObject1.text).to.be.equals('a');
-        expect(pageObject2.text).to.be.equals('b');
         expect(pageObject1.def['uri']).to.contains('page.objects.js');
+        expect(pageObject1.def['range'].start.line).to.be.equals(5);
+        expect(pageObject2.id).to.contains('pageObject');
+        expect(pageObject2.text).to.be.equals('b');
         expect(pageObject2.def['uri']).to.contains('page.objects.js');
+        expect(pageObject2.def['range'].start.line).to.be.equals(6);
+        expect(pageObject3.id).to.contains('pageObject');
+        expect(pageObject3.text).to.be.equals('variable');
+        expect(pageObject3.def['uri']).to.contains('page.objects.java');
+        expect(pageObject3.def['range'].start.line).to.be.equals(1);
     });
 });
 
