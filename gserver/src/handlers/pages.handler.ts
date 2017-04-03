@@ -109,7 +109,7 @@ export default class PagesHandler {
 
     validate(line: string, lineNum: number): Diagnostic[] {
         let res = [];
-        if (~line.search(/"[^"^\s]*"."[^"^\s]*"/)) {
+        if (~line.search(/"[^"]*"."[^"]*"/)) {
             let lineArr = line.split('"');
             let curr = 0;
             lineArr.forEach((l, i) => {

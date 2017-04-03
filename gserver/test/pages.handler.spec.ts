@@ -41,14 +41,14 @@ describe('getPoMatch', () => {
 describe('getElements', () => {
     it('should return all the elements if no parameters provided', () => {
         let res = pagesHandler.getElements();
-        expect(res['length']).to.be.equal(2);
+        expect(res).to.have.length(2);
         expect(res[0].text === 'page');
     });
     it('should return page if provided', () => {
         let res = pagesHandler.getElements('page');
         expect(res['id']).to.contains('page');
         expect(res['text']).to.be.equals('page');
-        expect(res['objects'].length).to.be.equals(2);
+        expect(res['objects']).to.have.length(2);
     });
     it('should return page object if provided', () => {
         let res = pagesHandler.getElements('page', 'a');
@@ -66,17 +66,17 @@ describe('getElements', () => {
 describe('populate', () => {
     it('should populate the elements after constructor call', () => {
         let elements = pagesHandler.getElements();
-        expect(elements['length']).to.be.equal(2);
-        expect(elements[0].objects.length).to.be.equal(2);
-        expect(elements[1].objects.length).to.be.equal(1);
+        expect(elements).to.have.length(2);
+        expect(elements[0].objects).to.have.length(2);
+        expect(elements[1].objects).to.have.length(1);
     });
 
     it('should not concat elements after repopulating', () => {
         pagesHandler.populate(pagesSettings);
         let elements = pagesHandler.getElements();
-        expect(elements['length']).to.be.equal(2);
-        expect(elements[0].objects.length).to.be.equal(2);
-        expect(elements[1].objects.length).to.be.equal(1);
+        expect(elements).to.have.length(2);
+        expect(elements[0].objects).to.have.length(2);
+        expect(elements[1].objects).to.have.length(1);
     });
 
     it('should correctly populate the page from file', () => {
@@ -109,11 +109,11 @@ describe('populate', () => {
 
 describe('validate', () => {
     it('should not return Diagnostic for correct lines', () => {
-        expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2).length).to.be.equals(0);
+        expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2)).to.have.length(0);
     });
-    it('should return corrext Diagnostic for non-existent page', () => {
+    it('should return correct Diagnostic for non-existent page', () => {
         let d = pagesHandler.validate('I use "pag"."a"', 2);
-        expect(d.length).to.be.equal(1);
+        expect(d).to.have.length(1);
         expect(d[0]).to.be.deep.equal({
             severity: 2,
             range:
@@ -127,7 +127,7 @@ describe('validate', () => {
     });
     it('should return corrext Diagnostic for non-existent page object', () => {
         let d = pagesHandler.validate('I use "page"."c"', 2);
-        expect(d.length).to.be.equal(1);
+        expect(d).to.have.length(1);
         expect(d[0]).to.be.deep.equal({
             severity: 2,
             range:
@@ -141,12 +141,21 @@ describe('validate', () => {
     });
     it('it should return diagnostic for several same non-existent pages', () => {
         let d = pagesHandler.validate('I use "pag"."a" and "pag"."a"', 2);
-        expect(d.length).to.be.equal(2);
+        expect(d).to.have.length(2);
         expect(d[0].range.start.character).to.be.equal(7);
         expect(d[0].range.end.character).to.be.equal(15);
         expect(d[1].range.start.character).to.be.equal(21);
         expect(d[1].range.end.character).to.be.equal(29);
     });
+    let invalidLines = [
+          'When I click "page"." a"',
+          'When I click "page "."a"',
+    ];
+    invalidLines.forEach(l => {
+        it(`should return diagnostic for "${l}" line`, () => {
+            expect(pagesHandler.validate(l, 0)).to.have.length.above(0);
+        });
+    })
 });
 
 describe('getFeaturePosition', () => {
@@ -193,12 +202,12 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the pages', () => {
         let line = 'When I use "';
-        expect(pagesHandler.getCompletion(line, 12).length).to.be.equals(2);
+        expect(pagesHandler.getCompletion(line, 12)).to.have.length(2);
     });
     it('should return correct page objects', () => {
         let page1Line = 'When I use "page"."a';
         let page2Line = 'When I use "page2"."';
-        expect(pagesHandler.getCompletion(page1Line, 21).length).to.be.equals(2);
-        expect(pagesHandler.getCompletion(page2Line, 20).length).to.be.equals(1);
+        expect(pagesHandler.getCompletion(page1Line, 21)).to.have.length(2);
+        expect(pagesHandler.getCompletion(page2Line, 20)).to.have.length(1);
     });
 });
