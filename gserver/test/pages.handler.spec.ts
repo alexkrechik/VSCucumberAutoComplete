@@ -102,7 +102,7 @@ describe('populate', () => {
 
 describe('validate', () => {
     it('should not return Diagnostic for correct lines', () => {
-        expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2)).to.be.null;
+        expect(pagesHandler.validate('When I click "page"."a" or "page2"."variable"', 2).length).to.be.equals(0);
     });
     it('should return corrext Diagnostic for non-existent page', () => {
         let d = pagesHandler.validate('I use "pag"."a"', 2);

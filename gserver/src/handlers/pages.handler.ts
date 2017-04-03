@@ -107,7 +107,7 @@ export default class PagesHandler {
         });
     }
 
-    validate(line: string, lineNum: number): Diagnostic[] | null {
+    validate(line: string, lineNum: number): Diagnostic[] {
         let res = [];
         if (~line.search(/"[^"^\s]*"."[^"^\s]*"/)) {
             let lineArr = line.split('"');
@@ -141,7 +141,7 @@ export default class PagesHandler {
                 curr += l.length + 1;
             });
         }
-        return res.length ? res : null;
+        return res;
     }
 
     getFeaturePosition(line: string, char: number): FeaturePosition {

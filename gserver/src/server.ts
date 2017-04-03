@@ -20,10 +20,12 @@ import {
 } from 'vscode-languageserver';
 import { format } from './format';
 import StepsHandler, {StepSettings} from './handlers/steps.handler';
+import PagesHandler, {PagesSettings} from './handlers/pages.handler';
 
 interface Settings {
     cucumberautocomplete: {
-        steps: StepSettings
+        steps: StepSettings,
+        pages: PagesSettings
     }
 }
 
@@ -37,6 +39,7 @@ let workspaceRoot: string;
 let settings: Settings;
 // Elements handlers
 let stepsHandler: StepsHandler;
+let pagesHandler: PagesHandler;
 
 connection.onInitialize((params): InitializeResult => {
     workspaceRoot = params.rootPath;
@@ -66,17 +69,40 @@ function getSettings(settings: Settings): Settings {
         return workspaceRoot + '/' + s;
     });
 
+    //Pages settings also should be populated with workspaceRoot
+    //Empty object if no values provided
+    let pages = settings.cucumberautocomplete.pages || {};
+    Object.keys(pages).forEach(p => {
+        pages[p] = workspaceRoot + '/' + pages[p];
+    });
+    settings.cucumberautocomplete.pages = pages;
+
     return settings;
+}
+
+function handlePages(): boolean {
+    let p = settings.cucumberautocomplete.pages;
+    return p && Object.keys(p).length ? true : false;
+}
+
+function pagesPosition(line: string, char: number): boolean {
+    if (handlePages() && pagesHandler.getFeaturePosition(line, char)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 connection.onDidChangeConfiguration((change) => {
     settings = getSettings(<Settings>change.settings);
     stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
+    handlePages() && (pagesHandler = new PagesHandler(settings.cucumberautocomplete.pages));
 });
 
 
 function populateHandlers() {
     stepsHandler.populate(settings.cucumberautocomplete.steps);
+    handlePages() && pagesHandler.populate(settings.cucumberautocomplete.pages);
 }
 
 documents.onDidOpen(() => {
@@ -87,11 +113,14 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
+    if (pagesPosition(line, char)) {
+        return pagesHandler.getCompletion(line, char);
+    }
     return stepsHandler.getCompletion(line, char);
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    return stepsHandler.getCompletionResolve(item);
+    return item;
 });
 
 function validate(text: string): Diagnostic[] {
@@ -101,6 +130,9 @@ function validate(text: string): Diagnostic[] {
         let diagnostic;
         if (diagnostic = stepsHandler.validate(line, i)) {
             res.push(diagnostic);
+        } else if (handlePages()) {
+            let pagesDiagnosticArr = pagesHandler.validate(line, i);
+            res = res.concat(pagesDiagnosticArr);
         }
     });
     return res;
@@ -119,6 +151,9 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
+    if (pagesPosition(line, char)) {
+        return pagesHandler.getDefinition(line, char);
+    }
     return stepsHandler.getDefinition(line, char);
 });
 
