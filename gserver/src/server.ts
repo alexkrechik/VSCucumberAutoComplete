@@ -19,8 +19,8 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 import { format } from './format';
-import StepsHandler, {StepSettings} from './handlers/steps.handler';
-import PagesHandler, {PagesSettings} from './handlers/pages.handler';
+import StepsHandler, {StepSettings} from './steps.handler';
+import PagesHandler, {PagesSettings} from './pages.handler';
 
 interface Settings {
     cucumberautocomplete: {

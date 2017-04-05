@@ -1,5 +1,4 @@
-import ElementsHandler, { Element } from './elements.handler';
-import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from '../util';
+import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from './util';
 import {
     Definition,
     CompletionItem,
@@ -25,7 +24,7 @@ export type Step = {
 
 export default class StepsHandler {
 
-    private elements: Step[];
+    elements: Step[];
 
     constructor(stepsPathes: StepSettings) {
         this.populate(stepsPathes);
@@ -35,7 +34,7 @@ export default class StepsHandler {
         return this.elements;
     }
 
-    private getStepRegExp(): RegExp {
+    getStepRegExp(): RegExp {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
@@ -62,11 +61,11 @@ export default class StepsHandler {
 
     }
 
-    getMatch(line): RegExpMatchArray {
+    getMatch(line: string): RegExpMatchArray {
         return line.match(this.getStepRegExp());
     }
 
-    private getSteps(filePath: string): Step[] {
+    getSteps(filePath: string): Step[] {
         let steps = [];
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
@@ -89,7 +88,7 @@ export default class StepsHandler {
         return steps;
     }
 
-    populate(stepsPathes: StepSettings) {
+    populate(stepsPathes: StepSettings): void {
         let stepsFiles = [];
         this.elements = [];
         stepsPathes.forEach((path) => {
@@ -102,10 +101,10 @@ export default class StepsHandler {
         });
     }
 
-    private gherkinWords = 'Given|When|Then|And|But';
-    private gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
+    gherkinWords = 'Given|When|Then|And|But';
+    gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
 
-    private getStepByText(text) {
+    getStepByText(text: string): Step {
         return this.elements.find(s => {
             return s.reg.test(text);
         });

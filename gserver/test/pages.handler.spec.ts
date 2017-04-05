@@ -1,4 +1,4 @@
-import PagesHandler from '../src/handlers/pages.handler';
+import PagesHandler from '../src/pages.handler';
 import { expect } from 'chai';
 
 let pagesSettings = {

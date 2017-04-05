@@ -1,4 +1,4 @@
-import StepsHandler from '../src/handlers/steps.handler';
+import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
 
 let data = [

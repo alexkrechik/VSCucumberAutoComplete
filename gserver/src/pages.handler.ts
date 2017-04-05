@@ -1,5 +1,4 @@
-import { getOSPath, getFileContent, clearComments, getId } from '../util';
-
+import { getOSPath, getFileContent, clearComments, getId } from './util';
 import {
     Definition,
     CompletionItem,
@@ -10,8 +9,6 @@ import {
     DiagnosticSeverity,
     CompletionItemKind
 } from 'vscode-languageserver';
-
-import ElementsHandler, { Element } from './elements.handler';
 
 export type PagesSettings = {
     [page: string]: string
@@ -36,7 +33,7 @@ type FeaturePosition = { page: string, object: string } | { page: string } | nul
 
 export default class PagesHandler {
 
-    private elements: Page[];
+    elements: Page[];
 
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page !== undefined) {
@@ -67,7 +64,7 @@ export default class PagesHandler {
         return line.match(/^(?:(?:.*?[\s\.])|.{0})([a-zA-z][^\s\.]*)\s*[:=]/);
     }
 
-    private getPageObjects(text: string, path: string): PageObject[] {
+    getPageObjects(text: string, path: string): PageObject[] {
         let res = [];
         let textArr = text.split(/\r?\n/g);
         textArr.forEach((line, i) => {
@@ -87,7 +84,7 @@ export default class PagesHandler {
         return res;
     }
 
-    private getPage(name: string, path: string): Page {
+    getPage(name: string, path: string): Page {
         let text = getFileContent(path);
         text = clearComments(text);
         let zeroPos = Position.create(0, 0);
