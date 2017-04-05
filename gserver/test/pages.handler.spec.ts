@@ -150,6 +150,8 @@ describe('validate', () => {
     let invalidLines = [
           'When I click "page"." a"',
           'When I click "page "."a"',
+          'When I click "".""',
+          'When I click "page".""'
     ];
     invalidLines.forEach(l => {
         it(`should return diagnostic for "${l}" line`, () => {

@@ -39,14 +39,14 @@ export default class PagesHandler {
     private elements: Page[];
 
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
-        if (page) {
+        if (page !== undefined) {
             let pageElement = this.elements.find((e) => {
                 return e.text === page;
             });
             if (!pageElement) {
                 return null;
             }
-            if (pageObject) {
+            if (pageObject !== undefined) {
                 let pageObjectElement = pageElement.objects.find((e) => {
                     return e.text === pageObject;
                 });
@@ -69,7 +69,8 @@ export default class PagesHandler {
 
     private getPageObjects(text: string, path: string): PageObject[] {
         let res = [];
-        text.split(/\r?\n/g).forEach((line, i) => {
+        let textArr = text.split(/\r?\n/g);
+        textArr.forEach((line, i) => {
             let poMatch = this.getPoMatch(line);
             if (poMatch) {
                 let pos = Position.create(i, 0);
