@@ -119,7 +119,7 @@ describe('validate', () => {
             range:
             {
                 start: { line: 2, character: 7 },
-                end: { line: 2, character: 15 }
+                end: { line: 2, character: 10 }
             },
             message: 'Was unable to find page "pag"',
             source: 'ex'
@@ -133,7 +133,7 @@ describe('validate', () => {
             range:
             {
                 start: { line: 2, character: 14 },
-                end: { line: 2, character: 16 }
+                end: { line: 2, character: 15 }
             },
             message: 'Was unable to find page object "c" for page "page"',
             source: 'ex'
@@ -143,9 +143,9 @@ describe('validate', () => {
         let d = pagesHandler.validate('I use "pag"."a" and "pag"."a"', 2);
         expect(d).to.have.length(2);
         expect(d[0].range.start.character).to.be.equal(7);
-        expect(d[0].range.end.character).to.be.equal(15);
+        expect(d[0].range.end.character).to.be.equal(10);
         expect(d[1].range.start.character).to.be.equal(21);
-        expect(d[1].range.end.character).to.be.equal(29);
+        expect(d[1].range.end.character).to.be.equal(24);
     });
     let invalidLines = [
           'When I click "page"." a"',

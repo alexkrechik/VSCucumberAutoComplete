@@ -122,7 +122,7 @@ export default class PagesHandler {
                             severity: DiagnosticSeverity.Warning,
                             range: {
                                 start: { line: lineNum, character: curr - page.length - 1 },
-                                end: { line: lineNum, character: curr + 3 + pageObject.length }
+                                end: { line: lineNum, character: curr - 1 }
                             },
                             message: `Was unable to find page "${page}"`,
                             source: 'ex'
@@ -132,7 +132,7 @@ export default class PagesHandler {
                             severity: DiagnosticSeverity.Warning,
                             range: {
                                 start: { line: lineNum, character: curr + 2 },
-                                end: { line: lineNum, character: curr + 3 + pageObject.length }
+                                end: { line: lineNum, character: curr + 3 + pageObject.length - 1}
                             },
                             message: `Was unable to find page object "${pageObject}" for page "${page}"`,
                             source: 'ex'
