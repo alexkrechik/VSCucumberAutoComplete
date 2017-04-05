@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as strip from 'strip-comments';
 
 export function getOSPath(path) {
     /* Add suffics for the provided path
@@ -15,20 +16,7 @@ export function getFileContent(filePath: string): string {
 }
 
 export function clearComments(text: string): string {
-
-    //Replace multi-line comments like /* <COMMENT> */
-    let match = text.match(/(\/\*[\s\S]*?\*\/(?:\n\r?)?)/g);
-    match && match.forEach(m => {
-        let numMatch = m.match(/\n/g);
-        let n = numMatch ? numMatch.length : 1;
-        text = text.replace(m, '\n'.repeat(n));
-    })
-
-    //Replace lines, thet begin from '//' or '#'
-    text = text.replace(/.*(\/\/|#).*/g, '');
-
-    //Return our multi-line text without comments
-    return text;
+    return strip(text, {silent: true, preserveNewlines: true});
 
 }
 
