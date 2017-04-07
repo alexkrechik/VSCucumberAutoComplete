@@ -23,7 +23,8 @@
 			"request": "attach",
 			"port": 6004,
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/../gclient/server"
+			"outFiles": ["${workspaceRoot}/../gclient/server/**/*.js"],
+			"protocol": "legacy"
 		}
 	]
 }
