@@ -80,6 +80,11 @@ function getSettings(settings: Settings): Settings {
     return settings;
 }
 
+function handleSteps(): boolean {
+     let s = settings.cucumberautocomplete.steps;
+    return s && s.length ? true : false;
+}
+
 function handlePages(): boolean {
     let p = settings.cucumberautocomplete.pages;
     return p && Object.keys(p).length ? true : false;
@@ -95,13 +100,13 @@ function pagesPosition(line: string, char: number): boolean {
 
 connection.onDidChangeConfiguration((change) => {
     settings = getSettings(<Settings>change.settings);
-    stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
+    handleSteps() && (stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps));
     handlePages() && (pagesHandler = new PagesHandler(settings.cucumberautocomplete.pages));
 });
 
 
 function populateHandlers() {
-    stepsHandler.populate(settings.cucumberautocomplete.steps);
+    handleSteps() && stepsHandler.populate(settings.cucumberautocomplete.steps);
     handlePages() && pagesHandler.populate(settings.cucumberautocomplete.pages);
 }
 
@@ -116,7 +121,9 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     if (pagesPosition(line, char)) {
         return pagesHandler.getCompletion(line, char);
     }
-    return stepsHandler.getCompletion(line, char);
+    if (handleSteps()) {
+        return stepsHandler.getCompletion(line, char);
+    }
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
@@ -128,7 +135,7 @@ function validate(text: string): Diagnostic[] {
     let textArr = text.split(/\r?\n/g);
     textArr.forEach( (line, i) => {
         let diagnostic;
-        if (diagnostic = stepsHandler.validate(line, i)) {
+        if (handleSteps() && (diagnostic = stepsHandler.validate(line, i))) {
             res.push(diagnostic);
         } else if (handlePages()) {
             let pagesDiagnosticArr = pagesHandler.validate(line, i);
@@ -154,7 +161,9 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     if (pagesPosition(line, char)) {
         return pagesHandler.getDefinition(line, char);
     }
-    return stepsHandler.getDefinition(line, char);
+    if (handleSteps) {
+        return stepsHandler.getDefinition(line, char);
+    }
 });
 
 function getIndent(options: FormattingOptions): string {
