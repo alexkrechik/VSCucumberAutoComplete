@@ -8,12 +8,9 @@ import {
     TextDocuments,
     InitializeResult,
     Diagnostic,
-    DiagnosticSeverity,
     TextDocumentPositionParams,
-    CompletionItemKind,
     CompletionItem,
     Definition,
-    Location,
     Range,
     Position,
     DocumentFormattingParams,
@@ -21,311 +18,31 @@ import {
     DocumentRangeFormattingParams,
     FormattingOptions
 } from 'vscode-languageserver';
+import { format } from './format';
+import StepsHandler, {StepSettings} from './steps.handler';
+import PagesHandler, {PagesSettings} from './pages.handler';
 
-import * as fs from 'fs';
-import * as glob from 'glob';
+interface Settings {
+    cucumberautocomplete: {
+        steps: StepSettings,
+        pages: PagesSettings
+    }
+}
 
 //Create connection and setup communication between the client and server
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
+//Path to the root of our workspace
 let workspaceRoot: string;
-//Array will be populated with all the steps found
-let steps = [];
-// Object will be populated with all the pages found
-let pages = {};
-//Gerkin Reg ex
-let gerkinRegEx = /^\s*(Given|When|Then|And|But) /;
 // Object, which contains current configuration
-let settings;
-
-//get unique id for the elements ids
-let id = {
-    x: 0,
-    get() {
-        return this.x++;
-    }
-};
-
-interface Step {
-    id: string,
-    reg: RegExp,
-    text: string,
-    desc: string,
-    def: Definition
-}
-
-interface StepLine {
-    //Line without 'Given|When|Then|And' part
-    stepPart: string,
-    //Step, matched to the stepPart, or null if absent
-    stepMatch: Step,
-    //Start position of line
-    start: number,
-    //End position of line
-    end: number
-}
-
-interface PageObject {
-    id: string,
-    text: string,
-    desc: string,
-    def: Definition
-}
-
-interface Page {
-    id: string,
-    text: string,
-    desc: string,
-    def: Definition,
-    objects: PageObject[]
-}
-
-//Return start, end position and matched (if any) Gherkin step
-function handleLine(line: String): StepLine {
-    let typeRegEx = /Given |When |Then |And |But /;
-    let typeMatch = line.match(typeRegEx);
-    let typePart = typeMatch[0];
-    let stepPart = line.replace(gerkinRegEx, '');
-    let stepMatch;
-    for (let i = 0; i < steps.length; i++) {
-        if (line.trim().match(steps[i].reg) || stepPart.search(steps[i].reg) !== -1) {
-            stepMatch = steps[i];
-            break;
-        }
-    }
-    let start = typeMatch.index;
-    let end = typeMatch.index + typePart.length + stepPart.length;
-    return {
-        stepPart: stepPart,
-        stepMatch: stepMatch,
-        start: start,
-        end: end
-    };
-}
-
-//Validate all the Gherkin lines using steps[] and pages{}
-function validate(text: String): Diagnostic[] {
-    let lines = text.split(/\r?\n/g);
-    let diagnostics: Diagnostic[] = [];
-    lines.forEach((line, i) => {
-        if (line.search(gerkinRegEx) !== -1) {
-            let res = handleLine(line);
-            if (!res.stepMatch) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: {
-                        start: { line: i, character: res.start },
-                        end: { line: i, character: res.end }
-                    },
-                    message: `Was unable to find step for "${line}"`,
-                    source: 'ex'
-                });
-            } else {
-                if (Object.keys(pages).length) {
-                    let match = line.match(/"[^"^\s]*"."[^"^\s]*"/g);
-                    if (match) {
-                        match.forEach(m => {
-                            let [page, pageObject] = m.match(/"([^"]*)"/g).map(v => {return v.replace(/"/g, ''); });
-                            if (!pages[page]) {
-                                let pagePos = line.search(new RegExp(`"${page}"."`)) + 1;
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Warning,
-                                    range: {
-                                        start: { line: i, character: pagePos },
-                                        end: { line: i, character: pagePos + page.length }
-                                    },
-                                    message: `"${page}" page doesn't exists`,
-                                    source: 'ex'
-                                });
-                            }
-                            if (!pages[page] || !pages[page].objects.find((val) => {return val.text === pageObject; })) {
-                                let pageObjectPos = line.search(new RegExp(`"."${pageObject}"`)) + 3;
-                                diagnostics.push({
-                                    severity: DiagnosticSeverity.Warning,
-                                    range: {
-                                        start: { line: i, character: pageObjectPos },
-                                        end: { line: i, character: pageObjectPos + pageObject.length }
-                                    },
-                                    message: `"${pageObject}" page object for "${page}" page doesn't exists`,
-                                    source: 'ex'
-                                });
-                            }
-                        });
-                    }
-                }
-            }
-        }
-    });
-    return diagnostics;
-}
-
-interface Settings {
-    cucumberautocomplete: AppSettings
-}
-
-interface AppSettings {
-    steps: string | string[],
-    pages?: Object
-}
-
-//Add 'file://' for the non-windows OS's and file:/// for windows
-function getOSPath(path) {
-    if (/^win/.test(require('process').platform)) {
-        path = 'file:///' + workspaceRoot + '/' + path;
-    } else {
-        path = 'file:' + workspaceRoot + '/' + path;
-    }
-    return path;
-}
-
-//Get all the steps from provided file
-function getFileSteps(filePath: string): Step[] {
-    let steps = [];
-    let regExpStart, regExpEnd;
-    if (settings) {
-        regExpStart = settings.cucumberautocomplete.regExpStart || '\/';
-        regExpEnd = settings.cucumberautocomplete.regExpEnd || '\/';
-    } else {
-        regExpStart = '\/';
-        regExpEnd = '\/';
-    }
-    fs.readFileSync(filePath, 'utf8').split(/\r?\n/g).forEach((line, lineIndex) => {
-        // We need to figure out how to ommit the comments, otherwise this will also parse commented lines
-        if (line.search(new RegExp('(Given|When|Then|And|But).*' + regExpStart + '.+' + regExpEnd, 'i')) !== -1) {
-            //Get the '//' match
-            let match = line.match(new RegExp(regExpStart + '(.+)' + regExpEnd));
-            //Get matched text, remove start and finish slashes
-            let matchText = match[1];
-            let pos = Position.create(lineIndex, match.index);
-            steps.push({
-                id: 'step' + id.get(),
-                reg: new RegExp(matchText),
-                //We should remove text between quotes, '^|$' regexp marks and backslashes
-                text: matchText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
-                desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
-                def: Location.create('file://' + filePath, Range.create(pos, pos))
-            });
-        }
-    });
-    return steps;
-}
-
-function getPageObjects(text: string, path: string): PageObject[] {
-    let res = [];
-    text.split(/\r?\n/g).forEach((line, i) => {
-        let poMatch = line.match(/[\s\.]([a-zA-z][^\s^\.]*)\s*[:=]/);
-        if (poMatch) {
-            let pos = Position.create(i, 0);
-            if (!res.find(v => {return v.text === poMatch[1]; })) {
-                res.push({
-                    id: 'pageObect' + id.get(),
-                    text: poMatch[1],
-                    desc: line,
-                    def: Location.create(getOSPath(path), Range.create(pos, pos))
-                });
-            }
-        }
-    });
-    return res;
-}
-
-//Get Page object
-function getPage(name: string, path: string): Page {
-    let text = fs.readFileSync(path, 'utf8');
-    let zeroPos = Position.create(0, 0);
-    return {
-        id: 'page' + id.get(),
-        text: name,
-        desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-        def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
-        objects: getPageObjects(text, path)
-    };
-}
-
-//Get steps completion
-function getStepsCompletion(line: string): CompletionItem[] {
-    //Get line part without gherkin (Given When Then)
-    let stepPart = line.replace(gerkinRegEx, '');
-    //Return all the braces into default state
-    stepPart = stepPart.replace(/"[^"]*"/g, '""');
-    //We should not obtain last word
-    stepPart = stepPart.replace(/[^\s]+$/, '');
-    //We should replace/search only string beginning
-    let stepPartRe = new RegExp('^' + stepPart);
-    return steps
-    .filter(el => {
-        return el.text.search(stepPartRe) !== -1;
-    })
-    .map(step => {
-        return {
-            label: step.text.replace(stepPartRe, ''),
-            kind: CompletionItemKind.Function,
-            data: step.id
-        };
-    });
-}
-
-function getPageCompletion(): CompletionItem[] {
-    return Object.keys(pages).map((page) => {
-        return {
-            label: pages[page].text,
-            kind: CompletionItemKind.Function,
-            data: pages[page].id
-        };
-    });
-}
-
-function getPageObjectCompletion(page: string): CompletionItem[] {
-    return pages[page].objects.map((pageObject) => {
-        return {
-            label: pageObject.text,
-            kind: CompletionItemKind.Function,
-            data: pageObject.id
-        };
-    });
-}
-
-//Current position of our cursor
-enum PositionType {
-    Step,
-    Page,
-    PageObject
-}
-
-interface PositionObject {
-    type: PositionType,
-    page?: string,
-    pageObject?: string
-}
-
-function getPositionObject(line: string, position: number): PositionObject {
-    let slicedLine = line.slice(0, position);
-    let match = slicedLine.match(/"/g);
-    if (match && match.length % 2) {
-        //Double quote was opened but was not closed
-        let pageMatch = slicedLine.match(/"([^"]*)"\."([^"]*)$/);
-        let endLine = line.slice(position).replace(/".*/, '');
-        if (pageMatch) {
-            return {
-                type: PositionType.PageObject,
-                page: pageMatch[1],
-                pageObject: pageMatch[2] + endLine
-            };
-        } else {
-            return {
-                type: PositionType.Page,
-                page: slicedLine.match(/([^"]*)$/)[1] + endLine
-            };
-        }
-    } else {
-        return {type: PositionType.Step};
-    }
-}
+let settings: Settings;
+// Elements handlers
+let stepsHandler: StepsHandler;
+let pagesHandler: PagesHandler;
 
 connection.onInitialize((params): InitializeResult => {
     workspaceRoot = params.rootPath;
-    // setSteps();
     return {
         capabilities: {
             // Full text sync mode
@@ -334,111 +51,113 @@ connection.onInitialize((params): InitializeResult => {
             completionProvider: {
                 resolveProvider: true,
             },
-            definitionProvider : true,
-            documentFormattingProvider : true,
+            definitionProvider: true,
+            documentFormattingProvider: true,
             documentRangeFormattingProvider: true
         }
     };
 });
 
-function populateStepsAndPageObjects() {
-    //Populate steps array
-    let stepsPathes = [].concat(settings.cucumberautocomplete.steps);
-    steps = [];
-    stepsPathes.forEach((path) => {
-        glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
-            steps = steps.concat(getFileSteps(workspaceRoot + '/' + f));
-        });
+function getSettings(settings: Settings): Settings {
+
+    //Steps settings.
+    //Path to steps should be converted to array if string provided
+    //Pathes should be completed with workspaceRoot
+    let steps = settings.cucumberautocomplete.steps;
+    steps = Array.isArray(steps) ? steps : [steps];
+    settings.cucumberautocomplete.steps = steps.map(s => {
+        return workspaceRoot + '/' + s;
     });
 
-    //Populate pages array
-    let pagesObj = settings.cucumberautocomplete.pages;
-    pages = {};
-    Object.keys(pagesObj).forEach((key) => {
-        let path = pagesObj[key];
-        pages[key] = getPage(key, path);
+    //Pages settings also should be populated with workspaceRoot
+    //Empty object if no values provided
+    let pages = settings.cucumberautocomplete.pages || {};
+    Object.keys(pages).forEach(p => {
+        pages[p] = workspaceRoot + '/' + pages[p];
     });
+    settings.cucumberautocomplete.pages = pages;
+
+    return settings;
+}
+
+function handlePages(): boolean {
+    let p = settings.cucumberautocomplete.pages;
+    return p && Object.keys(p).length ? true : false;
+}
+
+function pagesPosition(line: string, char: number): boolean {
+    if (handlePages() && pagesHandler.getFeaturePosition(line, char)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 connection.onDidChangeConfiguration((change) => {
-    //Get settings object
-    settings = <Settings>change.settings;
+    settings = getSettings(<Settings>change.settings);
+    stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
+    handlePages() && (pagesHandler = new PagesHandler(settings.cucumberautocomplete.pages));
 });
 
+
+function populateHandlers() {
+    stepsHandler.populate(settings.cucumberautocomplete.steps);
+    handlePages() && pagesHandler.populate(settings.cucumberautocomplete.pages);
+}
+
 documents.onDidOpen(() => {
-    settings && populateStepsAndPageObjects();
+    populateHandlers();
 });
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
-    let positionObj = getPositionObject(line, char);
-    if (line.search(gerkinRegEx) !== -1) {
-        switch (positionObj.type) {
-            case PositionType.Page:
-                return getPageCompletion();
-            case PositionType.Step:
-                return getStepsCompletion(line);
-            case PositionType.PageObject:
-                return getPageObjectCompletion(positionObj.page);
-        }
+    if (pagesPosition(line, char)) {
+        return pagesHandler.getCompletion(line, char);
     }
+    return stepsHandler.getCompletion(line, char);
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-    let step = steps.find((el) => {return el.id === item.data; });
-    item.detail = step.text;
-    item.documentation = step.desc;
     return item;
 });
 
+function validate(text: string): Diagnostic[] {
+    let res = [];
+    let textArr = text.split(/\r?\n/g);
+    textArr.forEach( (line, i) => {
+        let diagnostic;
+        if (diagnostic = stepsHandler.validate(line, i)) {
+            res.push(diagnostic);
+        } else if (handlePages()) {
+            let pagesDiagnosticArr = pagesHandler.validate(line, i);
+            res = res.concat(pagesDiagnosticArr);
+        }
+    });
+    return res;
+}
+
 documents.onDidChangeContent((change): void => {
     let changeText = change.document.getText();
+    //Validate document
     let diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
     //Populate steps and page objects after every symbol typed
-    settings && populateStepsAndPageObjects();
+    populateHandlers();
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     let line = text[position.position.line];
     let char = position.position.character;
-    let positionObj = getPositionObject(line, char);
-    switch (positionObj.type) {
-        case PositionType.Page:
-            return pages[positionObj.page].def;
-        case PositionType.Step:
-            let match = handleLine(line);
-            if (match.stepMatch) {
-                return match.stepMatch.def;
-            }
-        case PositionType.PageObject:
-            return pages[positionObj.page].objects
-                .find((el) => { return positionObj.pageObject === el.text; }).def;
+    if (pagesPosition(line, char)) {
+        return pagesHandler.getDefinition(line, char);
     }
+    return stepsHandler.getDefinition(line, char);
 });
 
-interface FormatConf {
-    text: string,
-    indents: number
-}
-
-let formatConf = [
-    {text: 'Feature:', indents: 0},
-    {text: 'Scenario:', indents: 1},
-    {text: 'Given', indents: 2},
-    {text: 'When', indents: 2},
-    {text: 'Then', indents: 2},
-    {text: 'And', indents: 2},
-    {text: 'But', indents: 2},
-    {text: '#', indents: 2}
-];
-
-function format(options: FormattingOptions, text: string, range?: Range): TextEdit  {
-
-    //Get indent
+function getIndent(options: FormattingOptions): string {
     let spaces = options.insertSpaces;
     let tabSize = options.tabSize;
     let indent;
@@ -447,46 +166,25 @@ function format(options: FormattingOptions, text: string, range?: Range): TextEd
     } else {
         indent = '\t';
     }
-
-    //Get text array
-    let textArr = text.split(/\r?\n/g);
-
-    //Use whole document if no range provided
-    if (range) {
-        range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
-        textArr = textArr.splice(range.start.line, range.end.line - range.start.line + 1);
-    } else {
-        range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
-    }
-
-    //Get formatted array
-    let indentsCount = 0;
-    let newTextArr = textArr.map(line => {
-        if (line.search(/^\s*$/) !== -1) {
-            return '';
-        } else {
-            let foundFormat = formatConf.find(conf => {
-                return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
-            });
-            if (foundFormat) {
-                indentsCount = foundFormat.indents;
-            }
-            return line.replace(/^\s*/, indent.repeat(indentsCount));
-        }
-    });
-
-    //Return TextEdit
-    return TextEdit.replace(range, newTextArr.join('\r\n'));
+    return indent;
 }
 
 connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
     let text = documents.get(params.textDocument.uri).getText();
-    return [format(params.options, text)];
+    let textArr = text.split(/\r?\n/g);
+    let indent = getIndent(params.options);
+    let range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+    return [TextEdit.replace(range, format(indent, range, text))];
 });
 
 connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
     let text = documents.get(params.textDocument.uri).getText();
-    return [format(params.options, text, params.range)];
+    let textArr = text.split(/\r?\n/g);
+    let range = params.range;
+    let indent = getIndent(params.options);
+    range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
+    text = textArr.splice(range.start.line, range.end.line - range.start.line + 1).join('\r\n');
+    return [TextEdit.replace(range, format(indent, range, text))];
 });
 
 connection.listen();

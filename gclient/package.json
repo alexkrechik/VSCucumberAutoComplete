@@ -1,13 +1,13 @@
 {
     "name": "cucumberautocomplete",
-    "version": "2.0.1",
+    "version": "2.1.0",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.4.0"
     },
     "license": "MIT",
-    "displayName": "Cucumber Auto Complete",
-    "description": "VSCode Cucumber (Gherkin) Full Language Support + Autocomplete",
+    "displayName": "Cucumber Syntax + Format + Auto Complete",
+    "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
     "categories": [
         "Languages"
     ],
@@ -62,16 +62,6 @@
                 "cucumberautocomplete.pages": {
                     "description": "Object, which consists of 'page name' => 'page object file path' pairs. Not required",
                     "type": ["null", "object"]
-                },
-                "cucumberautocomplete.regExpStart": {
-                    "description": "Start of regexp, that will be used for getting steps from cucumberautocomplete.steps files.",
-                    "type": ["null", "string"],
-                    "default": "\/"
-                },
-                "cucumberautocomplete.regExpEnd": {
-                    "description": "End of regexp, that will be used for getting steps from cucumberautocomplete.steps files.",
-                    "type": ["null", "string"],
-                    "default": "\/"
                 }
             }
         }
