@@ -3,7 +3,9 @@
 * [#49](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/49) Unable to parse some step definitions from feature files
 
 ## 2.0.0 / 2017-01-21
-### Features:
+### BREAKING CHANGES
+* cucumberautocomplete.steps setting format was changed to glob style due to [#24](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/24)
+### Features/Improvements:
 * [#24](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/24) Settings config file does not consider files on multiple levels
 * [#29](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/29) Snippets support
 * [#28](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/28) Multi - language extension support
