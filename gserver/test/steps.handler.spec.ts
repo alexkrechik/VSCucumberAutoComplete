@@ -133,20 +133,20 @@ describe('getDefinition', () => {
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        let completion = s.getCompletion(' When I do', 10);
+        let completion = s.getCompletion(' When I do', {character: 10, line: 2});
         expect(completion.length).to.be.equal(2);
     });
     it('should correctly filter completion', () => {
-        let completion = s.getCompletion(' When I do another th', 14);
+        let completion = s.getCompletion(' When I do another th', {character: 14, line: 2});
         expect(completion.length).to.be.equal(1);
         expect(completion[0].label).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        let completion = s.getCompletion('I do another th', 14);
+        let completion = s.getCompletion('I do another th', {character: 14, line: 2});
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        let completion = s.getCompletion('When non-existent step', 14);
+        let completion = s.getCompletion('When non-existent step', {character: 14, line: 2});
         expect(completion).to.be.null;
     });
 });

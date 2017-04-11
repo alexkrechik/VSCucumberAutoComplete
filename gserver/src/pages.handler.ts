@@ -7,7 +7,8 @@ import {
     Range,
     Diagnostic,
     DiagnosticSeverity,
-    CompletionItemKind
+    CompletionItemKind,
+    TextEdit
 } from 'vscode-languageserver';
 
 export type PagesSettings = {
@@ -129,7 +130,7 @@ export default class PagesHandler {
                             severity: DiagnosticSeverity.Warning,
                             range: {
                                 start: { line: lineNum, character: curr + 2 },
-                                end: { line: lineNum, character: curr + 3 + pageObject.length - 1}
+                                end: { line: lineNum, character: curr + 3 + pageObject.length - 1 }
                             },
                             message: `Was unable to find page object "${pageObject}" for page "${page}"`,
                             source: 'ex'
@@ -178,31 +179,54 @@ export default class PagesHandler {
         }
     };
 
-    getCompletion(line: string, char: number): CompletionItem[] | null {
-        let position = this.getFeaturePosition(line, char);
-        let page = position['page'];
-        let object = position['object'];
+    getPageCompletion(line: string, position: Position, page: Page): CompletionItem {
+        let search = line.search(/"([^"]*)"$/);
+        if (search > 0 && position.character === (line.length - 1)) {
+            let start = Position.create(position.line, search);
+            let end = Position.create(position.line, line.length);
+            let range = Range.create(start, end);
+            return {
+                label: page.text,
+                kind: CompletionItemKind.Function,
+                data: page.id,
+                command: {title: 'cursorMove', command: 'cursorMove', arguments: [{to: 'right', by: 'wrappedLine', select: false, value: 1}]},
+                insertText: page.text + '".'
+            }
+        } else {
+            return {
+                label: page.text,
+                kind: CompletionItemKind.Function,
+                data: page.id
+            }
+        }
+    }
+
+    getPageObjectCompletion(line: string, position: Position, pageObject: PageObject): CompletionItem {
+        let insertText = '';
+        if (line.length === position.character) {
+            insertText = '"';
+        }
+        return {
+            label: pageObject.text,
+            kind: CompletionItemKind.Function,
+            data: pageObject.id,
+            insertText: pageObject.text + insertText
+        };
+    }
+
+    getCompletion(line: string, position: Position): CompletionItem[] | null {
+        let fPosition = this.getFeaturePosition(line, position.character);
+        let page = fPosition['page'];
+        let object = fPosition['object'];
         if (object !== undefined && page !== undefined) {
             let pageElement = this.getElements(page);
             if (pageElement) {
-                return pageElement['objects'].map(o => {
-                    return {
-                        label: o.text,
-                        kind: CompletionItemKind.Function,
-                        data: o.id
-                    };
-                });
+                return pageElement['objects'].map(this.getPageObjectCompletion.bind(null, line, position));
             } else {
                 return null;
             }
         } else if (page !== undefined) {
-            return this.getElements()['map'](p => {
-                return {
-                    label: p.text,
-                    kind: CompletionItemKind.Function,
-                    data: p.id
-                };
-            });
+            return this.getElements()['map'](this.getPageCompletion.bind(null, line, position));
         } else {
             return null;
         }

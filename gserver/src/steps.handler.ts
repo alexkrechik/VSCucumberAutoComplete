@@ -141,7 +141,7 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
-    getCompletion(line: string, char: number): CompletionItem[] | null {
+    getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
         let match = line.match(this.gherkinRegEx);
         if (!match) {

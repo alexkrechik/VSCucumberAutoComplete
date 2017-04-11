@@ -204,12 +204,12 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the pages', () => {
         let line = 'When I use "';
-        expect(pagesHandler.getCompletion(line, 12)).to.have.length(2);
+        expect(pagesHandler.getCompletion(line, {character: 12, line: 2})).to.have.length(2);
     });
     it('should return correct page objects', () => {
         let page1Line = 'When I use "page"."a';
         let page2Line = 'When I use "page2"."';
-        expect(pagesHandler.getCompletion(page1Line, 21)).to.have.length(2);
-        expect(pagesHandler.getCompletion(page2Line, 20)).to.have.length(1);
+        expect(pagesHandler.getCompletion(page1Line, {character: 21, line: 2})).to.have.length(2);
+        expect(pagesHandler.getCompletion(page2Line, {character: 20, line: 2})).to.have.length(1);
     });
 });
