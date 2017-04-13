@@ -119,10 +119,10 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     let line = text[position.position.line];
     let char = position.position.character;
     if (pagesPosition(line, char)) {
-        return pagesHandler.getCompletion(line, char);
+        return pagesHandler.getCompletion(line, position.position);
     }
     if (handleSteps()) {
-        return stepsHandler.getCompletion(line, char);
+        return stepsHandler.getCompletion(line, position.position);
     }
 });
 
