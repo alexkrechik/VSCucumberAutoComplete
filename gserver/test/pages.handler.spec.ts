@@ -212,4 +212,21 @@ describe('getCompletion', () => {
         expect(pagesHandler.getCompletion(page1Line, {character: 21, line: 2})).to.have.length(2);
         expect(pagesHandler.getCompletion(page2Line, {character: 20, line: 2})).to.have.length(1);
     });
+    it('should return usual string for stab=ndard page', () => {
+       let line = 'When I use "".""';
+       let pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})[0];
+       expect(pageCompletion).to.not.have.property('insertText');
+    });
+    it('should return smart page if string ends with "', () => {
+       let line = 'When I use ""';
+       let pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})[0];
+       expect(pageCompletion).to.have.property('insertText').that.is.equals('page".');
+       expect(pageCompletion).to.have.property('command')
+    });
+    it('should return correct insertText for pageObject differs from string', () => {
+        let poCompletion1 = pagesHandler.getCompletion('When I use "page"."', {character: 19, line: 2})[0];
+        let poCompletion2 = pagesHandler.getCompletion('When I use "page".""', {character: 19, line: 2})[0];
+        expect(poCompletion1).to.have.property('insertText').that.is.equals('a"');
+        expect(poCompletion2).to.have.property('insertText').that.is.equals('a');
+    });
 });
