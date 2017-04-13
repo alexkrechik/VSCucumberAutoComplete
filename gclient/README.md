@@ -10,7 +10,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 * Definitions support for all the steps parts
 * Document format support
 
-All the steps and page objects will be re-populated after every .feature file opened or after every symbol in .featyre file typed.
+All the steps and page objects will be re-populated after every `.feature` file opened or after every symbol in `.feature` file typed.
 
 ![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
 ## How to use:
@@ -19,7 +19,7 @@ All the steps and page objects will be re-populated after every .feature file op
 3. In the opened app root create (if absent) .vscode folder with settings.json file or just run ```mkdir .vscode && touch .vscode/settings.json```
 4. Add all the needed settings to the settings.json file
 5. Reload app to apply all the extension changes
-6. To get autocomplete works, "strings" var of "editor.quickSuggestions" setting should be set to true, due to by default "string" suggestions will not appear
+6. To get autocomplete working, `strings` var of `editor.quickSuggestions` setting should be set to true (because by default `string` suggestions will not appear)
 
 ### settings example:
 ```javascript
