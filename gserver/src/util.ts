@@ -12,12 +12,15 @@ export function getOSPath(path) {
 }
 
 export function getFileContent(filePath: string): string {
-    return fs.readFileSync(filePath, 'utf8');
+    try {
+        return fs.readFileSync(filePath, 'utf8');
+    } catch(err) {
+        return '';
+    }
 }
 
 export function clearComments(text: string): string {
     return strip(text, {silent: true, preserveNewlines: true});
-
 }
 
 //get unique id for the elements ids
