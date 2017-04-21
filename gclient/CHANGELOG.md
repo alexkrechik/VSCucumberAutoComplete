@@ -1,3 +1,7 @@
+## 2.1.1 / 2017-04-21
+### Bugfixes:
+* [#64](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/64) A trailing space gives "unable to find step"
+
 ## 2.1.0 / 2017-04-20
 ### MAIN CHANGES
 * Gherkin steps definitions in all the languages should be supported by default

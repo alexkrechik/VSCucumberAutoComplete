@@ -111,6 +111,7 @@ export default class StepsHandler {
     }
 
     validate(line: string, lineNum: number): Diagnostic | null {
+        line = line.replace(/\s*$/, '');
         let match = line.match(this.gherkinRegEx);
         if (!match) {
             return null;
