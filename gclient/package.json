@@ -1,12 +1,12 @@
 {
     "name": "cucumberautocomplete",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.4.0"
     },
     "license": "MIT",
-    "displayName": "Cucumber Full Language Support + Format + Auto Complete",
+    "displayName": "Cucumber Full Language Support",
     "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
     "categories": [
         "Languages"

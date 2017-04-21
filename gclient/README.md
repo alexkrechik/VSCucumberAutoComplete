@@ -1,4 +1,4 @@
-# Cucumber Autocomplete extension
+# Cucumber Full Language Support
 VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomplete
 
 ## This extension adds rich language support for the Cucumber (Gherkin) language to VS Code, including:
