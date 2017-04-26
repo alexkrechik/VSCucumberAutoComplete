@@ -1,4 +1,4 @@
-import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from './util';
+import { getOSPath, getFileContent, clearComments, getId, escapeRegExp, removeInterpolation } from './util';
 import {
     Definition,
     CompletionItem,
@@ -73,11 +73,12 @@ export default class StepsHandler {
             let match = this.getMatch(line);
             if (match) {
                 let beforeGherkin = match[1];
+                //remove ruby interpolation if present.
                 let stepText = match[4];
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 steps.push({
                     id: 'step' + getId(),
-                    reg: new RegExp(escapeRegExp(stepText)),
+                    reg: new RegExp(escapeRegExp(removeInterpolation(stepText))),
                     //We should remove text between quotes, '^|$' regexp marks and backslashes
                     text: stepText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
                     desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),

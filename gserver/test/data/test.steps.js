@@ -6,6 +6,9 @@ this.When(/^I do another thing$/, function (next) {
     next;
 });
 
+this.When(/^I do #{INTERPOLATION} test$/, function (next) {
+    next;
+});
 
 //this.When(/^I check one line commets doesn't affect steps$/, function (next) {next;});
 
