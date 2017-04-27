@@ -23,7 +23,7 @@ describe('getMatch', () => {
             });
         });
     });
-
+    
     describe('all the gherkin words strings', () => {
         let gherkinWords = [
             `Given`,
@@ -70,6 +70,14 @@ describe('getMatch', () => {
             });
         });
     });
+});
+
+describe('getRegTextForStep', () => {
+    it ('should remove ruby interpolation for regex', () => {
+        let str = '^the (#{SOMETHING}) cannot work$';
+        let res = '^the (.*) cannot work$';
+        expect(s.getRegTextForStep(str)).to.be.equal(res);
+    })
 });
 
 describe('constructor', () => {
