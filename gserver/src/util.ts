@@ -35,10 +35,6 @@ export function getId() {
     return id.get();
 }
 
-export function removeInterpolation(str){
-  return str.replace(/#{(.*?)}/g, '.*');
-}
-
 export function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
 }

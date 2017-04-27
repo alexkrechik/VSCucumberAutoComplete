@@ -23,23 +23,6 @@ describe('getMatch', () => {
             });
         });
     });
-
-    describe('gherkin strings interpolation types', () => {
-        let strings = [
-            `Given(/I do some new test/, function(){);`,
-            `@Given('I do some new test')`,
-            `@Given("I do some new test")`,
-            `@Given /I do some new test/`,
-            `Given(~'I do some new test');`
-        ];
-        strings.forEach(str => {
-            it(`should parse "${str}" step string`, () => {
-                let match = s.getMatch(str);
-                expect(match).to.not.be.null;
-                expect(match[4]).to.be.equal('I do some new test');
-            });
-        });
-    });
     
     describe('all the gherkin words strings', () => {
         let gherkinWords = [
@@ -89,16 +72,24 @@ describe('getMatch', () => {
     });
 });
 
+describe('getRegTextForStep', () => {
+    it ('should remove ruby interpolation for regex', () => {
+        let str = '^the (#{SOMETHING}) cannot work$';
+        let res = '^the (.*) cannot work$';
+        expect(s.getRegTextForStep(str)).to.be.equal(res);
+    })
+});
+
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.getElements().length).to.be.deep.equal(3);
+        expect(s.getElements().length).to.be.deep.equal(2);
     });
 });
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(data);
-        expect(s.getElements().length).to.be.equal(3);
+        expect(s.getElements().length).to.be.equal(2);
     });
 });
 
@@ -152,7 +143,7 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
         let completion = s.getCompletion(' When I do', {character: 10, line: 2});
-        expect(completion.length).to.be.equal(3);
+        expect(completion.length).to.be.equal(2);
     });
     it('should correctly filter completion', () => {
         let completion = s.getCompletion(' When I do another th', {character: 14, line: 2});

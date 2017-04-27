@@ -1,4 +1,4 @@
-import { getOSPath, getFileContent, clearComments, getId, escapeRegExp, removeInterpolation } from './util';
+import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from './util';
 import {
     Definition,
     CompletionItem,
@@ -65,6 +65,45 @@ export default class StepsHandler {
         return line.match(this.getStepRegExp());
     }
 
+    getRegTextForStep(step: string): string {
+        
+        //Escape all the regex symbols to avoid errors
+        step = escapeRegExp(step);
+        
+        //Ruby interpolation (like `#{Something}` )should be replaced with `.*`
+        //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
+        step = step.replace(/#{(.*?)}/g, '.*')
+
+        return step;
+    }
+
+    getTextForStep(step: string): string {
+        
+        //Remove all the backslashes
+        step = step.replace(/\\/g, '');
+
+        //Remove "string start" and "string end" RegEx symbols
+        step = step.replace(/^\^|\$$/g, '');
+
+        //All the "match" parts from double quotes should be removed
+        //ex. `"(.*)"` should be changed by ""
+        //We should remove text between quotes, '^|$' regexp marks and backslashes
+        step = step.replace(/"\([^\)]*\)"/g, '""');
+        
+        return step;
+    }
+
+    getDescForStep(step: string): string {
+        
+        //Remove 'Function body' part
+        step = step.replace(/\{.*/, '');
+
+        //Remove spaces in the beginning end in the end of string
+        step = step.replace(/^\s*/, '').replace(/\s*$/, '');
+
+        return step;
+    }
+
     getSteps(filePath: string): Step[] {
         let steps = [];
         let definitionFile = getFileContent(filePath);
@@ -72,16 +111,13 @@ export default class StepsHandler {
         definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
-                let beforeGherkin = match[1];
-                //remove ruby interpolation if present.
-                let stepText = match[4];
+                let [, beforeGherkin, , ,stepText] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 steps.push({
                     id: 'step' + getId(),
-                    reg: new RegExp(escapeRegExp(removeInterpolation(stepText))),
-                    //We should remove text between quotes, '^|$' regexp marks and backslashes
-                    text: stepText.replace(/^\^|\$$/g, '').replace(/"\([^\)]*\)"/g, '""').replace(/\\/g, ''),
-                    desc: line.replace(/\{.*/, '').replace(/^\s*/, '').replace(/\s*$/, ''),
+                    reg: new RegExp(this.getRegTextForStep(stepText)),
+                    text: this.getTextForStep(stepText),
+                    desc: this.getDescForStep(line),
                     def: Location.create(getOSPath(filePath), Range.create(pos, pos))
                 });
             }
