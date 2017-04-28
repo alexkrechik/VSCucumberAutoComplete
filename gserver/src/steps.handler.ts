@@ -67,12 +67,18 @@ export default class StepsHandler {
 
     getRegTextForStep(step: string): string {
         
-        //Escape all the regex symbols to avoid errors
-        step = escapeRegExp(step);
-        
         //Ruby interpolation (like `#{Something}` )should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
         step = step.replace(/#{(.*?)}/g, '.*')
+
+        //Built in transforms
+        //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
+        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+')
+        step = step.replace(/{int}/g, '-?\\d+')
+        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"')
+
+        //Escape all the regex symbols to avoid errors
+        step = escapeRegExp(step);
 
         return step;
     }

@@ -77,7 +77,17 @@ describe('getRegTextForStep', () => {
         let str = '^the (#{SOMETHING}) cannot work$';
         let res = '^the (.*) cannot work$';
         expect(s.getRegTextForStep(str)).to.be.equal(res);
-    })
+    });
+    it('should correctly handle built-in transforms', () => {
+        let data = [
+            ['I use {float}', 'I use -?\\d*\\.?\\d+'],
+            ['I use {int}', 'I use -?\\d+'],
+            ['I use {stringInDoubleQuotes}', 'I use "[^"]+"']
+        ];
+        data.forEach(d => {
+            expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
+        });
+    });
 });
 
 describe('constructor', () => {
