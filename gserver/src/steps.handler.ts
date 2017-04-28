@@ -149,6 +149,7 @@ export default class StepsHandler {
 
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
+        let lineForError = line.replace(/^\s*/, '');
         let match = line.match(this.gherkinRegEx);
         if (!match) {
             return null;
@@ -164,7 +165,7 @@ export default class StepsHandler {
                     start: { line: lineNum, character: beforeGherkin.length },
                     end: { line: lineNum, character: line.length }
                 },
-                message: `Was unable to find step for "${line}"`,
+                message: `Was unable to find step for "${lineForError}"`,
                 source: 'ex'
             };
         }
