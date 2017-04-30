@@ -62,7 +62,7 @@ export default class PagesHandler {
     }
 
     getPoMatch(line: string): RegExpMatchArray {
-        return line.match(/^(?:(?:.*?[\s\.])|.{0})([a-zA-z][^\s\.]*)\s*[:=]/);
+        return line.match(/^(?:(?:.*?[\s\.])|.{0})([a-zA-z][^\s\.]*)\s*[:=\(]/);
     }
 
     getPageObjects(text: string, path: string): PageObject[] {

@@ -13,7 +13,8 @@ describe('getPoMatch', () => {
             'var a = 1',
             'let a=1',
             'a: 1',
-            'test.a = 1'
+            'test.a = 1',
+            'public a(){}'
         ];
         diffStrings.forEach(l => {
             it(`should get "a" page object from "${l}" line`, () => {
