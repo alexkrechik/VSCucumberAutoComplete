@@ -21,7 +21,19 @@ All the steps and page objects will be re-populated after every `.feature` file 
 5. Reload app to apply all the extension changes
 6. To get autocomplete working, `strings` var of `editor.quickSuggestions` setting should be set to true (because by default `string` suggestions will not appear)
 
-### settings example:
+### Settings example:
+
+#### Use steps only:
+```javascript
+{
+    "cucumberautocomplete.steps": [
+        "test/features/step_definitions/**/*.js",
+        "node_modules/qa-lib/src/step_definitions/*.js"
+    ]
+}
+```
+
+#### Use steps and page objects:
 ```javascript
 {
     "cucumberautocomplete.steps": [
