@@ -19,7 +19,8 @@
     ],
     "main": "./out/src/extension",
     "activationEvents": [
-        "onLanguage:feature"
+        "onLanguage:feature",
+        "workspaceContains:.vscode/settings.json"
     ],
     "author": "Alexander Krechik",
     "icon": "img/icon.png",
