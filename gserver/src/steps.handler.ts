@@ -198,7 +198,7 @@ export default class StepsHandler {
                     end: { line: lineNum, character: line.length }
                 },
                 message: `Was unable to find step for "${lineForError}"`,
-                source: 'ex'
+                source: 'cucumberautocomplete'
             };
         }
     }

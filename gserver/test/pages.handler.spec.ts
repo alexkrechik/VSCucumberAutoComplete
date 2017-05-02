@@ -123,7 +123,7 @@ describe('validate', () => {
                 end: { line: 2, character: 10 }
             },
             message: 'Was unable to find page "pag"',
-            source: 'ex'
+            source: 'cucumberautocomplete'
         });
     });
     it('should return corrext Diagnostic for non-existent page object', () => {
@@ -137,7 +137,7 @@ describe('validate', () => {
                 end: { line: 2, character: 15 }
             },
             message: 'Was unable to find page object "c" for page "page"',
-            source: 'ex'
+            source: 'cucumberautocomplete'
         });
     });
     it('it should return diagnostic for several same non-existent pages', () => {
