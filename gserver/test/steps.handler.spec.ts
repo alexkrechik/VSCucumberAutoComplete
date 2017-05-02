@@ -103,6 +103,21 @@ describe('populate', () => {
     });
 });
 
+describe('validateConfiguration', () => {
+    it('should return correct Diagnostic for provided settings file', () => {
+        let settings = [
+            __dirname + "/../test/**/*.js",
+            __dirname + "/../test/non/existent/path/*.js"
+        ];
+        let diagnostic = s.validateConfiguration('test/data/test.settings.json', settings, __dirname + '/..');
+        expect(diagnostic).to.have.length(1);
+        expect(diagnostic[0].range).to.be.deep.equal({
+            start: { line: 3, character: 8 },
+            end: { line: 3, character: 37 }
+        });
+    });
+})
+
 describe('validate', () => {
     it('should not return diagnostic for correct lines', () => {
         expect(s.validate('When I do something', 1)).to.be.null;

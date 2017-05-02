@@ -1,0 +1,6 @@
+{
+    "cucumberautocomplete.steps": [
+        "test/**/*.js",
+        "test/non/existent/path/*.js"
+    ]
+}
