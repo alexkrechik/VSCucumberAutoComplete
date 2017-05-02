@@ -92,16 +92,31 @@ describe('getRegTextForStep', () => {
 
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.getElements().length).to.be.deep.equal(2);
+        expect(s.getElements()).to.have.length(2);
     });
 });
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(data);
-        expect(s.getElements().length).to.be.equal(2);
+        expect(s.getElements()).to.have.length(2);
     });
 });
+
+describe('validateConfiguration', () => {
+    it('should return correct Diagnostic for provided settings file', () => {
+        let settings = [
+            __dirname + "/../test/**/*.js",
+            __dirname + "/../test/non/existent/path/*.js"
+        ];
+        let diagnostic = s.validateConfiguration('test/data/test.settings.json', settings, __dirname + '/..');
+        expect(diagnostic).to.have.length(1);
+        expect(diagnostic[0].range).to.be.deep.equal({
+            start: { line: 3, character: 8 },
+            end: { line: 3, character: 37 }
+        });
+    });
+})
 
 describe('validate', () => {
     it('should not return diagnostic for correct lines', () => {
@@ -153,11 +168,11 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
         let completion = s.getCompletion(' When I do', {character: 10, line: 2});
-        expect(completion.length).to.be.equal(2);
+        expect(completion).to.have.length(2);
     });
     it('should correctly filter completion', () => {
         let completion = s.getCompletion(' When I do another th', {character: 14, line: 2});
-        expect(completion.length).to.be.equal(1);
+        expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {

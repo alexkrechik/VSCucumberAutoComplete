@@ -21,6 +21,7 @@ import {
 import { format } from './format';
 import StepsHandler, {StepSettings} from './steps.handler';
 import PagesHandler, {PagesSettings} from './pages.handler';
+import { getOSPath } from './util';
 
 interface Settings {
     cucumberautocomplete: {
@@ -100,10 +101,14 @@ function pagesPosition(line: string, char: number): boolean {
 
 connection.onDidChangeConfiguration((change) => {
     settings = getSettings(<Settings>change.settings);
-    handleSteps() && (stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps));
+    if (handleSteps()) {
+        stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
+        let sFile = '.vscode/settings.json';
+        let diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
+        connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
+    }
     handlePages() && (pagesHandler = new PagesHandler(settings.cucumberautocomplete.pages));
 });
-
 
 function populateHandlers() {
     handleSteps() && stepsHandler.populate(settings.cucumberautocomplete.steps);

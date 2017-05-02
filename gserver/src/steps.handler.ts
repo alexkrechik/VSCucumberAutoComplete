@@ -1,4 +1,12 @@
-import { getOSPath, getFileContent, clearComments, getId, escapeRegExp } from './util';
+import { 
+    getOSPath,
+    getFileContent,
+    clearComments,
+    getId,
+    escapeRegExp,
+    getTextRange
+} from './util';
+
 import {
     Definition,
     CompletionItem,
@@ -129,6 +137,24 @@ export default class StepsHandler {
             }
         });
         return steps;
+    }
+
+    validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
+        let res = [];
+        stepsPathes.forEach((path) => {
+            let files = glob.sync(path, { ignore: '.gitignore' });
+            if (!files.length) {
+                let searchTerm = path.replace(workSpaceRoot + '/', '');
+                let range = getTextRange(workSpaceRoot + '/' + settingsFile, `"${searchTerm}"`);
+                res.push({
+                    severity: DiagnosticSeverity.Warning,
+                    range: range,
+                    message: `No steps files found`,
+                    source: 'cucumberautocomplete'
+                });
+            }
+        });
+        return res;
     }
 
     populate(stepsPathes: StepSettings): void {
