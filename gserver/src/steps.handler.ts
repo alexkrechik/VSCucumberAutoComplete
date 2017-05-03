@@ -2,7 +2,7 @@ import {
     getOSPath,
     getFileContent,
     clearComments,
-    getId,
+    getMD5Id,
     escapeRegExp,
     getTextRange
 } from './util';
@@ -127,10 +127,11 @@ export default class StepsHandler {
             if (match) {
                 let [, beforeGherkin, , ,stepText] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
+                let text = this.getTextForStep(stepText);
                 steps.push({
-                    id: 'step' + getId(),
+                    id: 'step' + getMD5Id(text),
                     reg: new RegExp(this.getRegTextForStep(stepText)),
-                    text: this.getTextForStep(stepText),
+                    text: text,
                     desc: this.getDescForStep(line),
                     def: Location.create(getOSPath(filePath), Range.create(pos, pos))
                 });

@@ -1,4 +1,10 @@
-import { getOSPath, getFileContent, clearComments, getId } from './util';
+import { 
+    getOSPath,
+    getFileContent,
+    clearComments,
+    getMD5Id
+} from './util';
+
 import {
     Definition,
     CompletionItem,
@@ -72,10 +78,11 @@ export default class PagesHandler {
             let poMatch = this.getPoMatch(line);
             if (poMatch) {
                 let pos = Position.create(i, 0);
-                if (!res.find(v => { return v.text === poMatch[1]; })) {
+                let text = poMatch[1];
+                if (!res.find(v => { return v.text === text; })) {
                     res.push({
-                        id: 'pageObject' + getId(),
-                        text: poMatch[1],
+                        id: 'pageObject' + getMD5Id(text),
+                        text: text,
                         desc: line,
                         def: Location.create(getOSPath(path), Range.create(pos, pos))
                     });
@@ -90,7 +97,7 @@ export default class PagesHandler {
         text = clearComments(text);
         let zeroPos = Position.create(0, 0);
         return {
-            id: 'page' + getId(),
+            id: 'page' + getMD5Id(name),
             text: name,
             desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
             def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),

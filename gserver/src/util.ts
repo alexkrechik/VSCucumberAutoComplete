@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as strip from 'strip-comments';
 import { Range } from 'vscode-languageserver';
+import * as md5 from 'md5';
 
-export function getOSPath(path) {
+export function getOSPath(path: string): string {
     /* Add suffics for the provided path
      * 'file://' for the non-windows OS's or file:/// for Windows */
     if (/^win/.test(require('process').platform)) {
@@ -24,19 +25,11 @@ export function clearComments(text: string): string {
     return strip(text, { silent: true, preserveNewlines: true });
 }
 
-//get unique id for the elements ids
-let id = {
-    x: 0,
-    get() {
-        return this.x++;
-    }
-};
-
-export function getId() {
-    return id.get();
+export function getMD5Id(str: string): string {
+    return md5(str);
 }
 
-export function escapeRegExp(str) {
+export function escapeRegExp(str: string): string {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
 }
 
