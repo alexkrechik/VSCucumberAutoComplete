@@ -92,7 +92,10 @@ describe('getRegTextForStep', () => {
 
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.getElements()).to.have.length(2);
+        let e = s.getElements();
+        expect(e).to.have.length(2);
+        expect(e[0]).to.have.property('count', 2);
+        expect(e[1]).to.have.property('count', 1);
     });
 });
 
@@ -100,6 +103,12 @@ describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(__dirname, data);
         expect(s.getElements()).to.have.length(2);
+    });
+    it('should correctly recreate elements with their count using', () => {
+        s.populate(__dirname, data);
+        let e = s.getElements();
+        expect(e[0]).to.have.property('count', 2);
+        expect(e[1]).to.have.property('count', 1);
     });
 });
 
