@@ -283,6 +283,7 @@ export default class StepsHandler {
     }
 
     getCompletionResolve(item: CompletionItem): CompletionItem {
+        this.incrementElementCount(item.data);
         return item;
     };
 
