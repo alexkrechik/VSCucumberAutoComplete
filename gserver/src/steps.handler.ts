@@ -34,8 +34,8 @@ export default class StepsHandler {
 
     elements: Step[];
 
-    constructor(stepsPathes: StepSettings) {
-        this.populate(stepsPathes);
+    constructor(root: string, stepsPathes: StepSettings) {
+        this.populate(root, stepsPathes);
     }
 
     getElements(): Step[] {
@@ -158,10 +158,11 @@ export default class StepsHandler {
         return res;
     }
 
-    populate(stepsPathes: StepSettings): void {
+    populate(root: string, stepsPathes: StepSettings): void {
         let stepsFiles = [];
         this.elements = [];
         stepsPathes.forEach((path) => {
+            path = root + '/' + path;
             glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
                 stepsFiles.push(f);
             });

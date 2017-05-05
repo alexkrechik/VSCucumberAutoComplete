@@ -63,8 +63,8 @@ export default class PagesHandler {
         }
     }
 
-    constructor(settings: PagesSettings) {
-        this.populate(settings);
+    constructor(root: string, settings: PagesSettings) {
+        this.populate(root, settings);
     }
 
     getPoMatch(line: string): RegExpMatchArray {
@@ -105,10 +105,10 @@ export default class PagesHandler {
         };
     }
 
-    populate(settings: PagesSettings): void {
+    populate(root: string, settings: PagesSettings): void {
         this.elements = [];
         Object.keys(settings).forEach(p => {
-            let path = settings[p];
+            let path = root + '/' + settings[p];
             this.elements.push(this.getPage(p, path));
         });
     }

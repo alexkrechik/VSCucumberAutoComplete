@@ -2,9 +2,9 @@ import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
 
 let data = [
-    __dirname + '/data/test.steps.js'
+    '/data/test.steps.js'
 ];
-let s = new StepsHandler(data);
+let s = new StepsHandler(__dirname, data);
 
 describe('getMatch', () => {
     describe('gherkin strings types', () => {
@@ -98,7 +98,7 @@ describe('constructor', () => {
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
-        s.populate(data);
+        s.populate(__dirname, data);
         expect(s.getElements()).to.have.length(2);
     });
 });
