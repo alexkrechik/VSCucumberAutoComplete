@@ -4,7 +4,8 @@ import {
     clearComments,
     getMD5Id,
     escapeRegExp,
-    getTextRange
+    getTextRange,
+    getSortPrefix
 } from './util';
 
 import {
@@ -273,10 +274,12 @@ export default class StepsHandler {
                 return el.text.search(stepPartRe) !== -1;
             })
             .map(step => {
+                let label = step.text.replace(stepPartRe, '');
                 return {
-                    label: step.text.replace(stepPartRe, ''),
+                    label: label,
                     kind: CompletionItemKind.Function,
-                    data: step.id
+                    data: step.id,
+                    sortText: getSortPrefix(step.count, 5) + '_' + label
                 };
             });
         return res.length ? res : null;
