@@ -72,7 +72,7 @@
         </dict>
       </dict>
       <key>match</key>
-      <string>\s*(#.*)</string>
+      <string>^\s*(#.*)</string>
     </dict>
     <key>table</key>
     <dict>
