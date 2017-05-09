@@ -2,10 +2,10 @@ import PagesHandler from '../src/pages.handler';
 import { expect } from 'chai';
 
 let pagesSettings = {
-    page: __dirname + '/data/page.objects.js',
-    page2: __dirname + '/data/page.objects.java',
+    page: '/data/page.objects.js',
+    page2: '/data/page.objects.java',
 };
-let pagesHandler = new PagesHandler(pagesSettings);
+let pagesHandler = new PagesHandler(__dirname, pagesSettings);
 
 describe('getPoMatch', () => {
     describe('diff input PO lines', () => {
@@ -73,7 +73,7 @@ describe('populate', () => {
     });
 
     it('should not concat elements after repopulating', () => {
-        pagesHandler.populate(pagesSettings);
+        pagesHandler.populate(__dirname, pagesSettings);
         let elements = pagesHandler.getElements();
         expect(elements).to.have.length(2);
         expect(elements[0].objects).to.have.length(2);

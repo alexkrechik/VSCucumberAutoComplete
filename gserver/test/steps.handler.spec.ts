@@ -2,9 +2,9 @@ import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
 
 let data = [
-    __dirname + '/data/test.steps.js'
+    '/data/test.steps.js'
 ];
-let s = new StepsHandler(data);
+let s = new StepsHandler(__dirname, data);
 
 describe('getMatch', () => {
     describe('gherkin strings types', () => {
@@ -92,14 +92,23 @@ describe('getRegTextForStep', () => {
 
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
-        expect(s.getElements()).to.have.length(2);
+        let e = s.getElements();
+        expect(e).to.have.length(2);
+        expect(e[0]).to.have.property('count', 2);
+        expect(e[1]).to.have.property('count', 1);
     });
 });
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
-        s.populate(data);
+        s.populate(__dirname, data);
         expect(s.getElements()).to.have.length(2);
+    });
+    it('should correctly recreate elements with their count using', () => {
+        s.populate(__dirname, data);
+        let e = s.getElements();
+        expect(e[0]).to.have.property('count', 2);
+        expect(e[1]).to.have.property('count', 1);
     });
 });
 
@@ -183,4 +192,9 @@ describe('getCompletion', () => {
         let completion = s.getCompletion('When non-existent step', {character: 14, line: 2});
         expect(completion).to.be.null;
     });
+    it('should return proper sortText', () => {
+        let completion = s.getCompletion(' When I do', {character: 10, line: 2});
+        expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
+        expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
+    })
 });

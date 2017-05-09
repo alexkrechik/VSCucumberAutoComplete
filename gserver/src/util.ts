@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as strip from 'strip-comments';
 import { Range } from 'vscode-languageserver';
+import * as md5 from 'md5';
 
-export function getOSPath(path) {
+export function getOSPath(path: string): string {
     /* Add suffics for the provided path
      * 'file://' for the non-windows OS's or file:/// for Windows */
     if (/^win/.test(require('process').platform)) {
@@ -24,19 +25,11 @@ export function clearComments(text: string): string {
     return strip(text, { silent: true, preserveNewlines: true });
 }
 
-//get unique id for the elements ids
-let id = {
-    x: 0,
-    get() {
-        return this.x++;
-    }
-};
-
-export function getId() {
-    return id.get();
+export function getMD5Id(str: string): string {
+    return md5(str);
 }
 
-export function escapeRegExp(str) {
+export function escapeRegExp(str: string): string {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
 }
 
@@ -52,4 +45,19 @@ export function getTextRange(filePath: string, text: string): Range {
             }
         }
     }
+}
+
+export function getSortPrefix(num: number, count: number): string {
+    const LETTERS_NUM = 26;
+    const Z_CODE = 90;
+    let res = '';
+    for (let i = count - 1; i >= 0; i--) {
+        let powNum = Math.pow(LETTERS_NUM, i);
+        let letterCode = Math.floor(num / powNum);
+        let letterNum = Z_CODE - letterCode;
+        let letter = String.fromCharCode(letterNum);
+        num = num - powNum * letterCode;
+        res += letter;
+    }
+    return res;
 }

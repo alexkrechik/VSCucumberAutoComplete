@@ -2,9 +2,10 @@ import {
     getOSPath,
     getFileContent,
     clearComments,
-    getId,
+    getMD5Id,
     escapeRegExp,
-    getTextRange
+    getTextRange,
+    getSortPrefix
 } from './util';
 
 import {
@@ -27,19 +28,58 @@ export type Step = {
     reg: RegExp,
     text: string,
     desc: string,
-    def: Definition
+    def: Definition,
+    count: number
 };
+
+export type StepsHash = {
+    [step: string]: number
+}
 
 export default class StepsHandler {
 
     elements: Step[];
 
-    constructor(stepsPathes: StepSettings) {
-        this.populate(stepsPathes);
+    elemenstHash: StepsHash;
+
+    constructor(root: string, stepsPathes: StepSettings) {
+        this.elemenstHash = {};
+        this.populate(root, stepsPathes);
+        this.setElementsHash(root);
+        this.elements.forEach(el => el.count = this.getElementCount(el.id));
     }
 
     getElements(): Step[] {
         return this.elements;
+    }
+
+    setElementsHash(root: string): void {
+        this.elemenstHash = {};
+        let files = glob.sync(`${root}/**/*.feature`, { ignore: '.gitignore' });
+        files.forEach(f => {
+            let text = getFileContent(f);
+            text.split(/\r?\n/g).forEach(line => {
+                let match = line.match(this.gherkinRegEx);
+                if (match) {
+                    let step = this.getStepByText(match[4]);
+                    if (step) {
+                        this.incrementElementCount(step.id);
+                    }
+                }
+            });
+        });
+    }
+
+    incrementElementCount(id: string): void {
+        if(this.elemenstHash[id]) {
+            this.elemenstHash[id]++;
+        } else {
+            this.elemenstHash[id] = 1;
+        }
+    }
+
+    getElementCount(id: string): number {
+        return this.elemenstHash[id] || 0; 
     }
 
     getStepRegExp(): RegExp {
@@ -127,12 +167,15 @@ export default class StepsHandler {
             if (match) {
                 let [, beforeGherkin, , ,stepText] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
+                let text = this.getTextForStep(stepText);
+                let id = 'step' + getMD5Id(text);
                 steps.push({
-                    id: 'step' + getId(),
+                    id: id,
                     reg: new RegExp(this.getRegTextForStep(stepText)),
-                    text: this.getTextForStep(stepText),
+                    text: text,
                     desc: this.getDescForStep(line),
-                    def: Location.create(getOSPath(filePath), Range.create(pos, pos))
+                    def: Location.create(getOSPath(filePath), Range.create(pos, pos)),
+                    count: this.getElementCount(id)
                 });
             }
         });
@@ -157,10 +200,11 @@ export default class StepsHandler {
         return res;
     }
 
-    populate(stepsPathes: StepSettings): void {
+    populate(root: string, stepsPathes: StepSettings): void {
         let stepsFiles = [];
         this.elements = [];
         stepsPathes.forEach((path) => {
+            path = root + '/' + path;
             glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
                 stepsFiles.push(f);
             });
@@ -230,16 +274,19 @@ export default class StepsHandler {
                 return el.text.search(stepPartRe) !== -1;
             })
             .map(step => {
+                let label = step.text.replace(stepPartRe, '');
                 return {
-                    label: step.text.replace(stepPartRe, ''),
+                    label: label,
                     kind: CompletionItemKind.Function,
-                    data: step.id
+                    data: step.id,
+                    sortText: getSortPrefix(step.count, 5) + '_' + label
                 };
             });
         return res.length ? res : null;
     }
 
     getCompletionResolve(item: CompletionItem): CompletionItem {
+        this.incrementElementCount(item.data);
         return item;
     };
 

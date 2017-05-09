@@ -59,28 +59,6 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
-function getSettings(settings: Settings): Settings {
-
-    //Steps settings.
-    //Path to steps should be converted to array if string provided
-    //Pathes should be completed with workspaceRoot
-    let steps = settings.cucumberautocomplete.steps;
-    steps = Array.isArray(steps) ? steps : [steps];
-    settings.cucumberautocomplete.steps = steps.map(s => {
-        return workspaceRoot + '/' + s;
-    });
-
-    //Pages settings also should be populated with workspaceRoot
-    //Empty object if no values provided
-    let pages = settings.cucumberautocomplete.pages || {};
-    Object.keys(pages).forEach(p => {
-        pages[p] = workspaceRoot + '/' + pages[p];
-    });
-    settings.cucumberautocomplete.pages = pages;
-
-    return settings;
-}
-
 function handleSteps(): boolean {
      let s = settings.cucumberautocomplete.steps;
     return s && s.length ? true : false;
@@ -100,19 +78,22 @@ function pagesPosition(line: string, char: number): boolean {
 }
 
 connection.onDidChangeConfiguration((change) => {
-    settings = getSettings(<Settings>change.settings);
+    settings = <Settings>change.settings;
+    //We should get array from step string if provided
+    settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
+        ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
     if (handleSteps()) {
-        stepsHandler = new StepsHandler(settings.cucumberautocomplete.steps);
+        stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps);
         let sFile = '.vscode/settings.json';
         let diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
         connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
     }
-    handlePages() && (pagesHandler = new PagesHandler(settings.cucumberautocomplete.pages));
+    handlePages() && (pagesHandler = new PagesHandler(workspaceRoot, settings.cucumberautocomplete.pages));
 });
 
 function populateHandlers() {
-    handleSteps() && stepsHandler.populate(settings.cucumberautocomplete.steps);
-    handlePages() && pagesHandler.populate(settings.cucumberautocomplete.pages);
+    handleSteps() && stepsHandler.populate(workspaceRoot, settings.cucumberautocomplete.steps);
+    handlePages() && pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages);
 }
 
 documents.onDidOpen(() => {
@@ -132,6 +113,12 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+    if (~item.data.indexOf('step')) {
+        return stepsHandler.getCompletionResolve(item);
+    }
+    if (~item.data.indexOf('page')) {
+        return pagesHandler.getCompletionResolve(item);
+    }
     return item;
 });
 
