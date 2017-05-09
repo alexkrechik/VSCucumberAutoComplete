@@ -192,4 +192,9 @@ describe('getCompletion', () => {
         let completion = s.getCompletion('When non-existent step', {character: 14, line: 2});
         expect(completion).to.be.null;
     });
+    it('should return proper sortText', () => {
+        let completion = s.getCompletion(' When I do', {character: 10, line: 2});
+        expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
+        expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
+    })
 });
