@@ -46,3 +46,18 @@ export function getTextRange(filePath: string, text: string): Range {
         }
     }
 }
+
+export function getSortPrefix(num: number, count: number): string {
+    const LETTERS_NUM = 26;
+    const Z_CODE = 90;
+    let res = '';
+    for (let i = count - 1; i >= 0; i--) {
+        let powNum = Math.pow(LETTERS_NUM, i);
+        let letterCode = Math.floor(num / powNum);
+        let letterNum = Z_CODE - letterCode;
+        let letter = String.fromCharCode(letterNum);
+        num = num - powNum * letterCode;
+        res += letter;
+    }
+    return res;
+}
