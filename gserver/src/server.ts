@@ -113,6 +113,12 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
 });
 
 connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+    if (~item.data.indexOf('step')) {
+        return stepsHandler.getCompletionResolve(item);
+    }
+    if (~item.data.indexOf('page')) {
+        return pagesHandler.getCompletionResolve(item);
+    }
     return item;
 });
 
