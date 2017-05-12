@@ -1,6 +1,17 @@
-## 2.1.1 / 2017-04-21
+## 2.2.0 / 2017-05-12
+### MAIN CHANGES
+* All the steps suggestions are sorted by their using count
+* Warning message will appear for steps setting, which match no files
+### Features/Improvements:
+* [#45](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/45) All the suggestions should be sorted by their using count.
+* [#66](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66) Cannot work with some build-in/custom parameter types
+* [#65](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65) Step def with ruby interpolation aren't detect
+* [#30](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/30) Add some error popup if wrong pathes in settings provided
+* [#38](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/38) TypeScript PageObjects are not supported
 ### Bugfixes:
 * [#64](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/64) A trailing space gives "unable to find step"
+* [#73](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/73) Fix source in diagnostic warnings
+* [#63](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/63) Highlighting as a comment when the # is after text
 
 ## 2.1.0 / 2017-04-20
 ### MAIN CHANGES
@@ -31,6 +42,8 @@
 * [#25](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/25) Add support for Cucumber-TSFlow
 
 ## 1.1.0 / 2017-01-13
+### MAIN CHANGES
+* All the steps and page objects will be updated automatically after any key in any feature file pressing
 ### Features:
 * [#15](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/15) Add some 'Steps and Page Objects refreshing' command
 ### Bugfixes:
