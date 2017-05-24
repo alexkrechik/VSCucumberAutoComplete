@@ -1,6 +1,7 @@
-## 2.2.0 / 2017-05-12
+## 2.2.0 / 2017-05-24
 ### MAIN CHANGES
 * All the steps suggestions are sorted by their using count
+* Using count will be taken from user input + from all the feature files (if `cucumberautocomplete.syncfeatures=true`)
 * Warning message will appear for steps setting, which match no files
 ### Features/Improvements:
 * [#45](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/45) All the suggestions should be sorted by their using count.
@@ -12,6 +13,7 @@
 * [#64](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/64) A trailing space gives "unable to find step"
 * [#73](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/73) Fix source in diagnostic warnings
 * [#63](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/63) Highlighting as a comment when the # is after text
+* [#79](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/79) Finding step definitions
 
 ## 2.1.0 / 2017-04-20
 ### MAIN CHANGES
