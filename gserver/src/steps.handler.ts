@@ -88,8 +88,8 @@ export default class StepsHandler {
         //But they shouldn't end with letter
         let startPart = '^((?:.*?[^\\w])|.{0})';
 
-        //All the steps should be declared using any gherkin keyword
-        let gherkinPart = '(Given|When|Then|And|But)';
+        //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
+        let gherkinPart = '(Given|When|Then|And|But)?';
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         let nonStepStartSymbols = `[^\/'"\\w]*?`;
@@ -105,6 +105,8 @@ export default class StepsHandler {
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
+
+        // /^((?:.*?[^\w])|.{0})(Given|When|Then|And|But)[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
         return r;
 
     }
