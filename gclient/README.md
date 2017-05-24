@@ -6,6 +6,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 * Basic Snippets support
 * Auto-parsing of feature steps and page objects from pathes, provided in settings.json
 * Autocomplete of steps, pages and page objects
+* Sort steps autocompletion by their using count
 * Ontype validation for all the steps and, if present, pages and page objects
 * Definitions support for all the steps parts
 * Document format support
@@ -33,13 +34,14 @@ All the steps and page objects will be re-populated after every `.feature` file 
 }
 ```
 
-#### Use steps and page objects:
+#### Use steps and page objects and sync existing feature files for steps counting:
 ```javascript
 {
     "cucumberautocomplete.steps": [
         "test/features/step_definitions/**/*.js",
         "node_modules/qa-lib/src/step_definitions/*.js"
     ],
+    "cucumberautocomplete.syncfeatures": true,
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
         "pathes": "test/features/page_objects/pathes.storage.js",

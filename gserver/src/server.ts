@@ -26,7 +26,8 @@ import { getOSPath } from './util';
 interface Settings {
     cucumberautocomplete: {
         steps: StepSettings,
-        pages: PagesSettings
+        pages: PagesSettings,
+        syncfeatures: boolean
     }
 }
 
@@ -83,7 +84,7 @@ connection.onDidChangeConfiguration((change) => {
     settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
         ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
     if (handleSteps()) {
-        stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps);
+        stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps, settings.cucumberautocomplete.syncfeatures);
         let sFile = '.vscode/settings.json';
         let diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
         connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });

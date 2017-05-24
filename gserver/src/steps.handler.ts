@@ -42,11 +42,10 @@ export default class StepsHandler {
 
     elemenstHash: StepsHash;
 
-    constructor(root: string, stepsPathes: StepSettings) {
+    constructor(root: string, stepsPathes: StepSettings, sync: boolean) {
         this.elemenstHash = {};
         this.populate(root, stepsPathes);
-        this.setElementsHash(root);
-        this.elements.forEach(el => el.count = this.getElementCount(el.id));
+        sync && this.setElementsHash(root);
     }
 
     getElements(): Step[] {
@@ -68,6 +67,7 @@ export default class StepsHandler {
                 }
             });
         });
+        this.elements.forEach(el => el.count = this.getElementCount(el.id));
     }
 
     incrementElementCount(id: string): void {

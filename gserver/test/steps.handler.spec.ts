@@ -4,7 +4,7 @@ import { expect } from 'chai';
 let data = [
     '/data/test.steps.js'
 ];
-let s = new StepsHandler(__dirname, data);
+let s = new StepsHandler(__dirname, data, true);
 
 describe('getMatch', () => {
     describe('gherkin strings types', () => {

@@ -65,6 +65,11 @@
                     "description": "Object, which consists of 'page name' => 'page object file path' pairs",
                     "type": ["object"],
                     "required": false
+                },
+                "cucumberautocomplete.syncfeatures": {
+                    "description": "Sync all the project feature files to get steps using count",
+                    "type": ["boolean"],
+                    "required": false
                 }
             }
         }
