@@ -1,4 +1,4 @@
-## 2.2.0 / 2017-05-24
+## 2.2.0 / 2017-05-26
 ### MAIN CHANGES
 * All the steps suggestions are sorted by their using count
 * Using count will be taken from user input + from all the feature files (if `cucumberautocomplete.syncfeatures=true`)

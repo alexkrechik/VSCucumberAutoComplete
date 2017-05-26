@@ -70,6 +70,12 @@ describe('getMatch', () => {
             });
         });
     });
+
+    describe('gherkin words in the middle of lines', () => {
+        let line = 'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
+        let match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
+        expect(s.getMatch(line)[4]).to.be.equals(match);
+    });
 });
 
 describe('getRegTextForStep', () => {
