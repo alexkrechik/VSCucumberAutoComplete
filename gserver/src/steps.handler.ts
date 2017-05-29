@@ -42,19 +42,23 @@ export default class StepsHandler {
 
     elemenstHash: StepsHash;
 
-    constructor(root: string, stepsPathes: StepSettings, sync: boolean) {
+    constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
         this.elemenstHash = {};
         this.populate(root, stepsPathes);
-        sync && this.setElementsHash(root);
+        if (sync === true) {
+            this.setElementsHash(`${root}/**/*.feature`);
+        } else if (typeof sync === 'string') {
+            this.setElementsHash(`${root}/${sync}`);
+        }
     }
 
     getElements(): Step[] {
         return this.elements;
     }
 
-    setElementsHash(root: string): void {
+    setElementsHash(path: string): void {
         this.elemenstHash = {};
-        let files = glob.sync(`${root}/**/*.feature`, { ignore: '.gitignore' });
+        let files = glob.sync(path, { ignore: '.gitignore' });
         files.forEach(f => {
             let text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {

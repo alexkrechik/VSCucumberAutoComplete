@@ -27,7 +27,7 @@ interface Settings {
     cucumberautocomplete: {
         steps: StepSettings,
         pages: PagesSettings,
-        syncfeatures: boolean
+        syncfeatures: boolean | string
     }
 }
 

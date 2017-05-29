@@ -67,8 +67,8 @@
                     "required": false
                 },
                 "cucumberautocomplete.syncfeatures": {
-                    "description": "Sync all the project feature files to get steps using count",
-                    "type": ["boolean"],
+                    "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
+                    "type": ["boolean", "string"],
                     "required": false
                 }
             }
