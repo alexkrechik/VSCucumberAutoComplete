@@ -211,7 +211,7 @@ export default class PagesHandler {
     getPageObjectCompletion(line: string, position: Position, pageObject: PageObject): CompletionItem {
         let insertText = '';
         if (line.length === position.character) {
-            insertText = '"';
+            insertText = '" ';
         }
         return {
             label: pageObject.text,
