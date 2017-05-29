@@ -227,7 +227,7 @@ describe('getCompletion', () => {
     it('should return correct insertText for pageObject differs from string', () => {
         let poCompletion1 = pagesHandler.getCompletion('When I use "page"."', {character: 19, line: 2})[0];
         let poCompletion2 = pagesHandler.getCompletion('When I use "page".""', {character: 19, line: 2})[0];
-        expect(poCompletion1).to.have.property('insertText').that.is.equals('a"');
+        expect(poCompletion1).to.have.property('insertText').that.is.equals('a" ');
         expect(poCompletion2).to.have.property('insertText').that.is.equals('a');
     });
 });
