@@ -5,7 +5,7 @@ interface FormatConf {
     indents: number
 }
 
-const formatConf: FormatConf[] = [
+const FORMAT_CONF: FormatConf[] = [
     { text: 'Feature:', indents: 0 },
     { text: 'Scenario:', indents: 1 },
     { text: 'Given', indents: 2 },
@@ -27,7 +27,7 @@ export function format(indent: string, range: Range, text: string): string {
         if (line.search(/^\s*$/) !== -1) {
             return '';
         } else {
-            let foundFormat = formatConf.find(conf => {
+            let foundFormat = FORMAT_CONF.find(conf => {
                 return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
             });
             if (foundFormat) {
