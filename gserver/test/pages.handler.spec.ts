@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 let pagesSettings = {
     page: '/data/page.objects.js',
-    page2: '/data/page.objects.java',
+    page2: '/data/*.java',
 };
 let pagesHandler = new PagesHandler(__dirname, pagesSettings);
 

@@ -17,6 +17,8 @@ import {
     TextEdit
 } from 'vscode-languageserver';
 
+import * as glob from 'glob';
+
 export type PagesSettings = {
     [page: string]: string
 };
@@ -93,16 +95,20 @@ export default class PagesHandler {
     }
 
     getPage(name: string, path: string): Page {
-        let text = getFileContent(path);
-        text = clearComments(text);
-        let zeroPos = Position.create(0, 0);
-        return {
-            id: 'page' + getMD5Id(name),
-            text: name,
-            desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-            def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
-            objects: this.getPageObjects(text, path)
-        };
+        let files = glob.sync(path);
+        if (files.length) {
+            let file = files[0];
+            let text = getFileContent(files[0]);
+            text = clearComments(text);
+            let zeroPos = Position.create(0, 0);
+            return {
+                id: 'page' + getMD5Id(name),
+                text: name,
+                desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
+                def: Location.create(getOSPath(file), Range.create(zeroPos, zeroPos)),
+                objects: this.getPageObjects(text, file)
+            };
+        }
     }
 
     populate(root: string, settings: PagesSettings): void {
