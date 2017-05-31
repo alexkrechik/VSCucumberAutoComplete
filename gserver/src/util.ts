@@ -42,7 +42,7 @@ export function getTextRange(filePath: string, text: string): Range {
             return {
                 start: { line: i, character: find },
                 end: { line: i, character: find + text.length }
-            }
+            };
         }
     }
 }

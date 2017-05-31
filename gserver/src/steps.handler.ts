@@ -1,4 +1,4 @@
-import { 
+import {
     getOSPath,
     getFileContent,
     clearComments,
@@ -34,7 +34,7 @@ export type Step = {
 
 export type StepsHash = {
     [step: string]: number
-}
+};
 
 export default class StepsHandler {
 
@@ -75,7 +75,7 @@ export default class StepsHandler {
     }
 
     incrementElementCount(id: string): void {
-        if(this.elemenstHash[id]) {
+        if (this.elemenstHash[id]) {
             this.elemenstHash[id]++;
         } else {
             this.elemenstHash[id] = 1;
@@ -83,7 +83,7 @@ export default class StepsHandler {
     }
 
     getElementCount(id: string): number {
-        return this.elemenstHash[id] || 0; 
+        return this.elemenstHash[id] || 0;
     }
 
     getStepRegExp(): RegExp {
@@ -120,16 +120,16 @@ export default class StepsHandler {
     }
 
     getRegTextForStep(step: string): string {
-        
+
         //Ruby interpolation (like `#{Something}` )should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
-        step = step.replace(/#{(.*?)}/g, '.*')
+        step = step.replace(/#{(.*?)}/g, '.*');
 
         //Built in transforms
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
-        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+')
-        step = step.replace(/{int}/g, '-?\\d+')
-        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"')
+        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
+        step = step.replace(/{int}/g, '-?\\d+');
+        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);
@@ -138,7 +138,7 @@ export default class StepsHandler {
     }
 
     getTextForStep(step: string): string {
-        
+
         //Remove all the backslashes
         step = step.replace(/\\/g, '');
 
@@ -149,12 +149,12 @@ export default class StepsHandler {
         //ex. `"(.*)"` should be changed by ""
         //We should remove text between quotes, '^|$' regexp marks and backslashes
         step = step.replace(/"\([^\)]*\)"/g, '""');
-        
+
         return step;
     }
 
     getDescForStep(step: string): string {
-        
+
         //Remove 'Function body' part
         step = step.replace(/\{.*/, '');
 
@@ -171,7 +171,7 @@ export default class StepsHandler {
         definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , ,stepText] = match;
+                let [, beforeGherkin, , , stepText] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 let text = this.getTextForStep(stepText);
                 let id = 'step' + getMD5Id(text);

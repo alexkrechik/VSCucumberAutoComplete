@@ -1,4 +1,4 @@
-import { 
+import {
     getOSPath,
     getFileContent,
     clearComments,
@@ -204,13 +204,13 @@ export default class PagesHandler {
                 data: page.id,
                 command: {title: 'cursorMove', command: 'cursorMove', arguments: [{to: 'right', by: 'wrappedLine', select: false, value: 1}]},
                 insertText: page.text + '".'
-            }
+            };
         } else {
             return {
                 label: page.text,
                 kind: CompletionItemKind.Function,
                 data: page.id
-            }
+            };
         }
     }
 
