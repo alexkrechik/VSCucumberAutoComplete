@@ -23,7 +23,7 @@ describe('getMatch', () => {
             });
         });
     });
-    
+
     describe('all the gherkin words strings', () => {
         let gherkinWords = [
             `Given`,
@@ -121,8 +121,8 @@ describe('populate', () => {
 describe('validateConfiguration', () => {
     it('should return correct Diagnostic for provided settings file', () => {
         let settings = [
-            __dirname + "/../test/**/*.js",
-            __dirname + "/../test/non/existent/path/*.js"
+            __dirname + '/../test/**/*.js',
+            __dirname + '/../test/non/existent/path/*.js'
         ];
         let diagnostic = s.validateConfiguration('test/data/test.settings.json', settings, __dirname + '/..');
         expect(diagnostic).to.have.length(1);
@@ -131,7 +131,7 @@ describe('validateConfiguration', () => {
             end: { line: 3, character: 37 }
         });
     });
-})
+});
 
 describe('validate', () => {
     it('should not return diagnostic for correct lines', () => {
@@ -202,5 +202,5 @@ describe('getCompletion', () => {
         let completion = s.getCompletion(' When I do', {character: 10, line: 2});
         expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
-    })
+    });
 });
