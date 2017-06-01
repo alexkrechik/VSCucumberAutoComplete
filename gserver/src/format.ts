@@ -1,4 +1,4 @@
-import {Range} from 'vscode-languageserver';
+import { Range } from 'vscode-languageserver';
 
 interface FormatConf {
     text: string,
@@ -22,17 +22,12 @@ export function format(indent: string, range: Range, text: string): string {
     let textArr = text.split(/\r?\n/g);
 
     //Get formatted array
-    let indentsCount = 0;
     let newTextArr = textArr.map(line => {
         if (line.search(/^\s*$/) !== -1) {
             return '';
         } else {
-            let foundFormat = FORMAT_CONF.find(conf => {
-                return (line.search(new RegExp('^\\s*' + conf.text)) !== -1);
-            });
-            if (foundFormat) {
-                indentsCount = foundFormat.indents;
-            }
+            let foundFormat = FORMAT_CONF.find(conf => line.search(new RegExp('^\\s*' + conf.text)) !== -1);
+            let indentsCount = foundFormat ? foundFormat.indents : 0;
             return line.replace(/^\s*/, indent.repeat(indentsCount));
         }
     });

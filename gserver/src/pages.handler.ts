@@ -46,16 +46,12 @@ export default class PagesHandler {
 
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page !== undefined) {
-            let pageElement = this.elements.find((e) => {
-                return e.text === page;
-            });
+            let pageElement = this.elements.find(e => e.text === page);
             if (!pageElement) {
                 return null;
             }
             if (pageObject !== undefined) {
-                let pageObjectElement = pageElement.objects.find((e) => {
-                    return e.text === pageObject;
-                });
+                let pageObjectElement = pageElement.objects.find(e => e.text === pageObject);
                 return pageObjectElement || null;
             } else {
                 return pageElement;
@@ -81,7 +77,7 @@ export default class PagesHandler {
             if (poMatch) {
                 let pos = Position.create(i, 0);
                 let text = poMatch[1];
-                if (!res.find(v => { return v.text === text; })) {
+                if (!res.find(v => v.text === text)) {
                     res.push({
                         id: 'pageObject' + getMD5Id(text),
                         text: text,
@@ -202,7 +198,7 @@ export default class PagesHandler {
                 label: page.text,
                 kind: CompletionItemKind.Function,
                 data: page.id,
-                command: {title: 'cursorMove', command: 'cursorMove', arguments: [{to: 'right', by: 'wrappedLine', select: false, value: 1}]},
+                command: { title: 'cursorMove', command: 'cursorMove', arguments: [{ to: 'right', by: 'wrappedLine', select: false, value: 1 }] },
                 insertText: page.text + '".'
             };
         } else {

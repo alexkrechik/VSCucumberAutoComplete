@@ -190,7 +190,7 @@ export default class StepsHandler {
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
         let res = [];
-        stepsPathes.forEach((path) => {
+        stepsPathes.forEach(path => {
             let files = glob.sync(path, { ignore: '.gitignore' });
             if (!files.length) {
                 let searchTerm = path.replace(workSpaceRoot + '/', '');
@@ -207,26 +207,16 @@ export default class StepsHandler {
     }
 
     populate(root: string, stepsPathes: StepSettings): void {
-        let stepsFiles = [];
-        this.elements = [];
-        stepsPathes.forEach((path) => {
-            path = root + '/' + path;
-            glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
-                stepsFiles.push(f);
-            });
-        });
-         stepsFiles.forEach(f => {
-            this.elements = this.elements.concat(this.getSteps(f));
-        });
+        this.elements = stepsPathes
+            .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
+            .reduce((elements, f) => elements.concat(this.getSteps(f)), []);
     }
 
     gherkinWords = 'Given|When|Then|And|But';
     gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
 
     getStepByText(text: string): Step {
-        return this.elements.find(s => {
-            return s.reg.test(text);
-        });
+        return this.elements.find(s => s.reg.test(text));
     }
 
     validate(line: string, lineNum: number): Diagnostic | null {
@@ -276,9 +266,7 @@ export default class StepsHandler {
         //We should replace/search only string beginning
         let stepPartRe = new RegExp('^' + stepPart);
         let res = this.elements
-            .filter(el => {
-                return el.text.search(stepPartRe) !== -1;
-            })
+            .filter(el => el.text.search(stepPartRe) !== -1)
             .map(step => {
                 let label = step.text.replace(stepPartRe, '');
                 return {
