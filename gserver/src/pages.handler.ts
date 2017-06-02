@@ -151,15 +151,15 @@ export default class PagesHandler {
         let endLine = line.slice(char).replace(/".*/, '');
         let match = startLine.match(/"/g);
         if (match && match.length % 2) {
-            let poMatch = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
-            if (poMatch[1]) {
+            let [, page, object] = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
+            if (page) {
                 return {
-                    page: poMatch[1],
-                    object: poMatch[2] + endLine
+                    page: page,
+                    object: object + endLine
                 };
             } else {
                 return {
-                    page: poMatch[2] + endLine
+                    page: object + endLine
                 };
             }
         } else {
