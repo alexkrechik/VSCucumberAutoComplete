@@ -124,9 +124,7 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 });
 
 function validate(text: string): Diagnostic[] {
-    let res = [];
-    let textArr = text.split(/\r?\n/g);
-    textArr.forEach((line, i) => {
+    return text.split(/\r?\n/g).reduce((res, line, i) => {
         let diagnostic;
         if (handleSteps() && (diagnostic = stepsHandler.validate(line, i))) {
             res.push(diagnostic);
@@ -134,8 +132,8 @@ function validate(text: string): Diagnostic[] {
             let pagesDiagnosticArr = pagesHandler.validate(line, i);
             res = res.concat(pagesDiagnosticArr);
         }
-    });
-    return res;
+        return res;
+    }, []);
 }
 
 documents.onDidChangeContent((change): void => {

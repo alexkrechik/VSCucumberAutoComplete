@@ -70,9 +70,8 @@ export default class PagesHandler {
     }
 
     getPageObjects(text: string, path: string): PageObject[] {
-        let res = [];
         let textArr = text.split(/\r?\n/g);
-        textArr.forEach((line, i) => {
+        return textArr.reduce((res, line, i) => {
             let poMatch = this.getPoMatch(line);
             if (poMatch) {
                 let pos = Position.create(i, 0);
@@ -86,8 +85,8 @@ export default class PagesHandler {
                     });
                 }
             }
-        });
-        return res;
+            return res;
+        }, []);
     }
 
     getPage(name: string, path: string): Page {
@@ -108,20 +107,14 @@ export default class PagesHandler {
     }
 
     populate(root: string, settings: PagesSettings): void {
-        this.elements = [];
-        Object.keys(settings).forEach(p => {
-            let path = root + '/' + settings[p];
-            this.elements.push(this.getPage(p, path));
-        });
+        this.elements = Object.keys(settings).map(p => this.getPage(p, root + '/' + settings[p]));
     }
 
     validate(line: string, lineNum: number): Diagnostic[] {
-        let res = [];
         if (~line.search(/"[^"]*"."[^"]*"/)) {
-            let lineArr = line.split('"');
-            let curr = 0;
-            lineArr.forEach((l, i) => {
+            return line.split('"').reduce((res, l, i, lineArr) => {
                 if (l === '.') {
+                    let curr = lineArr.slice(0, i).reduce((a, b, j) => a + b.length + 1, 0);
                     let page = lineArr[i - 1];
                     let pageObject = lineArr[i + 1];
                     if (!this.getElements(page)) {
@@ -146,10 +139,11 @@ export default class PagesHandler {
                         });
                     }
                 }
-                curr += l.length + 1;
-            });
+                return res;
+            }, []);
+        } else {
+            return [];
         }
-        return res;
     }
 
     getFeaturePosition(line: string, char: number): FeaturePosition {

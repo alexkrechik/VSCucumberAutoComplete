@@ -147,7 +147,6 @@ export default class StepsHandler {
 
         //All the "match" parts from double quotes should be removed
         //ex. `"(.*)"` should be changed by ""
-        //We should remove text between quotes, '^|$' regexp marks and backslashes
         step = step.replace(/"\([^\)]*\)"/g, '""');
 
         return step;
@@ -165,10 +164,9 @@ export default class StepsHandler {
     }
 
     getSteps(filePath: string): Step[] {
-        let steps = [];
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
-        definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
+        return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
                 let [, beforeGherkin, , , stepText] = match;
@@ -184,13 +182,12 @@ export default class StepsHandler {
                     count: this.getElementCount(id)
                 });
             }
-        });
-        return steps;
+            return steps;
+        }, []);
     }
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
-        let res = [];
-        stepsPathes.forEach(path => {
+        return stepsPathes.reduce((res, path) => {
             let files = glob.sync(path, { ignore: '.gitignore' });
             if (!files.length) {
                 let searchTerm = path.replace(workSpaceRoot + '/', '');
@@ -202,8 +199,8 @@ export default class StepsHandler {
                     source: 'cucumberautocomplete'
                 });
             }
-        });
-        return res;
+            return res;
+        }, []);
     }
 
     populate(root: string, stepsPathes: StepSettings): void {
