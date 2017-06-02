@@ -19,8 +19,8 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 import { format } from './format';
-import StepsHandler, {StepSettings} from './steps.handler';
-import PagesHandler, {PagesSettings} from './pages.handler';
+import StepsHandler, { StepSettings } from './steps.handler';
+import PagesHandler, { PagesSettings } from './pages.handler';
 import { getOSPath } from './util';
 
 interface Settings {
@@ -61,7 +61,7 @@ connection.onInitialize((params): InitializeResult => {
 });
 
 function handleSteps(): boolean {
-     let s = settings.cucumberautocomplete.steps;
+    let s = settings.cucumberautocomplete.steps;
     return s && s.length ? true : false;
 }
 
@@ -78,7 +78,7 @@ function pagesPosition(line: string, char: number): boolean {
     }
 }
 
-connection.onDidChangeConfiguration((change) => {
+connection.onDidChangeConfiguration(change => {
     settings = <Settings>change.settings;
     //We should get array from step string if provided
     settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
@@ -124,9 +124,7 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 });
 
 function validate(text: string): Diagnostic[] {
-    let res = [];
-    let textArr = text.split(/\r?\n/g);
-    textArr.forEach( (line, i) => {
+    return text.split(/\r?\n/g).reduce((res, line, i) => {
         let diagnostic;
         if (handleSteps() && (diagnostic = stepsHandler.validate(line, i))) {
             res.push(diagnostic);
@@ -134,8 +132,8 @@ function validate(text: string): Diagnostic[] {
             let pagesDiagnosticArr = pagesHandler.validate(line, i);
             res = res.concat(pagesDiagnosticArr);
         }
-    });
-    return res;
+        return res;
+    }, []);
 }
 
 documents.onDidChangeContent((change): void => {
@@ -160,15 +158,8 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
 });
 
 function getIndent(options: FormattingOptions): string {
-    let spaces = options.insertSpaces;
-    let tabSize = options.tabSize;
-    let indent;
-    if (spaces) {
-        indent = ' '.repeat(tabSize);
-    } else {
-        indent = '\t';
-    }
-    return indent;
+    let { insertSpaces, tabSize } = options;
+    return insertSpaces ? ' '.repeat(tabSize) : '\t';
 }
 
 connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
