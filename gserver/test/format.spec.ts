@@ -12,6 +12,6 @@ describe('format', () => {
         Position.create(beforeUArr.length - 1, beforeUArr[beforeUArr.length - 1].length));
     let before = format('\t', range, beforeU).split(/\r?\n/);
     it(`should not change lines num`, () => expect(before.length).to.be.equal(after.length));
-    it(`should format before.format.feature file properly`, () => beforeUArr.forEach((l, i) =>
+    beforeUArr.forEach((l, i) => it(`should correctly format "${l}" line`, () =>
         expect(before[i]).to.be.equal(after[i])));
 });

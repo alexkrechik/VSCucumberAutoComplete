@@ -1,7 +1,7 @@
-		@Fast
+@Fast
 Feature: Formatting feature
 
-			This feature was created to test formatting
+This feature was created to test formatting
 
 
 	Background: Background name
@@ -13,18 +13,18 @@ Feature: Formatting feature
 			| Matt|matt@cucumber.io| @mattwynne|
 
 
-		#This comment is related to this Scenario:
+	#This comment is related to this Scenario:
 	Scenario: Some scenario
 
 		#Comment related to the next string
 		Given I prepare for something
 			"""
-			Some comment regarding prevous step
-			Separated into two lined
+Some comment regarding prevous step
+Separated into two lined
 			"""
 
 
-		@Other
+	@Other
 	Scenario: Some other scenario
 
 		When I do something
