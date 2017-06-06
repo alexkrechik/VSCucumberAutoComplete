@@ -46,7 +46,7 @@ function correctIndents(text, indent) {
         .join('\r\n');
 }
 
-export function format(indent: string, range: Range, text: string): string {
+export function format(indent: string, text: string): string {
 
     //Insert correct indents for all the lined differs from string start
     text = correctIndents(text, indent);
