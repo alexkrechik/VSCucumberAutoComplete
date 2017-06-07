@@ -32,7 +32,7 @@ export type Step = {
     count: number
 };
 
-export type StepsHash = {
+export type StepsCountHash = {
     [step: string]: number
 };
 
@@ -40,10 +40,12 @@ export default class StepsHandler {
 
     elements: Step[];
 
-    elemenstHash: StepsHash;
+    elementsHash: {[step: string]: boolean} = {};
+
+    elemenstCountHash: StepsCountHash;
 
     constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
-        this.elemenstHash = {};
+        this.elemenstCountHash = {};
         this.populate(root, stepsPathes);
         if (sync === true) {
             this.setElementsHash(`${root}/**/*.feature`);
@@ -57,7 +59,7 @@ export default class StepsHandler {
     }
 
     setElementsHash(path: string): void {
-        this.elemenstHash = {};
+        this.elemenstCountHash = {};
         let files = glob.sync(path, { ignore: '.gitignore' });
         files.forEach(f => {
             let text = getFileContent(f);
@@ -75,15 +77,15 @@ export default class StepsHandler {
     }
 
     incrementElementCount(id: string): void {
-        if (this.elemenstHash[id]) {
-            this.elemenstHash[id]++;
+        if (this.elemenstCountHash[id]) {
+            this.elemenstCountHash[id]++;
         } else {
-            this.elemenstHash[id] = 1;
+            this.elemenstCountHash[id] = 1;
         }
     }
 
     getElementCount(id: string): number {
-        return this.elemenstHash[id] || 0;
+        return this.elemenstCountHash[id] || 0;
     }
 
     getStepRegExp(): RegExp {
@@ -204,9 +206,18 @@ export default class StepsHandler {
     }
 
     populate(root: string, stepsPathes: StepSettings): void {
+        this.elementsHash = {};
         this.elements = stepsPathes
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
-            .reduce((elements, f) => elements.concat(this.getSteps(f)), []);
+            .reduce((elements, f) => elements.concat(
+                this.getSteps(f).reduce((steps, step) => {
+                    if (!this.elementsHash[step.id]) {
+                        steps.push(step);
+                        this.elementsHash[step.id] = true;
+                    }
+                    return steps;
+                }, [])
+            ), []);
     }
 
     gherkinWords = 'Given|When|Then|And|But';
