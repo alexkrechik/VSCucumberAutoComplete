@@ -1,4 +1,4 @@
-import { 
+import {
     getOSPath,
     getFileContent,
     clearComments,
@@ -16,6 +16,8 @@ import {
     CompletionItemKind,
     TextEdit
 } from 'vscode-languageserver';
+
+import * as glob from 'glob';
 
 export type PagesSettings = {
     [page: string]: string
@@ -44,16 +46,12 @@ export default class PagesHandler {
 
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page !== undefined) {
-            let pageElement = this.elements.find((e) => {
-                return e.text === page;
-            });
+            let pageElement = this.elements.find(e => e.text === page);
             if (!pageElement) {
                 return null;
             }
             if (pageObject !== undefined) {
-                let pageObjectElement = pageElement.objects.find((e) => {
-                    return e.text === pageObject;
-                });
+                let pageObjectElement = pageElement.objects.find(e => e.text === pageObject);
                 return pageObjectElement || null;
             } else {
                 return pageElement;
@@ -72,14 +70,13 @@ export default class PagesHandler {
     }
 
     getPageObjects(text: string, path: string): PageObject[] {
-        let res = [];
         let textArr = text.split(/\r?\n/g);
-        textArr.forEach((line, i) => {
+        return textArr.reduce((res, line, i) => {
             let poMatch = this.getPoMatch(line);
             if (poMatch) {
                 let pos = Position.create(i, 0);
                 let text = poMatch[1];
-                if (!res.find(v => { return v.text === text; })) {
+                if (!res.find(v => v.text === text)) {
                     res.push({
                         id: 'pageObject' + getMD5Id(text),
                         text: text,
@@ -88,38 +85,36 @@ export default class PagesHandler {
                     });
                 }
             }
-        });
-        return res;
+            return res;
+        }, []);
     }
 
     getPage(name: string, path: string): Page {
-        let text = getFileContent(path);
-        text = clearComments(text);
-        let zeroPos = Position.create(0, 0);
-        return {
-            id: 'page' + getMD5Id(name),
-            text: name,
-            desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
-            def: Location.create(getOSPath(path), Range.create(zeroPos, zeroPos)),
-            objects: this.getPageObjects(text, path)
-        };
+        let files = glob.sync(path);
+        if (files.length) {
+            let file = files[0];
+            let text = getFileContent(files[0]);
+            text = clearComments(text);
+            let zeroPos = Position.create(0, 0);
+            return {
+                id: 'page' + getMD5Id(name),
+                text: name,
+                desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
+                def: Location.create(getOSPath(file), Range.create(zeroPos, zeroPos)),
+                objects: this.getPageObjects(text, file)
+            };
+        }
     }
 
     populate(root: string, settings: PagesSettings): void {
-        this.elements = [];
-        Object.keys(settings).forEach(p => {
-            let path = root + '/' + settings[p];
-            this.elements.push(this.getPage(p, path));
-        });
+        this.elements = Object.keys(settings).map(p => this.getPage(p, root + '/' + settings[p]));
     }
 
     validate(line: string, lineNum: number): Diagnostic[] {
-        let res = [];
         if (~line.search(/"[^"]*"."[^"]*"/)) {
-            let lineArr = line.split('"');
-            let curr = 0;
-            lineArr.forEach((l, i) => {
+            return line.split('"').reduce((res, l, i, lineArr) => {
                 if (l === '.') {
+                    let curr = lineArr.slice(0, i).reduce((a, b, j) => a + b.length + 1, 0);
                     let page = lineArr[i - 1];
                     let pageObject = lineArr[i + 1];
                     if (!this.getElements(page)) {
@@ -144,10 +139,11 @@ export default class PagesHandler {
                         });
                     }
                 }
-                curr += l.length + 1;
-            });
+                return res;
+            }, []);
+        } else {
+            return [];
         }
-        return res;
     }
 
     getFeaturePosition(line: string, char: number): FeaturePosition {
@@ -155,15 +151,15 @@ export default class PagesHandler {
         let endLine = line.slice(char).replace(/".*/, '');
         let match = startLine.match(/"/g);
         if (match && match.length % 2) {
-            let poMatch = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
-            if (poMatch[1]) {
+            let [, page, object] = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
+            if (page) {
                 return {
-                    page: poMatch[1],
-                    object: poMatch[2] + endLine
+                    page: page,
+                    object: object + endLine
                 };
             } else {
                 return {
-                    page: poMatch[2] + endLine
+                    page: object + endLine
                 };
             }
         } else {
@@ -196,22 +192,22 @@ export default class PagesHandler {
                 label: page.text,
                 kind: CompletionItemKind.Function,
                 data: page.id,
-                command: {title: 'cursorMove', command: 'cursorMove', arguments: [{to: 'right', by: 'wrappedLine', select: false, value: 1}]},
+                command: { title: 'cursorMove', command: 'cursorMove', arguments: [{ to: 'right', by: 'wrappedLine', select: false, value: 1 }] },
                 insertText: page.text + '".'
-            }
+            };
         } else {
             return {
                 label: page.text,
                 kind: CompletionItemKind.Function,
                 data: page.id
-            }
+            };
         }
     }
 
     getPageObjectCompletion(line: string, position: Position, pageObject: PageObject): CompletionItem {
         let insertText = '';
         if (line.length === position.character) {
-            insertText = '"';
+            insertText = '" ';
         }
         return {
             label: pageObject.text,

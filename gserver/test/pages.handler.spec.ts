@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 let pagesSettings = {
     page: '/data/page.objects.js',
-    page2: '/data/page.objects.java',
+    page2: '/data/*.java',
 };
 let pagesHandler = new PagesHandler(__dirname, pagesSettings);
 
@@ -158,7 +158,7 @@ describe('validate', () => {
         it(`should return diagnostic for "${l}" line`, () => {
             expect(pagesHandler.validate(l, 0)).to.have.length.above(0);
         });
-    })
+    });
 });
 
 describe('getFeaturePosition', () => {
@@ -222,12 +222,12 @@ describe('getCompletion', () => {
        let line = 'When I use ""';
        let pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})[0];
        expect(pageCompletion).to.have.property('insertText').that.is.equals('page".');
-       expect(pageCompletion).to.have.property('command')
+       expect(pageCompletion).to.have.property('command');
     });
     it('should return correct insertText for pageObject differs from string', () => {
         let poCompletion1 = pagesHandler.getCompletion('When I use "page"."', {character: 19, line: 2})[0];
         let poCompletion2 = pagesHandler.getCompletion('When I use "page".""', {character: 19, line: 2})[0];
-        expect(poCompletion1).to.have.property('insertText').that.is.equals('a"');
+        expect(poCompletion1).to.have.property('insertText').that.is.equals('a" ');
         expect(poCompletion2).to.have.property('insertText').that.is.equals('a');
     });
 });

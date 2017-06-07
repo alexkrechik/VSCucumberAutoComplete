@@ -1,4 +1,4 @@
-import { 
+import {
     getOSPath,
     getFileContent,
     clearComments,
@@ -34,7 +34,7 @@ export type Step = {
 
 export type StepsHash = {
     [step: string]: number
-}
+};
 
 export default class StepsHandler {
 
@@ -42,19 +42,23 @@ export default class StepsHandler {
 
     elemenstHash: StepsHash;
 
-    constructor(root: string, stepsPathes: StepSettings, sync: boolean) {
+    constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
         this.elemenstHash = {};
         this.populate(root, stepsPathes);
-        sync && this.setElementsHash(root);
+        if (sync === true) {
+            this.setElementsHash(`${root}/**/*.feature`);
+        } else if (typeof sync === 'string') {
+            this.setElementsHash(`${root}/${sync}`);
+        }
     }
 
     getElements(): Step[] {
         return this.elements;
     }
 
-    setElementsHash(root: string): void {
+    setElementsHash(path: string): void {
         this.elemenstHash = {};
-        let files = glob.sync(`${root}/**/*.feature`, { ignore: '.gitignore' });
+        let files = glob.sync(path, { ignore: '.gitignore' });
         files.forEach(f => {
             let text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
@@ -71,7 +75,7 @@ export default class StepsHandler {
     }
 
     incrementElementCount(id: string): void {
-        if(this.elemenstHash[id]) {
+        if (this.elemenstHash[id]) {
             this.elemenstHash[id]++;
         } else {
             this.elemenstHash[id] = 1;
@@ -79,7 +83,7 @@ export default class StepsHandler {
     }
 
     getElementCount(id: string): number {
-        return this.elemenstHash[id] || 0; 
+        return this.elemenstHash[id] || 0;
     }
 
     getStepRegExp(): RegExp {
@@ -116,16 +120,16 @@ export default class StepsHandler {
     }
 
     getRegTextForStep(step: string): string {
-        
+
         //Ruby interpolation (like `#{Something}` )should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
-        step = step.replace(/#{(.*?)}/g, '.*')
+        step = step.replace(/#{(.*?)}/g, '.*');
 
         //Built in transforms
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
-        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+')
-        step = step.replace(/{int}/g, '-?\\d+')
-        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"')
+        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
+        step = step.replace(/{int}/g, '-?\\d+');
+        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);
@@ -134,7 +138,7 @@ export default class StepsHandler {
     }
 
     getTextForStep(step: string): string {
-        
+
         //Remove all the backslashes
         step = step.replace(/\\/g, '');
 
@@ -143,14 +147,13 @@ export default class StepsHandler {
 
         //All the "match" parts from double quotes should be removed
         //ex. `"(.*)"` should be changed by ""
-        //We should remove text between quotes, '^|$' regexp marks and backslashes
         step = step.replace(/"\([^\)]*\)"/g, '""');
-        
+
         return step;
     }
 
     getDescForStep(step: string): string {
-        
+
         //Remove 'Function body' part
         step = step.replace(/\{.*/, '');
 
@@ -161,13 +164,12 @@ export default class StepsHandler {
     }
 
     getSteps(filePath: string): Step[] {
-        let steps = [];
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
-        definitionFile.split(/\r?\n/g).forEach((line, lineIndex) => {
+        return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , ,stepText] = match;
+                let [, beforeGherkin, , , stepText] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 let text = this.getTextForStep(stepText);
                 let id = 'step' + getMD5Id(text);
@@ -180,13 +182,12 @@ export default class StepsHandler {
                     count: this.getElementCount(id)
                 });
             }
-        });
-        return steps;
+            return steps;
+        }, []);
     }
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
-        let res = [];
-        stepsPathes.forEach((path) => {
+        return stepsPathes.reduce((res, path) => {
             let files = glob.sync(path, { ignore: '.gitignore' });
             if (!files.length) {
                 let searchTerm = path.replace(workSpaceRoot + '/', '');
@@ -198,31 +199,21 @@ export default class StepsHandler {
                     source: 'cucumberautocomplete'
                 });
             }
-        });
-        return res;
+            return res;
+        }, []);
     }
 
     populate(root: string, stepsPathes: StepSettings): void {
-        let stepsFiles = [];
-        this.elements = [];
-        stepsPathes.forEach((path) => {
-            path = root + '/' + path;
-            glob.sync(path, { ignore: '.gitignore' }).forEach(f => {
-                stepsFiles.push(f);
-            });
-        });
-         stepsFiles.forEach(f => {
-            this.elements = this.elements.concat(this.getSteps(f));
-        });
+        this.elements = stepsPathes
+            .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
+            .reduce((elements, f) => elements.concat(this.getSteps(f)), []);
     }
 
     gherkinWords = 'Given|When|Then|And|But';
     gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
 
     getStepByText(text: string): Step {
-        return this.elements.find(s => {
-            return s.reg.test(text);
-        });
+        return this.elements.find(s => s.reg.test(text));
     }
 
     validate(line: string, lineNum: number): Diagnostic | null {
@@ -272,9 +263,7 @@ export default class StepsHandler {
         //We should replace/search only string beginning
         let stepPartRe = new RegExp('^' + stepPart);
         let res = this.elements
-            .filter(el => {
-                return el.text.search(stepPartRe) !== -1;
-            })
+            .filter(el => el.text.search(stepPartRe) !== -1)
             .map(step => {
                 let label = step.text.replace(stepPartRe, '');
                 return {
