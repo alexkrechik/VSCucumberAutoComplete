@@ -19,8 +19,8 @@ This feature was created to test formatting
 		#Comment related to the next string
 		Given I prepare for something
 			"""
-Some comment regarding prevous step
-Separated into two lined
+			Some comment regarding prevous step
+			Separated into two lined
 			"""
 
 
@@ -46,3 +46,5 @@ Separated into two lined
 			|500|29500000|245 |
 			|575|31500 |255 |
 			| 600000|37000| 305|
+
+#Last string with comment

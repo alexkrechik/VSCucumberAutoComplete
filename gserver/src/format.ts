@@ -33,13 +33,17 @@ function correctIndents(text, indent) {
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
+            if (line.match(/^\s*$/)) return '';
             let format = findFormat(line);
-            let indentCount = defaultIndent;
+            let indentCount;
             if (format && format.type === 'num') {
                 indentCount = format.indents;
+                defaultIndent = indentCount;
             } else if (format && format.type === 'relative') {
                 let nextLine = textArr.slice(i + 1).find(l => findFormat(l) && findFormat(l).type === 'num');
-                indentCount = nextLine ? findFormat(nextLine).indents : defaultIndent;
+                indentCount = nextLine ? findFormat(nextLine).indents : 0;
+            } else {
+                indentCount = defaultIndent;
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
