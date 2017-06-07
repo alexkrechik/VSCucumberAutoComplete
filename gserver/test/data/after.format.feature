@@ -7,10 +7,10 @@ This feature was created to test formatting
 	Background: Background name
 
 		Given the following users exist:
-			| name |email| twitter|
-			| Aslak|    aslak@cucumber.io | @aslak_hellesoy |
-			| Julien|julien@cucumber.io| @jbpros|
-			| Matt|matt@cucumber.io| @mattwynne|
+			| name   | email              | twitter         |
+			| Aslak  | aslak@cucumber.io  | @aslak_hellesoy |
+			| Julien | julien@cucumber.io | @jbpros         |
+			| Matt   | matt@cucumber.io   | @mattwynne      |
 
 
 	#This comment is related to this Scenario:
@@ -41,10 +41,10 @@ This feature was created to test formatting
 		And the protein should be <protein> kg
 
 		Examples:
-			| weight|energy |protein|
-			|450|26500| 215 |
-			|500|29500000|245 |
-			|575|31500 |255 |
-			| 600000|37000| 305|
+			| weight | energy   | protein |
+			| 450    | 26500    | 215     |
+			| 500    | 29500000 | 245     |
+			| 575    | 31500    | 255     |
+			| 600000 | 37000    | 305     |
 
 #Last string with comment

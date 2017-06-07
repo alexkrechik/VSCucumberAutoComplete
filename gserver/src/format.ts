@@ -33,7 +33,7 @@ function correctIndents(text, indent) {
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
-            if (line.match(/^\s*$/)) return '';
+            if (~line.search(/^\s*$/)) return '';
             let format = findFormat(line);
             let indentCount;
             if (format && format.type === 'num') {
@@ -50,10 +50,63 @@ function correctIndents(text, indent) {
         .join('\r\n');
 }
 
+function formatTables(text) {
+    let blocks: {
+        line: number,
+        block: number,
+        data: string[]
+    }[];
+    let maxes;
+    let lines;
+    let blockNum = 0;
+    let textArr = text.split(/\r?\n/g);
+
+    //Get blocks with data in cucumber tables
+    blocks = textArr
+        .reduce((res, l, i, arr) => {
+            if (~l.search(/^\s*\|/)) {
+                res.push({
+                    line: i,
+                    block: blockNum,
+                    data: l.split(/\s*\|\s*/).filter((v, i, arr) => (i > 0) && (i < (arr.length - 1)))
+                });
+                if (i < arr.length && !~arr[i + 1].search(/^\s*\|/)) {
+                    blockNum++;
+                }
+            }
+            return res;
+        }, []);
+
+    //Get max value for each table cell
+    maxes = blocks.reduce((res, b) => {
+        let block = b.block;
+        if (res[block]) {
+            res[block] = res[block].map((v, i) => Math.max(v, b.data[i].length));
+        } else {
+            res[block] = b.data.map(v => v.length);
+        }
+        return res;
+    }, []);
+
+    //Change all the 'block' lines in our document using correct distance between words
+    blocks.forEach(block => {
+        let change = block.data
+            .map((d, i) => ` ${d}${' '.repeat(maxes[block.block][i] - d.length)} `)
+            .join('|');
+        change = `|${change}|`;
+        textArr[block.line] = textArr[block.line].replace(/\|.*/, change);
+    });
+
+    return textArr.join('\r\n');
+}
+
 export function format(indent: string, text: string): string {
 
     //Insert correct indents for all the lined differs from string start
     text = correctIndents(text, indent);
+
+    //We should format all the tables present
+    text = formatTables(text);
 
     return text;
 
