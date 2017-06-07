@@ -1,3 +1,19 @@
+## 2.3.0 / 2017-06-07
+### MAIN CHANGES
+* Added an ability to provide glop pattern fo features, that should be synced for steps using count getting
+* Many features formatting improvements/bugfixes
+### Features/Improvements:
+* [#81](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/81) Add global pattern support for cucumberautocomplete.steps and cucumberautocomplete.pages
+* [#83](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/83) Add possibility to specify paths to features inside cucumberautocomplete.syncfeatures
+* [#84](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/84) Add one more space after page object insert
+### Bugfixes:
+* [#89](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/89) Data tables have to start with identation in steps and scenario outline examples
+* [#90](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/90) Scenario Outline is idented as it is a step in the previous block
+* [#91](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/91) Tags are indented as they belong to the previous block
+* [#92](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/92) Format data tables so they are rectangular
+* [#93](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/93) Background should be on the same level as Scenario
+* [#95](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/95) two spaces after Then not find
+
 ## 2.2.0 / 2017-05-26
 ### MAIN CHANGES
 * All the steps suggestions are sorted by their using count
