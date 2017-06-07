@@ -167,7 +167,7 @@ connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] =
     let textArr = text.split(/\r?\n/g);
     let indent = getIndent(params.options);
     let range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
-    return [TextEdit.replace(range, format(indent, range, text))];
+    return [TextEdit.replace(range, format(indent, text))];
 });
 
 connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
@@ -177,7 +177,7 @@ connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): Te
     let indent = getIndent(params.options);
     range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
     text = textArr.splice(range.start.line, range.end.line - range.start.line + 1).join('\r\n');
-    return [TextEdit.replace(range, format(indent, range, text))];
+    return [TextEdit.replace(range, format(indent, text))];
 });
 
 connection.listen();

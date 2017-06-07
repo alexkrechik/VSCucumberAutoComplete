@@ -139,12 +139,10 @@ describe('validate', () => {
         expect(s.validate('    When I do something', 1)).to.be.null;
         expect(s.validate('When I do another thing', 1)).to.be.null;
         expect(s.validate('When I do something  ', 1)).to.be.null;
+        expect(s.validate('When  I do something  ', 1)).to.be.null;
     });
     it('should not check non-Gherkin steps', () => {
         expect(s.validate('I do something else', 1)).to.be.null;
-    });
-    it('should return an diagnostic for wrong lines', () => {
-        expect(s.validate('WhenI do something else', 1)).to.not.be.null;
     });
     it('should return an diagnostic for lines beggining with Given', () => {
         expect(s.validate('Given I do something else', 1)).to.not.be.null;

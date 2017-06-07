@@ -221,7 +221,7 @@ export default class StepsHandler {
     }
 
     gherkinWords = 'Given|When|Then|And|But';
-    gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(.)(.*)');
+    gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(\\s+)(.*)');
 
     getStepByText(text: string): Step {
         return this.elements.find(s => s.reg.test(text));
