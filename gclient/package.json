@@ -69,7 +69,8 @@
                 "cucumberautocomplete.syncfeatures": {
                     "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
                     "type": ["boolean", "string"],
-                    "required": false
+                    "required": false,
+                    "default": "test/features/*.feature"
                 }
             }
         }

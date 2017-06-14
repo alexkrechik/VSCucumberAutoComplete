@@ -30,7 +30,8 @@ All the steps and page objects will be re-populated after every `.feature` file 
     "cucumberautocomplete.steps": [
         "test/features/step_definitions/**/*.js",
         "node_modules/qa-lib/src/step_definitions/*.js"
-    ]
+    ],
+    "cucumberautocomplete.syncfeatures": "test/features/*feature"
 }
 ```
 
