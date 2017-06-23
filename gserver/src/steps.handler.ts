@@ -123,7 +123,7 @@ export default class StepsHandler {
 
     getRegTextForStep(step: string): string {
 
-        //Ruby interpolation (like `#{Something}` )should be replaced with `.*`
+        //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
         step = step.replace(/#{(.*?)}/g, '.*');
 
@@ -132,6 +132,12 @@ export default class StepsHandler {
         step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
         step = step.replace(/{int}/g, '-?\\d+');
         step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
+
+        //Handle Custom Parameter Types for Cucumber Expressions (like `{Something}`) should be replaced with `.*`
+        //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
+        //Cucumber Expressions Custom Parameter Type Documentation
+        //https://docs.cucumber.io/cucumber-expressions/#custom-parameters
+        step = step.replace(/{(.*)}/g, '.*');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);
