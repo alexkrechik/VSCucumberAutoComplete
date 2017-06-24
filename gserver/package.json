@@ -26,6 +26,7 @@
   "scripts": {
     "compile": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc -p .",
     "watch": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc --watch -p .",
-    "test": "./node_modules/.bin/mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "./node_modules/.bin/mocha -r ts-node/register test/**/*.spec.ts",
+    "lint": "./node_modules/.bin/tslint 'src/**/*.ts'"
   }
 }
