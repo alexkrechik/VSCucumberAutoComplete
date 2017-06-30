@@ -1,6 +1,7 @@
 # http://docs.travis-ci.com/user/workers/container-based-infrastructure/
 sudo: required
 dist: trusty
+group: deprecated-2017Q2
 
 # http://docs.travis-ci.com/user/languages/javascript-with-nodejs/
 language: node_js
