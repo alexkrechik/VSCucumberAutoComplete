@@ -202,7 +202,7 @@
         <key>0</key>
         <dict>
           <key>name</key>
-          <string>storage.type.tag.cucumber</string>
+          <string>entity.name.type.class.tsx</string>
         </dict>
       </dict>
       <key>match</key>
