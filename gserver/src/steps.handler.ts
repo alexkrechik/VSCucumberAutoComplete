@@ -133,11 +133,11 @@ export default class StepsHandler {
         step = step.replace(/{int}/g, '-?\\d+');
         step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
 
-        //Handle Custom Parameter Types for Cucumber Expressions (like `{Something}`) should be replaced with `.*`
+        //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
         //Cucumber Expressions Custom Parameter Type Documentation
         //https://docs.cucumber.io/cucumber-expressions/#custom-parameters
-        step = step.replace(/{(.*)}/g, '.*');
+        step = step.replace(/(?!{[\d|,]){(.*?)}/g, '.*');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);

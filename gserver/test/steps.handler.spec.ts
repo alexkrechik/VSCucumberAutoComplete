@@ -94,6 +94,18 @@ describe('getRegTextForStep', () => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
         });
     });
+    it('should correctly handle cucumber expressions', () => {
+        let data = [
+            ['Test multiples: { cuke expression 1 } { cuke-expression-2 }', 'Test multiples: .* .*'],
+            ['Test regex - braces: {.*}', 'Test regex - braces: .*'],
+            ['Test regex - misc: (.*){3,4} (.*){,5}', 'Test regex - misc: (.*){3,4} (.*){,5}'],
+            ['Test order: {first} {.*} (.*){6,7} (.*) (.*){,5} {last}', 'Test order: .* .* (.*){6,7} (.*) (.*){,5} .*'],
+            ['I use \{ some backslashed thing \}', 'I use \{ some backslashed thing \}']
+        ];
+        data.forEach(d => {
+            expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
+        });
+    });
 });
 
 describe('constructor', () => {
