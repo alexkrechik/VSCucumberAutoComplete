@@ -20,7 +20,7 @@
     "mocha": "^3.2.0",
     "ts-node": "^2.0.0",
     "tslint": "^4.2.0",
-    "typescript": "^2.1.4",
+    "typescript": "~2.3.0",
     "vscode": "^1.0.3"
   },
   "scripts": {
