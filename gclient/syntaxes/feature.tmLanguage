@@ -153,9 +153,9 @@
     <key>strings_double_quote</key>
     <dict>
       <key>begin</key>
-      <string>"</string>
+      <string>(?&lt;![a-zA-Z'])"</string>
       <key>end</key>
-      <string>"</string>
+      <string>"(?![a-zA-Z'])</string>
       <key>name</key>
       <string>string.quoted.double</string>
       <key>patterns</key>
@@ -166,6 +166,14 @@
           <key>name</key>
           <string>constant.character.escape.untitled</string>
         </dict>
+        <dict>
+          <key>begin</key>
+          <string>&lt;</string>
+          <key>end</key>
+          <string>&gt;</string>
+          <key>name</key>
+          <string>variable.other</string>
+        </dict>
       </array>
     </dict>
     <key>strings_single_quote</key>
@@ -173,7 +181,7 @@
       <key>begin</key>
       <string>(?&lt;![a-zA-Z"])'</string>
       <key>end</key>
-      <string>'(?![a-zA-Z])</string>
+      <string>'(?![a-zA-Z"])</string>
       <key>name</key>
       <string>string.quoted.single</string>
       <key>patterns</key>
@@ -183,6 +191,14 @@
           <string>\\.</string>
           <key>name</key>
           <string>constant.character.escape</string>
+        </dict>
+        <dict>
+          <key>begin</key>
+          <string>&lt;</string>
+          <key>end</key>
+          <string>&gt;</string>
+          <key>name</key>
+          <string>variable.other</string>
         </dict>
       </array>
     </dict>
@@ -202,7 +218,7 @@
         <key>0</key>
         <dict>
           <key>name</key>
-          <string>storage.type.tag.cucumber</string>
+          <string>entity.name.type.class.tsx</string>
         </dict>
       </dict>
       <key>match</key>
