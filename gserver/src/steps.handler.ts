@@ -137,7 +137,7 @@ export default class StepsHandler {
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
         //Cucumber Expressions Custom Parameter Type Documentation
         //https://docs.cucumber.io/cucumber-expressions/#custom-parameters
-        step = step.replace(/(?!{[\d|,]){(.*?)}/g, '.*');
+        step = step.replace(/([^\\]){(?![\d,])(.*?)}/g, '$1.*');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);
