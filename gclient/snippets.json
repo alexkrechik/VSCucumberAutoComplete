@@ -2,65 +2,65 @@
     "Insert 'Given' Step": {
         "prefix": "Given",
         "body": [
-            "Given ${Start to type your Given step here}"
+            "Given ${1:Start to type your Given step here}"
         ]
     },
     "Insert 'When' Step": {
         "prefix": "When",
         "body": [
-            "When ${Start to type your When step here}"
+            "When ${1:Start to type your When step here}"
         ]
     },
     "Insert 'Then' Step": {
         "prefix": "Then",
         "body": [
-            "Then ${Start to type your Then step here}"
+            "Then ${1:Start to type your Then step here}"
         ]
     },
     "Insert 'But' Step": {
         "prefix": "But",
         "body": [
-            "But ${Start to type your But step here}"
+            "But ${1:Start to type your But step here}"
         ]
     },
     "Insert 'And' Step": {
         "prefix": "And",
         "body": [
-            "And ${Start to type your And step here}"
+            "And ${1:Start to type your And step here}"
         ]
     },
     "Insert Feature": {
         "prefix": "Feature",
         "body": [
-            "Feature: ${Feature name}",
+            "Feature: ${1:Feature name}",
             "",
-            "   ${Feature Description}"
+            "   ${2:Feature Description}"
         ]
     },
     "Insert Scenario": {
         "prefix": "Scenario",
         "body": [
-            "Scenario: ${Scenario name}"
+            "Scenario: ${1:Scenario name}"
         ]
     },
     "Insert Background": {
         "prefix": "Background",
         "body": [
-            "Background: ${Background name}"
+            "Background: ${1:Background name}"
         ]
     },
     "Insert Scenario Outline": {
         "prefix": "Scenario Outline",
         "body": [
-            "Scenario Outline: ${Scenario Outline name}"
+            "Scenario Outline: ${1:Scenario Outline name}"
         ]
     },
     "Insert Examples": {
         "prefix": "Examples",
         "body": [
             "Examples:",
-                "| ${Header 1} | ${Header 2} | ${Header 3} |",
-                "| ${Value 1}  | ${Value 2}  | ${Value 3}  |"
+                "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
+                "| ${4:Value 1}  | ${5:Value 2}  | ${6:Value 3}  |"
         ]
     }
 }
