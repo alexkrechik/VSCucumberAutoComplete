@@ -1,3 +1,10 @@
+##2.3.1 / 2017-07-15
+### Features/Improvements:
+* [#118](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/118) Syntax should highlight tags and nested variables
+### Bugfixes:
+* [#102](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/102) Fix snippets to avoid snippets warnings
+* [#99](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99) CucumberJS v2.X regex syntax {.*} not being detected
+
 ## 2.3.0 / 2017-06-07
 ### MAIN CHANGES
 * Added an ability to provide glop pattern fo features, that should be synced for steps using count getting
