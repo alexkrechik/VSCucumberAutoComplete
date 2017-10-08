@@ -1,3 +1,7 @@
+##2.4.0/ 2017-10-08
+### Bugfixes:
+* [#126](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/126) Page Objects wrong inserting
+
 ##2.4.0/ 2017-07-15
 ### Features/Improvements:
 * [#124](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/124) Cucumber 2 support
