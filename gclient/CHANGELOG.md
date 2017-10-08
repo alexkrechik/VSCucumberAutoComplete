@@ -1,5 +1,6 @@
-##2.3.1 / 2017-07-15
+##2.4.0/ 2017-07-15
 ### Features/Improvements:
+* [#124](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/124) Cucumber 2 support
 * [#118](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/118) Syntax should highlight tags and nested variables
 ### Bugfixes:
 * [#102](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/102) Fix snippets to avoid snippets warnings
