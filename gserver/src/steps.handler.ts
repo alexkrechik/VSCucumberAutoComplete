@@ -95,7 +95,7 @@ export default class StepsHandler {
         let startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        let gherkinPart = '(Given|When|Then|And|But)';
+        let gherkinPart = '(Given|When|Then|And|But|defineStep)';
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         let nonStepStartSymbols = `[^\/'"\\w]*?`;
