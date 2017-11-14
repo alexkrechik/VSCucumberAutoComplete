@@ -34,6 +34,8 @@ function correctIndents(text, indent) {
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
             if (~line.search(/^\s*$/)) return '';
+            //Remove spaces in the end of string
+            line = line.replace(/\s*$/, '');
             let format = findFormat(line);
             let indentCount;
             if (format && format.type === 'num') {
