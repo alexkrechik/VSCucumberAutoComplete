@@ -22,6 +22,8 @@ import { format } from './format';
 import StepsHandler, { StepSettings } from './steps.handler';
 import PagesHandler, { PagesSettings } from './pages.handler';
 import { getOSPath } from './util';
+import * as glob from 'glob';
+import * as fs from 'fs';
 
 interface Settings {
     cucumberautocomplete: {
@@ -78,18 +80,39 @@ function pagesPosition(line: string, char: number): boolean {
     }
 }
 
+function watchFiles(stepsPathes: string[]): void {
+    stepsPathes.forEach(path => {
+        glob.sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
+            .forEach(f => {
+                fs.watchFile(f, () => {
+                    populateHandlers();
+                    documents.all().forEach((document) => {
+                        const text = document.getText();
+                        const diagnostics = validate(text);
+                        connection.sendDiagnostics({ uri: document.uri, diagnostics });
+                    });
+                });
+            });
+    });
+}
+
 connection.onDidChangeConfiguration(change => {
     settings = <Settings>change.settings;
     //We should get array from step string if provided
     settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
         ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
     if (handleSteps()) {
+        watchFiles(settings.cucumberautocomplete.steps);
         stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps, settings.cucumberautocomplete.syncfeatures);
         let sFile = '.vscode/settings.json';
         let diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
         connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
     }
-    handlePages() && (pagesHandler = new PagesHandler(workspaceRoot, settings.cucumberautocomplete.pages));
+    if (handlePages()) {
+        const { pages } = settings.cucumberautocomplete;
+        watchFiles(Object.keys(pages).map((key) => pages[key]));
+        pagesHandler = new PagesHandler(workspaceRoot, settings.cucumberautocomplete.pages);
+    }
 });
 
 function populateHandlers() {
@@ -141,8 +164,6 @@ documents.onDidChangeContent((change): void => {
     //Validate document
     let diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
-    //Populate steps and page objects after every symbol typed
-    populateHandlers();
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
