@@ -40,12 +40,11 @@ export default class StepsHandler {
 
     elements: Step[];
 
-    elementsHash: {[step: string]: boolean} = {};
+    elementsHash: { [step: string]: boolean } = {};
 
-    elemenstCountHash: StepsCountHash;
+    elemenstCountHash: StepsCountHash = {};
 
     constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
-        this.elemenstCountHash = {};
         this.populate(root, stepsPathes);
         if (sync === true) {
             this.setElementsHash(`${root}/**/*.feature`);
@@ -171,24 +170,42 @@ export default class StepsHandler {
         return step;
     }
 
-    getSteps(filePath: string): Step[] {
+    getStepTextInvariants(step: string): string[] {
+        //Handle regexp's like 'I do (one|to|three)'
+        if (~step.search(/(\([^\)^\()]+\|[^\(^\)]+\))/)) {
+            const match = step.match(/(\([^\)]+\|[^\)]+\))/);
+            const matchRes = match[1];
+            const variants = matchRes.replace(/^\(|\)$/g, '').split('|');
+            return variants.reduce((varRes, variant) => {
+                return varRes.concat(this.getStepTextInvariants(step.replace(matchRes, variant)));
+            }, []);
+        } else {
+            return [step];
+        }
+    }
+
+    getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
+        const stepsVariants = this.getStepTextInvariants(stepPart);
+        const reg = new RegExp(this.getRegTextForStep(stepPart));
+        const desc = this.getDescForStep(fullStepLine);
+        return stepsVariants.map((step) => {
+            const text = this.getTextForStep(step);
+            const id = 'step' + getMD5Id(text);
+            const count = this.getElementCount(id);
+            return { id, reg, text, desc, def, count };
+        });
+    }
+
+    getFileSteps(filePath: string): Step[] {
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , , stepText] = match;
+                let [, beforeGherkin, , , stepPart] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
-                let text = this.getTextForStep(stepText);
-                let id = 'step' + getMD5Id(text);
-                steps.push({
-                    id: id,
-                    reg: new RegExp(this.getRegTextForStep(stepText)),
-                    text: text,
-                    desc: this.getDescForStep(line),
-                    def: Location.create(getOSPath(filePath), Range.create(pos, pos)),
-                    count: this.getElementCount(id)
-                });
+                let def = Location.create(getOSPath(filePath), Range.create(pos, pos));
+                steps = steps.concat(this.getSteps(line, stepPart, def));
             }
             return steps;
         }, []);
@@ -216,7 +233,7 @@ export default class StepsHandler {
         this.elements = stepsPathes
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
             .reduce((elements, f) => elements.concat(
-                this.getSteps(f).reduce((steps, step) => {
+                this.getFileSteps(f).reduce((steps, step) => {
                     if (!this.elementsHash[step.id]) {
                         steps.push(step);
                         this.elementsHash[step.id] = true;
