@@ -213,7 +213,9 @@ export default class PagesHandler {
             label: pageObject.text,
             kind: CompletionItemKind.Function,
             data: pageObject.id,
-            insertText: pageObject.text + insertText
+            insertText: pageObject.text + insertText,
+            documentation: pageObject.desc,
+            detail: pageObject.desc
         };
     }
 
