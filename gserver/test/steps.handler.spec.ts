@@ -79,8 +79,21 @@ describe('getMatch', () => {
     });
 });
 
+describe('getStepInvariants', () => {
+    it('should correctly handle or experssions', () => {
+        const str = 'I do (a|b) and then I do (c|d)';
+        const res = [
+            'I do a and then I do c',
+            'I do a and then I do d',
+            'I do b and then I do c',
+            'I do b and then I do d'
+        ];
+        expect(s.getStepTextInvariants(str)).to.deep.equal(res);
+    });
+});
+
 describe('getRegTextForStep', () => {
-    it ('should remove ruby interpolation for regex', () => {
+    it('should remove ruby interpolation for regex', () => {
         let str = '^the (#{SOMETHING}) cannot work$';
         let res = '^the (.*) cannot work$';
         expect(s.getRegTextForStep(str)).to.be.equal(res);
@@ -112,16 +125,30 @@ describe('getRegTextForStep', () => {
 describe('constructor', () => {
     it('should correctly fill elements object', () => {
         let e = s.getElements();
-        expect(e).to.have.length(2);
+        //Count of elements should be correct
+        expect(e).to.have.length(4);
+        //Each element 'count' propertyy should be correctly got from the feature file
         expect(e[0]).to.have.property('count', 2);
         expect(e[1]).to.have.property('count', 1);
+        //Check all the properties of some element
+        const firstElement = e[0];
+        expect(firstElement).to.have.property('desc', 'this.When(/^I do something$/, function (next)');
+        expect(firstElement).to.have.property('id', 'stepc0c243868293a93f35e3a05e2b844793');
+        // TODO Can't check
+        // expect(firstElement).to.have.property('reg', /^I do something$/);
+        expect(firstElement).to.have.property('text', 'I do something');
+        expect(firstElement.def).to.have.deep.property('range');
+        expect(firstElement.def['uri']).to.have.string('test.steps.js');
+        //Check correct duplicated steps
+        expect(e[2]).to.have.property('text', 'I say a');
+        expect(e[3]).to.have.property('text', 'I say b');
     });
 });
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(__dirname, data);
-        expect(s.getElements()).to.have.length(2);
+        expect(s.getElements()).to.have.length(4);
     });
     it('should correctly recreate elements with their count using', () => {
         s.populate(__dirname, data);
@@ -193,24 +220,24 @@ describe('getDefinition', () => {
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        let completion = s.getCompletion(' When I do', {character: 10, line: 2});
-        expect(completion).to.have.length(2);
+        let completion = s.getCompletion(' When I do', { character: 10, line: 2 });
+        expect(completion).to.have.length(4);
     });
     it('should correctly filter completion', () => {
-        let completion = s.getCompletion(' When I do another th', {character: 14, line: 2});
+        let completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        let completion = s.getCompletion('I do another th', {character: 14, line: 2});
+        let completion = s.getCompletion('I do another th', { character: 14, line: 2 });
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        let completion = s.getCompletion('When non-existent step', {character: 14, line: 2});
+        let completion = s.getCompletion('When non-existent step', { character: 14, line: 2 });
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        let completion = s.getCompletion(' When I do', {character: 10, line: 2});
+        let completion = s.getCompletion(' When I do', { character: 10, line: 2 });
         expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
     });
