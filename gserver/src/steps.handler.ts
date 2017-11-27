@@ -186,9 +186,9 @@ export default class StepsHandler {
 
     getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
         const stepsVariants = this.getStepTextInvariants(stepPart);
-        const reg = new RegExp(this.getRegTextForStep(stepPart));
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
+            const reg = new RegExp(this.getRegTextForStep(step));
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
             const count = this.getElementCount(id);

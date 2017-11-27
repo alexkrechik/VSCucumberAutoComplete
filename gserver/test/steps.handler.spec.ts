@@ -123,23 +123,27 @@ describe('getRegTextForStep', () => {
 });
 
 describe('constructor', () => {
-    it('should correctly fill elements object', () => {
-        let e = s.getElements();
-        //Count of elements should be correct
+    let e = s.getElements();
+    it('should fill all the elements', () => {
         expect(e).to.have.length(4);
-        //Each element 'count' propertyy should be correctly got from the feature file
+    });
+    it('should correctly fill used steps counts', () => {
         expect(e[0]).to.have.property('count', 2);
         expect(e[1]).to.have.property('count', 1);
-        //Check all the properties of some element
+        expect(e[2]).to.have.property('count', 2);
+        expect(e[3]).to.have.property('count', 1);
+    });
+    it('should correcly fill all the step element fields', () => {
         const firstElement = e[0];
         expect(firstElement).to.have.property('desc', 'this.When(/^I do something$/, function (next)');
         expect(firstElement).to.have.property('id', 'stepc0c243868293a93f35e3a05e2b844793');
-        // TODO Can't check
+        // TODO check
         // expect(firstElement).to.have.property('reg', /^I do something$/);
         expect(firstElement).to.have.property('text', 'I do something');
         expect(firstElement.def).to.have.deep.property('range');
         expect(firstElement.def['uri']).to.have.string('test.steps.js');
-        //Check correct duplicated steps
+    });
+    it('should set correct names to the invariants steps', () => {
         expect(e[2]).to.have.property('text', 'I say a');
         expect(e[3]).to.have.property('text', 'I say b');
     });
