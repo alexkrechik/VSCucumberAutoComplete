@@ -59,13 +59,13 @@ export default class StepsHandler {
 
     setElementsHash(path: string): void {
         this.elemenstCountHash = {};
-        let files = glob.sync(path, { ignore: '.gitignore' });
+        const files = glob.sync(path, { ignore: '.gitignore' });
         files.forEach(f => {
-            let text = getFileContent(f);
+            const text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
-                let match = line.match(this.gherkinRegEx);
+                const match = line.match(this.gherkinRegEx);
                 if (match) {
-                    let step = this.getStepByText(match[4]);
+                    const step = this.getStepByText(match[4]);
                     if (step) {
                         this.incrementElementCount(step.id);
                     }
@@ -91,25 +91,25 @@ export default class StepsHandler {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
-        let startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
+        const startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        let gherkinPart = '(Given|When|Then|And|But|defineStep)';
+        const gherkinPart = '(Given|When|Then|And|But|defineStep)';
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-        let nonStepStartSymbols = `[^\/'"\\w]*?`;
+        const nonStepStartSymbols = `[^\/'"\\w]*?`;
 
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        let stepStart = `(\/|'|")`;
+        const stepStart = `(\/|'|")`;
 
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        let stepBody = '([^\\3]+)';
+        const stepBody = '([^\\3]+)';
 
         //Step should be ended with same symbol it begins
-        let stepEnd = '\\3';
+        const stepEnd = '\\3';
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
-        let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
+        const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
 
         // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But)?[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
         return r;
@@ -197,14 +197,13 @@ export default class StepsHandler {
     }
 
     getFileSteps(filePath: string): Step[] {
-        let definitionFile = getFileContent(filePath);
-        definitionFile = clearComments(definitionFile);
+        const definitionFile = clearComments(getFileContent(filePath));
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
-            let match = this.getMatch(line);
+            const match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , , stepPart] = match;
-                let pos = Position.create(lineIndex, beforeGherkin.length);
-                let def = Location.create(getOSPath(filePath), Range.create(pos, pos));
+                const [, beforeGherkin, , , stepPart] = match;
+                const pos = Position.create(lineIndex, beforeGherkin.length);
+                const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(line, stepPart, def));
             }
             return steps;
@@ -213,10 +212,10 @@ export default class StepsHandler {
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
         return stepsPathes.reduce((res, path) => {
-            let files = glob.sync(path, { ignore: '.gitignore' });
+            const files = glob.sync(path, { ignore: '.gitignore' });
             if (!files.length) {
-                let searchTerm = path.replace(workSpaceRoot + '/', '');
-                let range = getTextRange(workSpaceRoot + '/' + settingsFile, `"${searchTerm}"`);
+                const searchTerm = path.replace(workSpaceRoot + '/', '');
+                const range = getTextRange(workSpaceRoot + '/' + settingsFile, `"${searchTerm}"`);
                 res.push({
                     severity: DiagnosticSeverity.Warning,
                     range: range,
@@ -252,13 +251,13 @@ export default class StepsHandler {
 
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
-        let lineForError = line.replace(/^\s*/, '');
-        let match = line.match(this.gherkinRegEx);
+        const lineForError = line.replace(/^\s*/, '');
+        const match = line.match(this.gherkinRegEx);
         if (!match) {
             return null;
         }
-        let beforeGherkin = match[1];
-        let step = this.getStepByText(match[4]);
+        const beforeGherkin = match[1];
+        const step = this.getStepByText(match[4]);
         if (step) {
             return null;
         } else {
@@ -275,17 +274,17 @@ export default class StepsHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        let match = line.match(this.gherkinRegEx);
+        const match = line.match(this.gherkinRegEx);
         if (!match) {
             return null;
         }
-        let step = this.getStepByText(match[4]);
+        const step = this.getStepByText(match[4]);
         return step ? step.def : null;
     }
 
     getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
-        let match = line.match(this.gherkinRegEx);
+        const match = line.match(this.gherkinRegEx);
         if (!match) {
             return null;
         }
@@ -295,11 +294,11 @@ export default class StepsHandler {
         //We should not obtain last word
         stepPart = stepPart.replace(/[^\s]+$/, '');
         //We should replace/search only string beginning
-        let stepPartRe = new RegExp('^' + stepPart);
-        let res = this.elements
+        const stepPartRe = new RegExp('^' + stepPart);
+        const res = this.elements
             .filter(el => el.text.search(stepPartRe) !== -1)
             .map(step => {
-                let label = step.text.replace(stepPartRe, '');
+                const label = step.text.replace(stepPartRe, '');
                 return {
                     label: label,
                     kind: CompletionItemKind.Function,
