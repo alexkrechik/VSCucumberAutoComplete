@@ -36,13 +36,13 @@ function correctIndents(text, indent) {
             if (~line.search(/^\s*$/)) return '';
             //Remove spaces in the end of string
             line = line.replace(/\s*$/, '');
-            let format = findFormat(line);
+            const format = findFormat(line);
             let indentCount;
             if (format && format.type === 'num') {
                 indentCount = format.indents;
                 defaultIndent = indentCount;
             } else if (format && format.type === 'relative') {
-                let nextLine = textArr.slice(i + 1).find(l => findFormat(l) && findFormat(l).type === 'num');
+                const nextLine = textArr.slice(i + 1).find(l => findFormat(l) && findFormat(l).type === 'num');
                 indentCount = nextLine ? findFormat(nextLine).indents : 0;
             } else {
                 indentCount = defaultIndent;
@@ -52,19 +52,19 @@ function correctIndents(text, indent) {
         .join('\r\n');
 }
 
+interface Block {
+    line: number,
+    block: number,
+    data: string[]
+}
+
 function formatTables(text) {
-    let blocks: {
-        line: number,
-        block: number,
-        data: string[]
-    }[];
-    let maxes;
-    let lines;
+
     let blockNum = 0;
     let textArr = text.split(/\r?\n/g);
 
     //Get blocks with data in cucumber tables
-    blocks = textArr
+    const blocks: Block[] = textArr
         .reduce((res, l, i, arr) => {
             if (~l.search(/^\s*\|/)) {
                 res.push({
@@ -80,8 +80,8 @@ function formatTables(text) {
         }, []);
 
     //Get max value for each table cell
-    maxes = blocks.reduce((res, b) => {
-        let block = b.block;
+    const maxes = blocks.reduce((res, b) => {
+        const block = b.block;
         if (res[block]) {
             res[block] = res[block].map((v, i) => Math.max(v, b.data[i].length));
         } else {

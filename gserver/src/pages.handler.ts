@@ -46,12 +46,12 @@ export default class PagesHandler {
 
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page !== undefined) {
-            let pageElement = this.elements.find(e => e.text === page);
+            const pageElement = this.elements.find(e => e.text === page);
             if (!pageElement) {
                 return null;
             }
             if (pageObject !== undefined) {
-                let pageObjectElement = pageElement.objects.find(e => e.text === pageObject);
+                const pageObjectElement = pageElement.objects.find(e => e.text === pageObject);
                 return pageObjectElement || null;
             } else {
                 return pageElement;
@@ -70,12 +70,12 @@ export default class PagesHandler {
     }
 
     getPageObjects(text: string, path: string): PageObject[] {
-        let textArr = text.split(/\r?\n/g);
+        const textArr = text.split(/\r?\n/g);
         return textArr.reduce((res, line, i) => {
-            let poMatch = this.getPoMatch(line);
+            const poMatch = this.getPoMatch(line);
             if (poMatch) {
-                let pos = Position.create(i, 0);
-                let text = poMatch[1];
+                const pos = Position.create(i, 0);
+                const text = poMatch[1];
                 if (!res.find(v => v.text === text)) {
                     res.push({
                         id: 'pageObject' + getMD5Id(text),
@@ -90,12 +90,11 @@ export default class PagesHandler {
     }
 
     getPage(name: string, path: string): Page {
-        let files = glob.sync(path);
+        const files = glob.sync(path);
         if (files.length) {
-            let file = files[0];
-            let text = getFileContent(files[0]);
-            text = clearComments(text);
-            let zeroPos = Position.create(0, 0);
+            const file = files[0];
+            const text = clearComments(getFileContent(files[0]));
+            const zeroPos = Position.create(0, 0);
             return {
                 id: 'page' + getMD5Id(name),
                 text: name,
@@ -114,9 +113,9 @@ export default class PagesHandler {
         if (~line.search(/"[^"]*"."[^"]*"/)) {
             return line.split('"').reduce((res, l, i, lineArr) => {
                 if (l === '.') {
-                    let curr = lineArr.slice(0, i).reduce((a, b, j) => a + b.length + 1, 0);
-                    let page = lineArr[i - 1];
-                    let pageObject = lineArr[i + 1];
+                    const curr = lineArr.slice(0, i).reduce((a, b, j) => a + b.length + 1, 0);
+                    const page = lineArr[i - 1];
+                    const pageObject = lineArr[i + 1];
                     if (!this.getElements(page)) {
                         res.push({
                             severity: DiagnosticSeverity.Warning,
@@ -147,11 +146,11 @@ export default class PagesHandler {
     }
 
     getFeaturePosition(line: string, char: number): FeaturePosition {
-        let startLine = line.slice(0, char);
-        let endLine = line.slice(char).replace(/".*/, '');
-        let match = startLine.match(/"/g);
+        const startLine = line.slice(0, char);
+        const endLine = line.slice(char).replace(/".*/, '');
+        const match = startLine.match(/"/g);
         if (match && match.length % 2) {
-            let [, page, object] = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
+            const [, page, object] = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
             if (page) {
                 return {
                     page: page,
@@ -168,13 +167,13 @@ export default class PagesHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        let position = this.getFeaturePosition(line, char);
+        const position = this.getFeaturePosition(line, char);
         if (position) {
             if (position['object']) {
-                let el = this.getElements(position['page'], position['object']);
+                const el = this.getElements(position['page'], position['object']);
                 return el ? el['def'] : null;
             } else {
-                let el = this.getElements(position['page']);
+                const el = this.getElements(position['page']);
                 return el ? el['def'] : null;
             }
         } else {
@@ -183,11 +182,11 @@ export default class PagesHandler {
     };
 
     getPageCompletion(line: string, position: Position, page: Page): CompletionItem {
-        let search = line.search(/"([^"]*)"$/);
+        const search = line.search(/"([^"]*)"$/);
         if (search > 0 && position.character === (line.length - 1)) {
-            let start = Position.create(position.line, search);
-            let end = Position.create(position.line, line.length);
-            let range = Range.create(start, end);
+            const start = Position.create(position.line, search);
+            const end = Position.create(position.line, line.length);
+            const range = Range.create(start, end);
             return {
                 label: page.text,
                 kind: CompletionItemKind.Function,
@@ -205,10 +204,7 @@ export default class PagesHandler {
     }
 
     getPageObjectCompletion(line: string, position: Position, pageObject: PageObject): CompletionItem {
-        let insertText = '';
-        if (line.length === position.character) {
-            insertText = '" ';
-        }
+        const insertText = line.length === position.character ? '" ' : '';
         return {
             label: pageObject.text,
             kind: CompletionItemKind.Function,
@@ -220,11 +216,11 @@ export default class PagesHandler {
     }
 
     getCompletion(line: string, position: Position): CompletionItem[] | null {
-        let fPosition = this.getFeaturePosition(line, position.character);
-        let page = fPosition['page'];
-        let object = fPosition['object'];
+        const fPosition = this.getFeaturePosition(line, position.character);
+        const page = fPosition['page'];
+        const object = fPosition['object'];
         if (object !== undefined && page !== undefined) {
-            let pageElement = this.getElements(page);
+            const pageElement = this.getElements(page);
             if (pageElement) {
                 return pageElement['objects'].map(this.getPageObjectCompletion.bind(null, line, position));
             } else {
