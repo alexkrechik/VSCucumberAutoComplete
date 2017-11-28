@@ -21,8 +21,6 @@ import {
 
 import * as glob from 'glob';
 
-export type StepSettings = string[];
-
 export type Step = {
     id: string,
     reg: RegExp,
@@ -44,12 +42,13 @@ export default class StepsHandler {
 
     elemenstCountHash: StepsCountHash = {};
 
-    constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
-        this.populate(root, stepsPathes);
-        if (sync === true) {
+    constructor(root: string, settings: Settings) {
+        const { steps, syncfeatures } = settings.cucumberautocomplete;
+        this.populate(root, steps);
+        if (syncfeatures === true) {
             this.setElementsHash(`${root}/**/*.feature`);
-        } else if (typeof sync === 'string') {
-            this.setElementsHash(`${root}/${sync}`);
+        } else if (typeof syncfeatures === 'string') {
+            this.setElementsHash(`${root}/${syncfeatures}`);
         }
     }
 

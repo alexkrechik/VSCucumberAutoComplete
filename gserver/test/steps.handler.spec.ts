@@ -1,10 +1,14 @@
 import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
 
-let data = [
-    '/data/test.steps.js'
-];
-let s = new StepsHandler(__dirname, data, '/data/test.feature');
+let settings = {
+    cucumberautocomplete: {
+        steps: ['/data/test.steps.js'],
+        syncfeatures: '/data/test.feature'
+    }
+};
+
+let s = new StepsHandler(__dirname, settings);
 
 describe('getMatch', () => {
     describe('gherkin strings types', () => {
@@ -151,11 +155,11 @@ describe('constructor', () => {
 
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
-        s.populate(__dirname, data);
+        s.populate(__dirname, settings.cucumberautocomplete.steps);
         expect(s.getElements()).to.have.length(4);
     });
     it('should correctly recreate elements with their count using', () => {
-        s.populate(__dirname, data);
+        s.populate(__dirname, settings.cucumberautocomplete.steps);
         let e = s.getElements();
         expect(e[0]).to.have.property('count', 2);
         expect(e[1]).to.have.property('count', 1);

@@ -19,19 +19,11 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 import { format } from './format';
-import StepsHandler, { StepSettings } from './steps.handler';
-import PagesHandler, { PagesSettings } from './pages.handler';
+import StepsHandler from './steps.handler';
+import PagesHandler from './pages.handler';
 import { getOSPath } from './util';
 import * as glob from 'glob';
 import * as fs from 'fs';
-
-interface Settings {
-    cucumberautocomplete: {
-        steps: StepSettings,
-        pages: PagesSettings,
-        syncfeatures: boolean | string
-    }
-}
 
 //Create connection and setup communication between the client and server
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -103,7 +95,7 @@ connection.onDidChangeConfiguration(change => {
         ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
     if (handleSteps()) {
         watchFiles(settings.cucumberautocomplete.steps);
-        stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps, settings.cucumberautocomplete.syncfeatures);
+        stepsHandler = new StepsHandler(workspaceRoot, settings);
         const sFile = '.vscode/settings.json';
         const diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
         connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
@@ -111,7 +103,7 @@ connection.onDidChangeConfiguration(change => {
     if (handlePages()) {
         const { pages } = settings.cucumberautocomplete;
         watchFiles(Object.keys(pages).map((key) => pages[key]));
-        pagesHandler = new PagesHandler(workspaceRoot, settings.cucumberautocomplete.pages);
+        pagesHandler = new PagesHandler(workspaceRoot, settings);
     }
 });
 
