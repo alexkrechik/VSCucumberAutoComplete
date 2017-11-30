@@ -52,6 +52,11 @@ export default class StepsHandler {
         }
     }
 
+    getGherkinRegEx() {
+        const gherkinWords = escapeRegExp(`하지만|조건|먼저|만일|만약|단|그리고|그러면|那麼|那么|而且|同時|當|当|前提|假設|假定|假如|但是|但し|並且|并且|もし|ならば|ただし|しかし|かつ|و|متى|لكن|عندما|ثم|بفرض|اذاً|כאשר|וגם|בהינתן|אזי|אז|אבל|Якщо|Унда|То|Припустимощо|Припустимо|Онда|Но|Нехай|Лекин|Когато|Када|Кад|Ктомуже|И|Задато|Задати|Задате|Если|Допустим|Дадено|Ва|Бирок|Аммо|Али|Але|Агар|А|І|Și|És|anrhegediga|Zatati|Zakładając|Zadato|Zadate|Zadano|Zadani|Zadan|Youseknowwhenyousegot|Youseknowlikewhen|Yna|Yaknowhow|Yagotta|Y|Wun|Wtedy|Wheny'all|When|Wenn|WEN|Và|Ve|Und|Un|Thì|Theny'all|Then|Tapi|Tak|Tada|Tad|Så|Stel|Soit|Siis|Si|Quando|Quand|Quan|Pryd|Pokud|Pokiaľ|Però|Pero|Pak|Oraz|Onda|Ond|Oletetaan|Og|Och|Ozaman|Når|När|Niin|Nhưng|N|Mutta|Men|Mas|Maka|Majd|Mais|Maar|Ma|Lorsque|Lorsqu'|Kun|Kuid|Kui|Khi|Keď|Ketika|Když|Kai|Kada|Kad|Jeżeli|Ja|Ir|ICANHAZ|I|Ha|Givun|Givet|Giveny'all|Given|Gitt|Gegeven|Gegebensei|Fakat|Eğerki|Etantdonné|Et|Então|Entonces|Entao|En|Eeldades|E|Duota|Dun|Donat|Donada|Diyelimki|Dengan|Denyousegotta|De|Dato|Dar|Dann|Dan|Dado|Dacă|Daca|DEN|Când|Cuando|Cho|Cept|Cand|Cal|Buty'all|But|Buh|Biết|Bet|BUT|Atès|Atunci|Atesa|Angenommen|Andy'all|And|An|Ama|Als|Alors|Allora|Ali|Aleshores|Ale|Akkor|Aber|AN|Ataké|A`);
+        return new RegExp(`^(\\s*)(${gherkinWords})(\\s+)(.*)`);
+    }
+
     getElements(): Step[] {
         return this.elements;
     }
@@ -62,7 +67,7 @@ export default class StepsHandler {
         files.forEach(f => {
             const text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
-                const match = line.match(this.gherkinRegEx);
+                const match = line.match(this.getGherkinRegEx());
                 if (match) {
                     const step = this.getStepByText(match[4]);
                     if (step) {
@@ -241,9 +246,6 @@ export default class StepsHandler {
             ), []);
     }
 
-    gherkinWords = 'Given|When|Then|And|But';
-    gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(\\s+)(.*)');
-
     getStepByText(text: string): Step {
         return this.elements.find(s => s.reg.test(text));
     }
@@ -251,7 +253,7 @@ export default class StepsHandler {
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
         const lineForError = line.replace(/^\s*/, '');
-        const match = line.match(this.gherkinRegEx);
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
@@ -273,7 +275,7 @@ export default class StepsHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        const match = line.match(this.gherkinRegEx);
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
@@ -283,7 +285,7 @@ export default class StepsHandler {
 
     getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
-        const match = line.match(this.gherkinRegEx);
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
