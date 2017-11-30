@@ -19,10 +19,6 @@ import {
 
 import * as glob from 'glob';
 
-export type PagesSettings = {
-    [page: string]: string
-};
-
 export type Page = {
     id: string,
     text: string,
@@ -44,6 +40,10 @@ export default class PagesHandler {
 
     elements: Page[];
 
+    constructor(root: string, settings: Settings) {
+        this.populate(root, settings.cucumberautocomplete.pages);
+    }
+
     getElements(page?: string, pageObject?: string): Page[] | Page | PageObject | null {
         if (page !== undefined) {
             const pageElement = this.elements.find(e => e.text === page);
@@ -59,10 +59,6 @@ export default class PagesHandler {
         } else {
             return this.elements;
         }
-    }
-
-    constructor(root: string, settings: PagesSettings) {
-        this.populate(root, settings);
     }
 
     getPoMatch(line: string): RegExpMatchArray {

@@ -1,11 +1,16 @@
 import PagesHandler from '../src/pages.handler';
 import { expect } from 'chai';
 
-let pagesSettings = {
-    page: '/data/page.objects.js',
-    page2: '/data/*.java',
+let settings = {
+    cucumberautocomplete: {
+        pages: {
+            page: '/data/page.objects.js',
+            page2: '/data/*.java',
+        }
+    }
 };
-let pagesHandler = new PagesHandler(__dirname, pagesSettings);
+
+let pagesHandler = new PagesHandler(__dirname, settings);
 
 describe('getPoMatch', () => {
     describe('diff input PO lines', () => {
@@ -73,7 +78,7 @@ describe('populate', () => {
     });
 
     it('should not concat elements after repopulating', () => {
-        pagesHandler.populate(__dirname, pagesSettings);
+        pagesHandler.populate(__dirname, settings.cucumberautocomplete.pages);
         let elements = pagesHandler.getElements();
         expect(elements).to.have.length(2);
         expect(elements[0].objects).to.have.length(2);
