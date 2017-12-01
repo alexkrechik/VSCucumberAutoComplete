@@ -58,17 +58,25 @@
             "properties": {
                 "cucumberautocomplete.steps": {
                     "description": "Path or array of glob-style-pathes to the steps files",
-                    "type": ["array", "string"],
+                    "type": [
+                        "array",
+                        "string"
+                    ],
                     "required": false
                 },
                 "cucumberautocomplete.pages": {
                     "description": "Object, which consists of 'page name' => 'page object file path' pairs",
-                    "type": ["object"],
+                    "type": [
+                        "object"
+                    ],
                     "required": false
                 },
                 "cucumberautocomplete.syncfeatures": {
                     "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
-                    "type": ["boolean", "string"],
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
                     "required": false,
                     "default": "test/features/*.feature"
                 }
@@ -86,9 +94,9 @@
         "@types/node": "^6.0.52",
         "jscs": "^3.0.7",
         "typescript": "^2.1.4",
-        "vscode": "^1.0.3"
+        "vscode": "^1.1.9"
     },
     "dependencies": {
-        "vscode-languageclient": "^2.6.3"
+        "vscode-languageclient": "^3.5.0"
     }
 }

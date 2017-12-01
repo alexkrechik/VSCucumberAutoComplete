@@ -10,7 +10,7 @@
     "glob": "^7.1.1",
     "md5": "^2.2.1",
     "strip-comments": "^0.4.4",
-    "vscode-languageserver": "^2.6.2"
+    "vscode-languageserver": "^3.5.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
@@ -20,8 +20,8 @@
     "mocha": "^3.2.0",
     "ts-node": "^2.0.0",
     "tslint": "^4.2.0",
-    "typescript": "~2.3.0",
-    "vscode": "^1.0.3"
+    "typescript": "~2.5.0",
+    "vscode": "^1.1.9"
   },
   "scripts": {
     "compile": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc -p .",
