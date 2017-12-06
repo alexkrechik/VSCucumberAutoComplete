@@ -99,10 +99,16 @@ export default class PagesHandler {
                 objects: this.getPageObjects(text, file)
             };
         }
+        return null;
     }
 
     populate(root: string, settings: PagesSettings): void {
-        this.elements = Object.keys(settings).map(p => this.getPage(p, root + '/' + settings[p]));
+        this.elements = Object.keys(settings)
+            .reduce((res, p) => {
+                const page = this.getPage(p, root + '/' + settings[p]);
+                page && res.push(page);
+                return res;
+            }, []);
     }
 
     validate(line: string, lineNum: number): Diagnostic[] {
