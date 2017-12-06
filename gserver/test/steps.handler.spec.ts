@@ -235,6 +235,7 @@ describe('getCompletion', () => {
         let completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('thing');
+        expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
         let completion = s.getCompletion('I do another th', { character: 14, line: 2 });

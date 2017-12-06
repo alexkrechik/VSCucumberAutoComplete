@@ -157,31 +157,9 @@ export default class StepsHandler {
         //Remove "string start" and "string end" RegEx symbols
         step = step.replace(/^\^|\$$/g, '');
 
-        return step;
-    }
-
-    getLabelForStep(step: string): string {
-
         //All the "match" parts from double quotes should be removed
         //ex. `"(.*)"` should be changed by ""
         step = step.replace(/"\([^\)]*\)"/g, '""');
-
-        return step;
-
-    }
-
-    getInsertTestForStep(step: string): string {
-        //Change all the pageObjects with proper snippets
-        // step = step.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
-
-        //Change all the other []* and []+ occurences with some snittpets
-        const match = step.match(/\(?\[[^\]]*\](?:\*|\+)\)?/g);
-        if (match) {
-            for (let i = 0; i < match.length; i++) {
-                const num = i + 1;
-                step = step.replace(/\(?\[[^\]]*\](?:\*|\+)\)?/, () => '${' + num + ':}');
-            }
-        }
 
         return step;
     }
@@ -211,11 +189,29 @@ export default class StepsHandler {
         }
     }
 
+    getCompletionInsertText(step: string): string {
+
+        //Add some snippets for the page objects
+        const match = step.match(/"".""/g);
+        if (match) {
+            for (let i = 0; i < match.length; i++) {
+                const num1 = (i + 1) * 2 - 1;
+                const num2 = (i + 1) * 2;
+                step = step.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
+            }
+        }
+        step = step.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
+
+        return step;
+
+    }
+
     getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
         const stepsVariants = this.getStepTextInvariants(stepPart);
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
             const reg = new RegExp(this.getRegTextForStep(step));
+            //Todo we should store full value here
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
             const count = this.getElementCount(id);
@@ -322,16 +318,13 @@ export default class StepsHandler {
         const res = this.elements
             .filter(el => el.text.search(stepPartRe) !== -1)
             .map(step => {
-                const stepText = step.text.replace(stepPartRe, '');
-                const label = this.getLabelForStep(stepText);
-                const insertText = this.getInsertTestForStep(stepText);
-                const sortText = getSortPrefix(step.count, 5) + '_' + label;
+                const label = step.text.replace(stepPartRe, '');
                 return {
-                    label,
+                    label: label,
                     kind: CompletionItemKind.Snippet,
                     data: step.id,
-                    sortText,
-                    insertText,
+                    sortText: getSortPrefix(step.count, 5) + '_' + label,
+                    insertText: this.getCompletionInsertText(label),
                     insertTextFormat: InsertTextFormat.Snippet
                 };
             });
