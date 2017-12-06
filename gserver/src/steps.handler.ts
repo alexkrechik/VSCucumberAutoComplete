@@ -16,7 +16,8 @@ import {
     Position,
     Location,
     Range,
-    CompletionItemKind
+    CompletionItemKind,
+    InsertTextFormat
 } from 'vscode-languageserver';
 
 import * as glob from 'glob';
@@ -188,11 +189,29 @@ export default class StepsHandler {
         }
     }
 
+    getCompletionInsertText(step: string): string {
+
+        //Add some snippets for the page objects
+        const match = step.match(/"".""/g);
+        if (match) {
+            for (let i = 0; i < match.length; i++) {
+                const num1 = (i + 1) * 2 - 1;
+                const num2 = (i + 1) * 2;
+                step = step.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
+            }
+        }
+        step = step.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
+
+        return step;
+
+    }
+
     getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
         const stepsVariants = this.getStepTextInvariants(stepPart);
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
             const reg = new RegExp(this.getRegTextForStep(step));
+            //Todo we should store full value here
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
             const count = this.getElementCount(id);
@@ -302,9 +321,11 @@ export default class StepsHandler {
                 const label = step.text.replace(stepPartRe, '');
                 return {
                     label: label,
-                    kind: CompletionItemKind.Function,
+                    kind: CompletionItemKind.Snippet,
                     data: step.id,
-                    sortText: getSortPrefix(step.count, 5) + '_' + label
+                    sortText: getSortPrefix(step.count, 5) + '_' + label,
+                    insertText: this.getCompletionInsertText(label),
+                    insertTextFormat: InsertTextFormat.Snippet
                 };
             });
         return res.length ? res : null;
