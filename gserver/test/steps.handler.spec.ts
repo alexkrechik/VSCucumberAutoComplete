@@ -1,18 +1,18 @@
 import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
 
-let settings = {
+const settings = {
     cucumberautocomplete: {
         steps: ['/data/test.steps.js'],
         syncfeatures: '/data/test.feature'
     }
 };
 
-let s = new StepsHandler(__dirname, settings);
+const s = new StepsHandler(__dirname, settings);
 
 describe('getMatch', () => {
     describe('gherkin strings types', () => {
-        let strings = [
+        const strings = [
             `Given(/I do something/, function(){);`,
             `@Given('I do something')`,
             `@Given("I do something")`,
@@ -21,7 +21,7 @@ describe('getMatch', () => {
         ];
         strings.forEach(str => {
             it(`should parse "${str}" step string`, () => {
-                let match = s.getMatch(str);
+                const match = s.getMatch(str);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equal('I do something');
             });
@@ -29,7 +29,7 @@ describe('getMatch', () => {
     });
 
     describe('all the gherkin words strings', () => {
-        let gherkinWords = [
+        const gherkinWords = [
             `Given`,
             `When`,
             `Then`,
@@ -39,7 +39,7 @@ describe('getMatch', () => {
         ];
         gherkinWords.forEach(g => {
             it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
-                let match = s.getMatch(`${g}(/I do something/, function(){);`);
+                const match = s.getMatch(`${g}(/I do something/, function(){);`);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equal('I do something');
             });
@@ -47,7 +47,7 @@ describe('getMatch', () => {
     });
 
     describe('non-standard strings', () => {
-        let nonStandardStrings = [
+        const nonStandardStrings = [
             [`Given(/I do "aa" something/);`, `I do "aa" something`],
             [`When('I do \' something');`, `I do \' something`],
             [`    When('I do something');`, `I do something`],
@@ -55,7 +55,7 @@ describe('getMatch', () => {
         ];
         nonStandardStrings.forEach(str => {
             it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
-                let match = s.getMatch(str[0]);
+                const match = s.getMatch(str[0]);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equals(str[1]);
             });
@@ -63,22 +63,22 @@ describe('getMatch', () => {
     });
 
     describe('invalid lines', () => {
-        let inbvalidStrings = [
+        const inbvalidStrings = [
             `iGiven('I do something')`,
             `Giveni('I do something')`,
             `console.log("but i do 'Something'");`
         ];
         inbvalidStrings.forEach(str => {
             it(`should not parse "${str}" string`, () => {
-                let match = s.getMatch(str);
+                const match = s.getMatch(str);
                 expect(match).to.be.null;
             });
         });
     });
 
     describe('gherkin words in the middle of lines', () => {
-        let line = 'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
-        let match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
+        const line = 'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
+        const match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
         expect(s.getMatch(line)[4]).to.be.equals(match);
     });
 });
@@ -98,12 +98,12 @@ describe('getStepInvariants', () => {
 
 describe('getRegTextForStep', () => {
     it('should remove ruby interpolation for regex', () => {
-        let str = '^the (#{SOMETHING}) cannot work$';
-        let res = '^the (.*) cannot work$';
+        const str = '^the (#{SOMETHING}) cannot work$';
+        const res = '^the (.*) cannot work$';
         expect(s.getRegTextForStep(str)).to.be.equal(res);
     });
     it('should correctly handle built-in transforms', () => {
-        let data = [
+        const data = [
             ['I use {float}', 'I use -?\\d*\\.?\\d+'],
             ['I use {int}', 'I use -?\\d+'],
             ['I use {stringInDoubleQuotes}', 'I use "[^"]+"']
@@ -113,7 +113,7 @@ describe('getRegTextForStep', () => {
         });
     });
     it('should correctly handle cucumber expressions', () => {
-        let data = [
+        const data = [
             ['Test multiples: { cuke expression 1 } { cuke-expression-2 }', 'Test multiples: .* .*'],
             ['Test regex - braces: {.*}', 'Test regex - braces: .*'],
             ['Test regex - misc: (.*){3,4} (.*){,5}', 'Test regex - misc: (.*){3,4} (.*){,5}'],
@@ -127,7 +127,7 @@ describe('getRegTextForStep', () => {
 });
 
 describe('constructor', () => {
-    let e = s.getElements();
+    const e = s.getElements();
     it('should fill all the elements', () => {
         expect(e).to.have.length(4);
     });
@@ -160,7 +160,7 @@ describe('populate', () => {
     });
     it('should correctly recreate elements with their count using', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
-        let e = s.getElements();
+        const e = s.getElements();
         expect(e[0]).to.have.property('count', 2);
         expect(e[1]).to.have.property('count', 1);
     });
@@ -168,11 +168,11 @@ describe('populate', () => {
 
 describe('validateConfiguration', () => {
     it('should return correct Diagnostic for provided settings file', () => {
-        let settings = [
+        const settings = [
             __dirname + '/../test/**/*.js',
             __dirname + '/../test/non/existent/path/*.js'
         ];
-        let diagnostic = s.validateConfiguration('test/data/test.settings.json', settings, __dirname + '/..');
+        const diagnostic = s.validateConfiguration('test/data/test.settings.json', settings, __dirname + '/..');
         expect(diagnostic).to.have.length(1);
         expect(diagnostic[0].range).to.be.deep.equal({
             start: { line: 3, character: 8 },
@@ -211,42 +211,42 @@ describe('validate', () => {
 
 describe('getDefinition', () => {
     it('should return correct definition for any gherkin position', () => {
-        let definition0 = s.getDefinition('When I do something', 0);
-        let definition21 = s.getDefinition('When I do something', 21);
+        const definition0 = s.getDefinition('When I do something', 0);
+        const definition21 = s.getDefinition('When I do something', 21);
         expect(definition0).to.not.be.null;
         expect(definition21).to.not.be.null;
     });
     it('should not return definition for missing step', () => {
-        let definition = s.getDefinition('When I do something else', 0);
+        const definition = s.getDefinition('When I do something else', 0);
         expect(definition).to.be.null;
     });
     it('should correctly handle spaces at the line beginning', () => {
-        let definition = s.getDefinition('   When I do something', 0);
+        const definition = s.getDefinition('   When I do something', 0);
         expect(definition).to.not.be.null;
     });
 });
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        let completion = s.getCompletion(' When I do', { character: 10, line: 2 });
+        const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
         expect(completion).to.have.length(4);
     });
     it('should correctly filter completion', () => {
-        let completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
+        const completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        let completion = s.getCompletion('I do another th', { character: 14, line: 2 });
+        const completion = s.getCompletion('I do another th', { character: 14, line: 2 });
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        let completion = s.getCompletion('When non-existent step', { character: 14, line: 2 });
+        const completion = s.getCompletion('When non-existent step', { character: 14, line: 2 });
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        let completion = s.getCompletion(' When I do', { character: 10, line: 2 });
+        const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
         expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
     });
