@@ -11,7 +11,7 @@ export function activate(context: ExtensionContext) {
 	let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
 	
 	//Use debug options for the debug mode
-	let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
+	let debugOptions = { execArgv: ["--nolazy", "--inspect=9229"] };
 	let serverOptions: ServerOptions = {
 		run : { module: serverModule, transport: TransportKind.ipc },
 		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }

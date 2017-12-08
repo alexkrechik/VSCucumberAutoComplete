@@ -21,10 +21,13 @@
 			"name": "Attach",
 			"type": "node",
 			"request": "attach",
-			"port": 6004,
+			"address": "localhost",
+			"port": 9229,
 			"sourceMaps": true,
+			"remoteRoot": "${workspaceRoot}/../gclient/server/",
+			"localRoot": "${workspaceRoot}/src",
 			"outFiles": ["${workspaceRoot}/../gclient/server/**/*.js"],
-			"protocol": "legacy"
+			"protocol": "inspector"
 		}
 	]
 }
