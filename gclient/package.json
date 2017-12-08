@@ -3,7 +3,7 @@
     "version": "2.5.0",
     "publisher": "alexkrechik",
     "engines": {
-        "vscode": "^1.4.0"
+        "vscode": "^1.18.0"
     },
     "license": "MIT",
     "displayName": "Cucumber (Gherkin) Full Support",
@@ -93,8 +93,8 @@
     "devDependencies": {
         "@types/node": "^6.0.52",
         "jscs": "^3.0.7",
-        "typescript": "^2.1.4",
-        "vscode": "^1.1.9"
+        "typescript": "~2.3.0",
+        "vscode": "^1.1.10"
     },
     "dependencies": {
         "vscode-languageclient": "^3.5.0"
