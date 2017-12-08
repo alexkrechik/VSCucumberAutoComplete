@@ -34,10 +34,10 @@ export function escapeRegExp(str: string): string {
 }
 
 export function getTextRange(filePath: string, text: string): Range {
-    let fileContent = this.getFileContent(filePath);
-    let contentArr = fileContent.split(/\r?\n/g);
+    const fileContent = this.getFileContent(filePath);
+    const contentArr = fileContent.split(/\r?\n/g);
     for (let i = 0; i < contentArr.length; i++) {
-        let find = contentArr[i].indexOf(text);
+        const find = contentArr[i].indexOf(text);
         if (find > -1) {
             return {
                 start: { line: i, character: find },
@@ -52,10 +52,10 @@ export function getSortPrefix(num: number, count: number): string {
     const Z_CODE = 90;
     let res = '';
     for (let i = count - 1; i >= 0; i--) {
-        let powNum = Math.pow(LETTERS_NUM, i);
-        let letterCode = Math.floor(num / powNum);
-        let letterNum = Z_CODE - letterCode;
-        let letter = String.fromCharCode(letterNum);
+        const powNum = Math.pow(LETTERS_NUM, i);
+        const letterCode = Math.floor(num / powNum);
+        const letterNum = Z_CODE - letterCode;
+        const letter = String.fromCharCode(letterNum);
         num = num - powNum * letterCode;
         res += letter;
     }

@@ -19,21 +19,15 @@ import {
     FormattingOptions
 } from 'vscode-languageserver';
 import { format } from './format';
-import StepsHandler, { StepSettings } from './steps.handler';
-import PagesHandler, { PagesSettings } from './pages.handler';
+import StepsHandler from './steps.handler';
+import PagesHandler from './pages.handler';
 import { getOSPath } from './util';
-
-interface Settings {
-    cucumberautocomplete: {
-        steps: StepSettings,
-        pages: PagesSettings,
-        syncfeatures: boolean | string
-    }
-}
+import * as glob from 'glob';
+import * as fs from 'fs';
 
 //Create connection and setup communication between the client and server
-let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
-let documents: TextDocuments = new TextDocuments();
+const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+const documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 //Path to the root of our workspace
 let workspaceRoot: string;
@@ -61,12 +55,12 @@ connection.onInitialize((params): InitializeResult => {
 });
 
 function handleSteps(): boolean {
-    let s = settings.cucumberautocomplete.steps;
+    const s = settings.cucumberautocomplete.steps;
     return s && s.length ? true : false;
 }
 
 function handlePages(): boolean {
-    let p = settings.cucumberautocomplete.pages;
+    const p = settings.cucumberautocomplete.pages;
     return p && Object.keys(p).length ? true : false;
 }
 
@@ -78,18 +72,39 @@ function pagesPosition(line: string, char: number): boolean {
     }
 }
 
+function watchFiles(stepsPathes: string[]): void {
+    stepsPathes.forEach(path => {
+        glob.sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
+            .forEach(f => {
+                fs.watchFile(f, () => {
+                    populateHandlers();
+                    documents.all().forEach((document) => {
+                        const text = document.getText();
+                        const diagnostics = validate(text);
+                        connection.sendDiagnostics({ uri: document.uri, diagnostics });
+                    });
+                });
+            });
+    });
+}
+
 connection.onDidChangeConfiguration(change => {
     settings = <Settings>change.settings;
     //We should get array from step string if provided
     settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
         ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
     if (handleSteps()) {
-        stepsHandler = new StepsHandler(workspaceRoot, settings.cucumberautocomplete.steps, settings.cucumberautocomplete.syncfeatures);
-        let sFile = '.vscode/settings.json';
-        let diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
+        watchFiles(settings.cucumberautocomplete.steps);
+        stepsHandler = new StepsHandler(workspaceRoot, settings);
+        const sFile = '.vscode/settings.json';
+        const diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
         connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
     }
-    handlePages() && (pagesHandler = new PagesHandler(workspaceRoot, settings.cucumberautocomplete.pages));
+    if (handlePages()) {
+        const { pages } = settings.cucumberautocomplete;
+        watchFiles(Object.keys(pages).map((key) => pages[key]));
+        pagesHandler = new PagesHandler(workspaceRoot, settings);
+    }
 });
 
 function populateHandlers() {
@@ -102,9 +117,9 @@ documents.onDidOpen(() => {
 });
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
-    let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
-    let line = text[position.position.line];
-    let char = position.position.character;
+    const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
+    const line = text[position.position.line];
+    const char = position.position.character;
     if (pagesPosition(line, char)) {
         return pagesHandler.getCompletion(line, position.position);
     }
@@ -129,7 +144,7 @@ function validate(text: string): Diagnostic[] {
         if (handleSteps() && (diagnostic = stepsHandler.validate(line, i))) {
             res.push(diagnostic);
         } else if (handlePages()) {
-            let pagesDiagnosticArr = pagesHandler.validate(line, i);
+            const pagesDiagnosticArr = pagesHandler.validate(line, i);
             res = res.concat(pagesDiagnosticArr);
         }
         return res;
@@ -137,18 +152,16 @@ function validate(text: string): Diagnostic[] {
 }
 
 documents.onDidChangeContent((change): void => {
-    let changeText = change.document.getText();
+    const changeText = change.document.getText();
     //Validate document
-    let diagnostics = validate(changeText);
+    const diagnostics = validate(changeText);
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
-    //Populate steps and page objects after every symbol typed
-    populateHandlers();
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
-    let text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
-    let line = text[position.position.line];
-    let char = position.position.character;
+    const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
+    const line = text[position.position.line];
+    const char = position.position.character;
     if (pagesPosition(line, char)) {
         return pagesHandler.getDefinition(line, char);
     }
@@ -158,26 +171,26 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
 });
 
 function getIndent(options: FormattingOptions): string {
-    let { insertSpaces, tabSize } = options;
+    const { insertSpaces, tabSize } = options;
     return insertSpaces ? ' '.repeat(tabSize) : '\t';
 }
 
 connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
-    let text = documents.get(params.textDocument.uri).getText();
-    let textArr = text.split(/\r?\n/g);
-    let indent = getIndent(params.options);
-    let range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+    const text = documents.get(params.textDocument.uri).getText();
+    const textArr = text.split(/\r?\n/g);
+    const indent = getIndent(params.options);
+    const range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
     return [TextEdit.replace(range, format(indent, text))];
 });
 
 connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
-    let text = documents.get(params.textDocument.uri).getText();
-    let textArr = text.split(/\r?\n/g);
-    let range = params.range;
-    let indent = getIndent(params.options);
-    range = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
-    text = textArr.splice(range.start.line, range.end.line - range.start.line + 1).join('\r\n');
-    return [TextEdit.replace(range, format(indent, text))];
+    const text = documents.get(params.textDocument.uri).getText();
+    const textArr = text.split(/\r?\n/g);
+    const range = params.range;
+    const indent = getIndent(params.options);
+    const finalRange = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
+    const finalText = textArr.splice(finalRange.start.line, finalRange.end.line - finalRange.start.line + 1).join('\r\n');
+    return [TextEdit.replace(finalRange, format(indent, finalText))];
 });
 
 connection.listen();

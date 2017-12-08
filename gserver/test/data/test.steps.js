@@ -19,3 +19,8 @@ this.When(/^I check multi line commets doesn't affect steps$$/, function (next) 
 this.When(/^I do something$/, function (next) {
     next;
 });
+
+//Or test
+this.When(/^I say (a|b)$/, function (next) {
+    next;
+});

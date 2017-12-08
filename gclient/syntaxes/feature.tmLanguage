@@ -143,10 +143,8 @@
     </dict>
     <key>scenario_outline_variable</key>
     <dict>
-      <key>begin</key>
-      <string>&lt;</string>
-      <key>end</key>
-      <string>&gt;</string>
+      <key>match</key>
+      <string>&lt;[a-zA-Z0-9_-]*&gt;</string>
       <key>name</key>
       <string>variable.other</string>
     </dict>
@@ -166,14 +164,6 @@
           <key>name</key>
           <string>constant.character.escape.untitled</string>
         </dict>
-        <dict>
-          <key>begin</key>
-          <string>&lt;</string>
-          <key>end</key>
-          <string>&gt;</string>
-          <key>name</key>
-          <string>variable.other</string>
-        </dict>
       </array>
     </dict>
     <key>strings_single_quote</key>
@@ -191,14 +181,6 @@
           <string>\\.</string>
           <key>name</key>
           <string>constant.character.escape</string>
-        </dict>
-        <dict>
-          <key>begin</key>
-          <string>&lt;</string>
-          <key>end</key>
-          <string>&gt;</string>
-          <key>name</key>
-          <string>variable.other</string>
         </dict>
       </array>
     </dict>

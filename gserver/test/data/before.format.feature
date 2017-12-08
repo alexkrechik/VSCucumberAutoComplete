@@ -14,7 +14,7 @@ Given the following users exist:
 
 
 #This comment is related to this Scenario:
-Scenario: Some scenario
+Scenario: Some scenario     
 
 #Comment related to the next string
 Given I prepare for something
@@ -33,7 +33,7 @@ Then I should have a valid result
 But not an invalid result
 
 
-Scenario Outline: feeding a suckler cow
+Scenario Outline: feeding a suckler cow      
 
 Given the cow weighs <weight> kg
 When we calculate the feeding requirements

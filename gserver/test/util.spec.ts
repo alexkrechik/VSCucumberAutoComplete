@@ -3,7 +3,7 @@ import { getSortPrefix } from '../src/util';
 import { expect } from 'chai';
 
 describe('getSortPrefix', () => {
-    let data = [
+    const data = [
         {num: 0,   res: 'ZZZZZ'},
         {num: 1,   res: 'ZZZZY'},
         {num: 25,  res: 'ZZZZA'},

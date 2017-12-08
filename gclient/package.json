@@ -1,12 +1,12 @@
 {
     "name": "cucumberautocomplete",
-    "version": "2.3.1",
+    "version": "2.5.0",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.18.0"
     },
     "license": "MIT",
-    "displayName": "Cucumber Full Language Support",
+    "displayName": "Cucumber (Gherkin) Full Support",
     "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
     "categories": [
         "Languages"
@@ -93,7 +93,7 @@
     "devDependencies": {
         "@types/node": "^6.0.52",
         "jscs": "^3.0.7",
-        "typescript": "^2.1.4",
+        "typescript": "~2.3.0",
         "vscode": "^1.1.10"
     },
     "dependencies": {

@@ -16,12 +16,11 @@ import {
     Position,
     Location,
     Range,
-    CompletionItemKind
+    CompletionItemKind,
+    InsertTextFormat
 } from 'vscode-languageserver';
 
 import * as glob from 'glob';
-
-export type StepSettings = string[];
 
 export type Step = {
     id: string,
@@ -40,18 +39,23 @@ export default class StepsHandler {
 
     elements: Step[];
 
-    elementsHash: {[step: string]: boolean} = {};
+    elementsHash: { [step: string]: boolean } = {};
 
-    elemenstCountHash: StepsCountHash;
+    elemenstCountHash: StepsCountHash = {};
 
-    constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
-        this.elemenstCountHash = {};
-        this.populate(root, stepsPathes);
-        if (sync === true) {
+    constructor(root: string, settings: Settings) {
+        const { steps, syncfeatures } = settings.cucumberautocomplete;
+        this.populate(root, steps);
+        if (syncfeatures === true) {
             this.setElementsHash(`${root}/**/*.feature`);
-        } else if (typeof sync === 'string') {
-            this.setElementsHash(`${root}/${sync}`);
+        } else if (typeof syncfeatures === 'string') {
+            this.setElementsHash(`${root}/${syncfeatures}`);
         }
+    }
+
+    getGherkinRegEx() {
+        const gherkinWords = escapeRegExp(`하지만|조건|먼저|만일|만약|단|그리고|그러면|那麼|那么|而且|同時|當|当|前提|假設|假定|假如|但是|但し|並且|并且|もし|ならば|ただし|しかし|かつ|و|متى|لكن|عندما|ثم|بفرض|اذاً|כאשר|וגם|בהינתן|אזי|אז|אבל|Якщо|Унда|То|Припустимощо|Припустимо|Онда|Но|Нехай|Лекин|Когато|Када|Кад|Ктомуже|И|Задато|Задати|Задате|Если|Допустим|Дадено|Ва|Бирок|Аммо|Али|Але|Агар|А|І|Și|És|anrhegediga|Zatati|Zakładając|Zadato|Zadate|Zadano|Zadani|Zadan|Youseknowwhenyousegot|Youseknowlikewhen|Yna|Yaknowhow|Yagotta|Y|Wun|Wtedy|Wheny'all|When|Wenn|WEN|Và|Ve|Und|Un|Thì|Theny'all|Then|Tapi|Tak|Tada|Tad|Så|Stel|Soit|Siis|Si|Quando|Quand|Quan|Pryd|Pokud|Pokiaľ|Però|Pero|Pak|Oraz|Onda|Ond|Oletetaan|Og|Och|Ozaman|Når|När|Niin|Nhưng|N|Mutta|Men|Mas|Maka|Majd|Mais|Maar|Ma|Lorsque|Lorsqu'|Kun|Kuid|Kui|Khi|Keď|Ketika|Když|Kai|Kada|Kad|Jeżeli|Ja|Ir|ICANHAZ|I|Ha|Givun|Givet|Giveny'all|Given|Gitt|Gegeven|Gegebensei|Fakat|Eğerki|Etantdonné|Et|Então|Entonces|Entao|En|Eeldades|E|Duota|Dun|Donat|Donada|Diyelimki|Dengan|Denyousegotta|De|Dato|Dar|Dann|Dan|Dado|Dacă|Daca|DEN|Când|Cuando|Cho|Cept|Cand|Cal|Buty'all|But|Buh|Biết|Bet|BUT|Atès|Atunci|Atesa|Angenommen|Andy'all|And|An|Ama|Als|Alors|Allora|Ali|Aleshores|Ale|Akkor|Aber|AN|Ataké|A`);
+        return new RegExp(`^(\\s*)(${gherkinWords})(\\s+)(.*)`);
     }
 
     getElements(): Step[] {
@@ -60,13 +64,13 @@ export default class StepsHandler {
 
     setElementsHash(path: string): void {
         this.elemenstCountHash = {};
-        let files = glob.sync(path, { ignore: '.gitignore' });
+        const files = glob.sync(path, { ignore: '.gitignore' });
         files.forEach(f => {
-            let text = getFileContent(f);
+            const text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
-                let match = line.match(this.gherkinRegEx);
+                const match = line.match(this.getGherkinRegEx());
                 if (match) {
-                    let step = this.getStepByText(match[4]);
+                    const step = this.getStepByText(match[4]);
                     if (step) {
                         this.incrementElementCount(step.id);
                     }
@@ -92,25 +96,25 @@ export default class StepsHandler {
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
-        let startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
+        const startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        let gherkinPart = '(Given|When|Then|And|But)';
+        const gherkinPart = '(Given|When|Then|And|But|defineStep)';
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-        let nonStepStartSymbols = `[^\/'"\\w]*?`;
+        const nonStepStartSymbols = `[^\/'"\\w]*?`;
 
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        let stepStart = `(\/|'|")`;
+        const stepStart = `(\/|'|")`;
 
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        let stepBody = '([^\\3]+)';
+        const stepBody = '([^\\3]+)';
 
         //Step should be ended with same symbol it begins
-        let stepEnd = '\\3';
+        const stepEnd = '\\3';
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
-        let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
+        const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
 
         // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But)?[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
         return r;
@@ -171,24 +175,59 @@ export default class StepsHandler {
         return step;
     }
 
-    getSteps(filePath: string): Step[] {
-        let definitionFile = getFileContent(filePath);
-        definitionFile = clearComments(definitionFile);
+    getStepTextInvariants(step: string): string[] {
+        //Handle regexp's like 'I do (one|to|three)'
+        if (~step.search(/(\([^\)^\()]+\|[^\(^\)]+\))/)) {
+            const match = step.match(/(\([^\)]+\|[^\)]+\))/);
+            const matchRes = match[1];
+            const variants = matchRes.replace(/^\(|\)$/g, '').split('|');
+            return variants.reduce((varRes, variant) => {
+                return varRes.concat(this.getStepTextInvariants(step.replace(matchRes, variant)));
+            }, []);
+        } else {
+            return [step];
+        }
+    }
+
+    getCompletionInsertText(step: string): string {
+
+        //Add some snippets for the page objects
+        const match = step.match(/"".""/g);
+        if (match) {
+            for (let i = 0; i < match.length; i++) {
+                const num1 = (i + 1) * 2 - 1;
+                const num2 = (i + 1) * 2;
+                step = step.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
+            }
+        }
+        step = step.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
+
+        return step;
+
+    }
+
+    getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
+        const stepsVariants = this.getStepTextInvariants(stepPart);
+        const desc = this.getDescForStep(fullStepLine);
+        return stepsVariants.map((step) => {
+            const reg = new RegExp(this.getRegTextForStep(step));
+            //Todo we should store full value here
+            const text = this.getTextForStep(step);
+            const id = 'step' + getMD5Id(text);
+            const count = this.getElementCount(id);
+            return { id, reg, text, desc, def, count };
+        });
+    }
+
+    getFileSteps(filePath: string): Step[] {
+        const definitionFile = clearComments(getFileContent(filePath));
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
-            let match = this.getMatch(line);
+            const match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , , stepText] = match;
-                let pos = Position.create(lineIndex, beforeGherkin.length);
-                let text = this.getTextForStep(stepText);
-                let id = 'step' + getMD5Id(text);
-                steps.push({
-                    id: id,
-                    reg: new RegExp(this.getRegTextForStep(stepText)),
-                    text: text,
-                    desc: this.getDescForStep(line),
-                    def: Location.create(getOSPath(filePath), Range.create(pos, pos)),
-                    count: this.getElementCount(id)
-                });
+                const [, beforeGherkin, , , stepPart] = match;
+                const pos = Position.create(lineIndex, beforeGherkin.length);
+                const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
+                steps = steps.concat(this.getSteps(line, stepPart, def));
             }
             return steps;
         }, []);
@@ -196,10 +235,10 @@ export default class StepsHandler {
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {
         return stepsPathes.reduce((res, path) => {
-            let files = glob.sync(path, { ignore: '.gitignore' });
+            const files = glob.sync(path, { ignore: '.gitignore' });
             if (!files.length) {
-                let searchTerm = path.replace(workSpaceRoot + '/', '');
-                let range = getTextRange(workSpaceRoot + '/' + settingsFile, `"${searchTerm}"`);
+                const searchTerm = path.replace(workSpaceRoot + '/', '');
+                const range = getTextRange(workSpaceRoot + '/' + settingsFile, `"${searchTerm}"`);
                 res.push({
                     severity: DiagnosticSeverity.Warning,
                     range: range,
@@ -216,7 +255,7 @@ export default class StepsHandler {
         this.elements = stepsPathes
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
             .reduce((elements, f) => elements.concat(
-                this.getSteps(f).reduce((steps, step) => {
+                this.getFileSteps(f).reduce((steps, step) => {
                     if (!this.elementsHash[step.id]) {
                         steps.push(step);
                         this.elementsHash[step.id] = true;
@@ -226,22 +265,19 @@ export default class StepsHandler {
             ), []);
     }
 
-    gherkinWords = 'Given|When|Then|And|But';
-    gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(\\s+)(.*)');
-
     getStepByText(text: string): Step {
         return this.elements.find(s => s.reg.test(text));
     }
 
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
-        let lineForError = line.replace(/^\s*/, '');
-        let match = line.match(this.gherkinRegEx);
+        const lineForError = line.replace(/^\s*/, '');
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
-        let beforeGherkin = match[1];
-        let step = this.getStepByText(match[4]);
+        const beforeGherkin = match[1];
+        const step = this.getStepByText(match[4]);
         if (step) {
             return null;
         } else {
@@ -258,17 +294,17 @@ export default class StepsHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        let match = line.match(this.gherkinRegEx);
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
-        let step = this.getStepByText(match[4]);
+        const step = this.getStepByText(match[4]);
         return step ? step.def : null;
     }
 
     getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
-        let match = line.match(this.gherkinRegEx);
+        const match = line.match(this.getGherkinRegEx());
         if (!match) {
             return null;
         }
@@ -278,16 +314,18 @@ export default class StepsHandler {
         //We should not obtain last word
         stepPart = stepPart.replace(/[^\s]+$/, '');
         //We should replace/search only string beginning
-        let stepPartRe = new RegExp('^' + stepPart);
-        let res = this.elements
+        const stepPartRe = new RegExp('^' + stepPart);
+        const res = this.elements
             .filter(el => el.text.search(stepPartRe) !== -1)
             .map(step => {
-                let label = step.text.replace(stepPartRe, '');
+                const label = step.text.replace(stepPartRe, '');
                 return {
                     label: label,
-                    kind: CompletionItemKind.Function,
+                    kind: CompletionItemKind.Snippet,
                     data: step.id,
-                    sortText: getSortPrefix(step.count, 5) + '_' + label
+                    sortText: getSortPrefix(step.count, 5) + '_' + label,
+                    insertText: this.getCompletionInsertText(label),
+                    insertTextFormat: InsertTextFormat.Snippet
                 };
             });
         return res.length ? res : null;

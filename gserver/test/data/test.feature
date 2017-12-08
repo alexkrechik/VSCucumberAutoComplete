@@ -6,3 +6,7 @@ Feature: Test Feature
     When I do another thing
     When I use some non-existing step
     When I do something
+
+    When I say a
+    When I say a
+    When I say b

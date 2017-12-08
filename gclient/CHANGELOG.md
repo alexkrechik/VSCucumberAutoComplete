@@ -1,5 +1,13 @@
-##2.3.1 / 2017-07-15
+##2.5.0/ 2017-12-08
+### LIST OF CHANGES
+* Added support of 'Go To Definition'/'Step Diagnostic' for many languages.
+* Added auto-update steps / wrong steps errors after files with steps changing.
+* Steps, which contains some 'or' parts (like `I do (something|another thing)`) will be showed as several different steps
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.5.0+is%3Aclosed)
+
+##2.4.0/ 2017-07-15
 ### Features/Improvements:
+* [#124](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/124) Cucumber 2 support
 * [#118](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/118) Syntax should highlight tags and nested variables
 ### Bugfixes:
 * [#102](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/102) Fix snippets to avoid snippets warnings
