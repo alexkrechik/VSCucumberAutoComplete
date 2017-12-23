@@ -72,7 +72,7 @@ function formatTables(text) {
                     block: blockNum,
                     data: l.split(/\s*\|\s*/).filter((v, i, arr) => (i > 0) && (i < (arr.length - 1)))
                 });
-                if (i < arr.length && !~arr[i + 1].search(/^\s*\|/)) {
+                if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
                     blockNum++;
                 }
             }
