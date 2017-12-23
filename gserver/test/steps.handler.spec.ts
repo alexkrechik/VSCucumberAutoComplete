@@ -234,7 +234,7 @@ describe('getCompletion', () => {
     it('should correctly filter completion', () => {
         const completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
         expect(completion).to.have.length(1);
-        expect(completion[0].label).to.be.equal('thing');
+        expect(completion[0].label).to.be.equal('I do another thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
@@ -247,7 +247,8 @@ describe('getCompletion', () => {
     });
     it('should return proper sortText', () => {
         const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
-        expect(completion[0].sortText).to.be.equals('ZZZZX_do something');
-        expect(completion[1].sortText).to.be.equals('ZZZZY_do another thing');
+        expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
+        expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
     });
 });
+

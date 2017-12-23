@@ -26,6 +26,7 @@ import { settings } from 'cluster';
 export type Step = {
     id: string,
     reg: RegExp,
+    partialReg: RegExp,
     text: string,
     desc: string,
     def: Definition,
@@ -154,6 +155,14 @@ export default class StepsHandler {
         return step;
     }
 
+    getPartialRegText(regText: string): string {
+        return this.getRegTextForStep(regText)
+            .split(' ')
+            .map(el => `(${el}|$)`)
+            .join('( |$)')
+            .replace(/^\^|^/, '^');
+    }
+
     getTextForStep(step: string): string {
 
         //Remove all the backslashes
@@ -161,10 +170,6 @@ export default class StepsHandler {
 
         //Remove "string start" and "string end" RegEx symbols
         step = step.replace(/^\^|\$$/g, '');
-
-        //All the "match" parts from double quotes should be removed
-        //ex. `"(.*)"` should be changed by ""
-        step = step.replace(/"\([^\)]*\)"/g, '""');
 
         return step;
     }
@@ -194,21 +199,39 @@ export default class StepsHandler {
         }
     }
 
-    getCompletionInsertText(step: string): string {
+    getCompletionInsertText(step: string, stepPart: string): string {
+
+        let res = step;
+
+        //All the "match" parts from double quotes should be removed
+        //ex. `"(.*)"` should be changed by ""
+        res = res.replace(/"\([^\)]*\)"/g, '""');
+
+        const stepPartRe = this.getStepPartRe(stepPart);
+        res = res.replace(stepPartRe, '');
 
         //Add some snippets for the page objects
-        const match = step.match(/"".""/g);
+        const match = res.match(/"".""/g);
         if (match) {
             for (let i = 0; i < match.length; i++) {
                 const num1 = (i + 1) * 2 - 1;
                 const num2 = (i + 1) * 2;
-                step = step.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
+                res = res.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
             }
         }
-        step = step.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
+        res = res.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
 
-        return step;
+        return res;
 
+    }
+
+    getStepPartRe(stepPart: string): RegExp {
+        //Return all the braces into default state
+        stepPart = stepPart.replace(/"[^"]*"/g, '""');
+        //We should not obtain last word
+        stepPart = stepPart.replace(/[^\s]+$/, '');
+        //We should replace/search only string beginning
+        return new RegExp('^' + stepPart);
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
@@ -216,11 +239,12 @@ export default class StepsHandler {
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
             const reg = new RegExp(this.getRegTextForStep(step));
+            const partialReg = new RegExp(this.getPartialRegText(step));
             //Todo we should store full value here
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
             const count = this.getElementCount(id);
-            return { id, reg, text, desc, def, count, gherkin };
+            return { id, reg, partialReg, text, desc, def, count, gherkin };
         });
     }
 
@@ -314,23 +338,21 @@ export default class StepsHandler {
             return null;
         }
         let [, , gherkinPart, , stepPart] = match;
-        //Return all the braces into default state
-        stepPart = stepPart.replace(/"[^"]*"/g, '""');
-        //We should not obtain last word
+        //We don't need last word in our step part due to it could be incompleted
         stepPart = stepPart.replace(/[^\s]+$/, '');
-        //We should replace/search only string beginning
-        const stepPartRe = new RegExp('^' + stepPart);
         const res = this.elements
-            .filter(el => ~el.text.search(stepPartRe))
-            .filter(el => this.settings.cucumberautocomplete.strictGherkinCompletion ? el.gherkin === gherkinPart : true)
+            //CFilter via gherkin words comparing if strictGherkinCompletion option provided
+            .filter((step) => this.settings.cucumberautocomplete.strictGherkinCompletion ? step.gherkin === gherkinPart : true)
+            //Current string without last word should partially match our regexp
+            .filter((step) => step.partialReg.test(stepPart))
+            //We got all the steps we need so we could make completions from them
             .map(step => {
-                const label = step.text.replace(stepPartRe, '');
                 return {
-                    label: label,
+                    label: step.text,
                     kind: CompletionItemKind.Snippet,
                     data: step.id,
-                    sortText: getSortPrefix(step.count, 5) + '_' + label,
-                    insertText: this.getCompletionInsertText(label),
+                    sortText: getSortPrefix(step.count, 5) + '_' + step.text,
+                    insertText: this.getCompletionInsertText(step.text, stepPart),
                     insertTextFormat: InsertTextFormat.Snippet
                 };
             });
