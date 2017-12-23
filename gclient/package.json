@@ -79,6 +79,14 @@
                     ],
                     "required": false,
                     "default": "test/features/*.feature"
+                },
+                "cucumberautocomplete.strictGherkinCompletion": {
+                    "description": "Strict comparing of declaration func and gherkin word (ex. show only steps, declared via 'When()' func for the 'When ' string",
+                    "type": [
+                        "boolean"
+                    ],
+                    "required": false,
+                    "default": false
                 }
             }
         }

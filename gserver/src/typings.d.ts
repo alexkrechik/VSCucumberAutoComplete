@@ -8,6 +8,7 @@ interface Settings {
     cucumberautocomplete: {
         steps?: StepSettings,
         pages?: PagesSettings,
-        syncfeatures?: boolean | string
+        syncfeatures?: boolean | string,
+        strictGherkinCompletion?: boolean
     }
 }

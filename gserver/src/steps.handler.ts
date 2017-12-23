@@ -21,6 +21,7 @@ import {
 } from 'vscode-languageserver';
 
 import * as glob from 'glob';
+import { settings } from 'cluster';
 
 export type Step = {
     id: string,
@@ -28,7 +29,8 @@ export type Step = {
     text: string,
     desc: string,
     def: Definition,
-    count: number
+    count: number,
+    gherkin: string
 };
 
 export type StepsCountHash = {
@@ -43,8 +45,11 @@ export default class StepsHandler {
 
     elemenstCountHash: StepsCountHash = {};
 
+    settings: Settings;
+
     constructor(root: string, settings: Settings) {
         const { steps, syncfeatures } = settings.cucumberautocomplete;
+        this.settings = settings;
         this.populate(root, steps);
         if (syncfeatures === true) {
             this.setElementsHash(`${root}/**/*.feature`);
@@ -206,7 +211,7 @@ export default class StepsHandler {
 
     }
 
-    getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
         const stepsVariants = this.getStepTextInvariants(stepPart);
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
@@ -215,7 +220,7 @@ export default class StepsHandler {
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
             const count = this.getElementCount(id);
-            return { id, reg, text, desc, def, count };
+            return { id, reg, text, desc, def, count, gherkin };
         });
     }
 
@@ -224,10 +229,10 @@ export default class StepsHandler {
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
             const match = this.getMatch(line);
             if (match) {
-                const [, beforeGherkin, , , stepPart] = match;
+                const [, beforeGherkin, gherkin, , stepPart] = match;
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
-                steps = steps.concat(this.getSteps(line, stepPart, def));
+                steps = steps.concat(this.getSteps(line, stepPart, def, gherkin));
             }
             return steps;
         }, []);
@@ -308,7 +313,7 @@ export default class StepsHandler {
         if (!match) {
             return null;
         }
-        let stepPart = match[4];
+        let [, , gherkinPart, , stepPart] = match;
         //Return all the braces into default state
         stepPart = stepPart.replace(/"[^"]*"/g, '""');
         //We should not obtain last word
@@ -316,7 +321,8 @@ export default class StepsHandler {
         //We should replace/search only string beginning
         const stepPartRe = new RegExp('^' + stepPart);
         const res = this.elements
-            .filter(el => el.text.search(stepPartRe) !== -1)
+            .filter(el => ~el.text.search(stepPartRe))
+            .filter(el => this.settings.cucumberautocomplete.strictGherkinCompletion ? el.gherkin === gherkinPart : true)
             .map(step => {
                 const label = step.text.replace(stepPartRe, '');
                 return {
