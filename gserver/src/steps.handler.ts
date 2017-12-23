@@ -185,7 +185,7 @@ export default class StepsHandler {
         if (~step.search(/(\([^\)^\()]+\|[^\(^\)]+\))/)) {
             const match = step.match(/(\([^\)]+\|[^\)]+\))/);
             const matchRes = match[1];
-            const variants = matchRes.replace(/^\(|\)$/g, '').split('|');
+            const variants = matchRes.replace(/\(\?\:/, '').replace(/^\(|\)$/g, '').split('|');
             return variants.reduce((varRes, variant) => {
                 return varRes.concat(this.getStepTextInvariants(step.replace(matchRes, variant)));
             }, []);
