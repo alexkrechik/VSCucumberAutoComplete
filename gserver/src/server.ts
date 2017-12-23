@@ -66,7 +66,7 @@ function handlePages(): boolean {
 }
 
 function pagesPosition(line: string, char: number): boolean {
-    if (handlePages() && pagesHandler.getFeaturePosition(line, char)) {
+    if (handlePages() && pagesHandler && pagesHandler.getFeaturePosition(line, char)) {
         return true;
     } else {
         return false;
@@ -109,8 +109,8 @@ connection.onDidChangeConfiguration(change => {
 });
 
 function populateHandlers() {
-    handleSteps() && stepsHandler.populate(workspaceRoot, settings.cucumberautocomplete.steps);
-    handlePages() && pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages);
+    handleSteps() && stepsHandler && stepsHandler.populate(workspaceRoot, settings.cucumberautocomplete.steps);
+    handlePages() && pagesHandler && pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages);
 }
 
 documents.onDidOpen(() => {
@@ -121,10 +121,10 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
     const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     const line = text[position.position.line];
     const char = position.position.character;
-    if (pagesPosition(line, char)) {
+    if (pagesPosition(line, char) && pagesHandler) {
         return pagesHandler.getCompletion(line, position.position);
     }
-    if (handleSteps()) {
+    if (handleSteps() && stepsHandler) {
         return stepsHandler.getCompletion(line, position.position);
     }
 });
@@ -142,9 +142,9 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 function validate(text: string): Diagnostic[] {
     return text.split(/\r?\n/g).reduce((res, line, i) => {
         let diagnostic;
-        if (handleSteps() && (diagnostic = stepsHandler.validate(line, i))) {
+        if (handleSteps() && stepsHandler && (diagnostic = stepsHandler.validate(line, i))) {
             res.push(diagnostic);
-        } else if (handlePages()) {
+        } else if (handlePages() && pagesHandler) {
             const pagesDiagnosticArr = pagesHandler.validate(line, i);
             res = res.concat(pagesDiagnosticArr);
         }
@@ -165,10 +165,10 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     const char = position.position.character;
     const pos = position.position;
     const { uri } = position.textDocument;
-    if (pagesPosition(line, char)) {
+    if (pagesPosition(line, char) && pagesHandler) {
         return pagesHandler.getDefinition(line, char);
     }
-    if (handleSteps()) {
+    if (handleSteps() && stepsHandler) {
         return stepsHandler.getDefinition(line, char);
     }
     return Location.create(uri, Range.create(pos, pos));
