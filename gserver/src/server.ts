@@ -16,7 +16,8 @@ import {
     DocumentFormattingParams,
     TextEdit,
     DocumentRangeFormattingParams,
-    FormattingOptions
+    FormattingOptions,
+    Location
 } from 'vscode-languageserver';
 import { format } from './format';
 import StepsHandler from './steps.handler';
@@ -162,12 +163,15 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
     const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
     const line = text[position.position.line];
     const char = position.position.character;
+    const pos = position.position;
+    const { uri } = position.textDocument;
     if (pagesPosition(line, char)) {
         return pagesHandler.getDefinition(line, char);
     }
-    if (handleSteps) {
+    if (handleSteps()) {
         return stepsHandler.getDefinition(line, char);
     }
+    return Location.create(uri, Range.create(pos, pos));
 });
 
 function getIndent(options: FormattingOptions): string {
