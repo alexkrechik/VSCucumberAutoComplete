@@ -4,7 +4,8 @@ import { expect } from 'chai';
 const settings = {
     cucumberautocomplete: {
         steps: ['/data/test.steps.js'],
-        syncfeatures: '/data/test.feature'
+        syncfeatures: '/data/test.feature',
+        smartSnippets: true
     }
 };
 
