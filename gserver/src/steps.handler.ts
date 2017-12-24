@@ -156,6 +156,7 @@ export default class StepsHandler {
     }
 
     getPartialRegText(regText: string): string {
+        //Same with main reg, only differ is match any string that same or less that current one
         return this.getRegTextForStep(regText)
             .split(' ')
             .map(el => `(${el}|$)`)
@@ -201,28 +202,39 @@ export default class StepsHandler {
 
     getCompletionInsertText(step: string, stepPart: string): string {
 
+        // Return only part we need for our step
         let res = step;
-
-        //All the "match" parts from double quotes should be removed
-        //ex. `"(.*)"` should be changed by ""
-        res = res.replace(/"\([^\)]*\)"/g, '""');
-
-        const stepPartRe = this.getStepPartRe(stepPart);
-        res = res.replace(stepPartRe, '');
-
-        //Add some snippets for the page objects
-        const match = res.match(/"".""/g);
-        if (match) {
-            for (let i = 0; i < match.length; i++) {
-                const num1 = (i + 1) * 2 - 1;
-                const num2 = (i + 1) * 2;
-                res = res.replace(/"".""/, () => '"${' + num1 + ':}"."${' + num2 + ':}"');
+        const strArray = res.split(' ');
+        const currArray = [];
+        const { length } = strArray;
+        for (let i = 0; i < length; i++) {
+            currArray.push(strArray.shift());
+            const r = new RegExp('^' + escapeRegExp(currArray.join(' ')));
+            if (!r.test(stepPart)) {
+                res = [].concat(currArray.slice(-1), strArray).join(' ');
+                break;
             }
         }
-        res = res.replace(/"\([^\)]*\)"."\([^\)]*\)"/g, '"${98:page}"."${99:pageObject}"');
+
+        if (this.settings.cucumberautocomplete.smartSnippets) {
+            /*
+                Now we should change all the 'user input' items to some snippets
+                Create our regexp for this:
+                1) \(? - we be started from opening brace
+                2) \\.|\[\[^\]]\] - [a-z] or \w or .
+                3) \*|\+|\{[^\}]+\} - * or + or {1, 2}
+                4) \)? - could be finished with opening brace
+            */
+            const match = res.match(/((?:\()?(?:\\.|\.|\[[^\]]+\])(?:\*|\+|\{[^\}]+\})(?:\)?))/g);
+            if (match) {
+                for (let i = 0; i < match.length; i++) {
+                    const num = i + 1;
+                    res = res.replace(match[i], () => '${' + num + ':}');
+                }
+            }
+        }
 
         return res;
-
     }
 
     getStepPartRe(stepPart: string): RegExp {

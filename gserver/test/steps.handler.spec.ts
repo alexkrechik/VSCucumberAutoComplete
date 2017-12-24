@@ -252,3 +252,22 @@ describe('getCompletion', () => {
     });
 });
 
+describe('getCompletionInsertText', () => {
+    const regExpText = 'I do [a-z]+ and \\w* thing';
+    const pairs = [
+        {step: '', prefix: 'I do ${1:} and ${2:} thing'},
+        {step: 'I', prefix: 'do ${1:} and ${2:} thing'},
+        {step: 'I do', prefix: '${1:} and ${2:} thing'},
+        {step: 'I do aaa', prefix: 'and ${1:} thing'},
+        {step: 'I do aaa and', prefix: '${1:} thing'},
+        {step: 'I do aaa and bbb', prefix: 'thing'},
+        {step: 'I thing', prefix: 'do ${1:} and ${2:} thing'},
+    ];
+    pairs.forEach(pair => {
+        const {step, prefix} = pair;
+        it(`should return "${prefix}" part for "${step}" step part`, () => {
+            const res = s.getCompletionInsertText(regExpText, step);
+            expect(res).to.be.equals(prefix);
+        });
+    });
+});
