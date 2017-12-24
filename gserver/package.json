@@ -1,7 +1,7 @@
 {
   "name": "cucumberautocomplete-server",
   "description": "Server part of VsCucumberAutoComplete extension",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "author": "Alexander Krechik",
   "engines": {
     "node": "*"

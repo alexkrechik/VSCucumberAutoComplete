@@ -1,3 +1,8 @@
+## 2.6.0/ 2017-12-24
+* Implemented strictGherkinCompletion extension option that will do strict comparing between gherkin word and step definition function name during showing of completions
+* Implemented smartSnippets extension option that will automatically change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.6.0+is%3Aclosed)
+
 ## 2.5.0/ 2017-12-08
 * Added support of 'Go To Definition'/'Step Diagnostic' for many languages.
 * Added auto-update steps / wrong steps errors after files with steps changing.
