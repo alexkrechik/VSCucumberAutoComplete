@@ -9,6 +9,7 @@ interface Settings {
         steps?: StepSettings,
         pages?: PagesSettings,
         syncfeatures?: boolean | string,
-        strictGherkinCompletion?: boolean
+        strictGherkinCompletion?: boolean,
+        smartSnippets?: boolean
     }
 }

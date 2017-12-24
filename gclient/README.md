@@ -44,6 +44,8 @@ All the steps and page objects will be re-populated after every `.feature` file 
         "node_modules/qa-lib/src/step_definitions/*.js"
     ],
     "cucumberautocomplete.syncfeatures": "test/features/*feature",
+    "cucumberautocomplete.strictGherkinCompletion": true,
+    "cucumberautocomplete.smartSnippets": true,
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
         "pathes": "test/features/page_objects/pathes.storage.js",
