@@ -189,8 +189,10 @@ export default class StepsHandler {
 
     getStepTextInvariants(step: string): string[] {
         //Handle regexp's like 'I do (one|to|three)'
-        if (~step.search(/(\([^\)^\()]+\|[^\(^\)]+\))/)) {
-            const match = step.match(/(\([^\)]+\|[^\)]+\))/);
+        //TODO - generate correct num of invariants for the circular braces
+        const bracesRegEx = /(\([^\)^\()]+\|[^\(^\)]+\))/;
+        if (~step.search(bracesRegEx)) {
+            const match = step.match(bracesRegEx);
             const matchRes = match[1];
             const variants = matchRes.replace(/\(\?\:/, '').replace(/^\(|\)$/g, '').split('|');
             return variants.reduce((varRes, variant) => {

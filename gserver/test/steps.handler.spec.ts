@@ -86,13 +86,22 @@ describe('getMatch', () => {
 
 describe('getStepInvariants', () => {
     it('should correctly handle or experssions', () => {
-        const str = 'I do (a|b) and then I do (c|d)';
+        const str = 'I do (a|b) and then I do (c|d|(?:e|f))';
         const res = [
             'I do a and then I do c',
             'I do a and then I do d',
+            'I do a and then I do e',
+            'I do a and then I do c',
+            'I do a and then I do d',
+            'I do a and then I do f',
             'I do b and then I do c',
-            'I do b and then I do d'
+            'I do b and then I do d',
+            'I do b and then I do e',
+            'I do b and then I do c',
+            'I do b and then I do d',
+            'I do b and then I do f'
         ];
+        console.log(s.getStepTextInvariants(str));
         expect(s.getStepTextInvariants(str)).to.deep.equal(res);
     });
 });
