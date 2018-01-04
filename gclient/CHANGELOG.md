@@ -1,3 +1,8 @@
+## 2.6.1/2018-01-04
+### Bugfixes:
+* [#155](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/155) Fix snippets to avoid snippets warnings
+* [#156](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/156) Multi language support (Portuguese) doesn't work.
+
 ## 2.6.0/ 2017-12-24
 * Implemented strictGherkinCompletion extension option that will do strict comparing between gherkin word and step definition function name during showing of completions
 * Implemented smartSnippets extension option that will automatically change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets
