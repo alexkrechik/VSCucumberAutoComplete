@@ -156,10 +156,14 @@ export default class StepsHandler {
         return step;
     }
 
+    getPartialRegParts(text: string): string[] {
+        return this.getRegTextForStep(text)
+            .split(' ');
+    }
+
     getPartialRegText(regText: string): string {
         //Same with main reg, only differ is match any string that same or less that current one
-        return this.getRegTextForStep(regText)
-            .split(' ')
+        return this.getPartialRegParts(regText)
             .map(el => `(${el}|$)`)
             .join('( |$)')
             .replace(/^\^|^/, '^');
