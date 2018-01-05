@@ -86,7 +86,7 @@
                         "boolean"
                     ],
                     "required": false,
-                    "default": false
+                    "default": true
                 },
                 "cucumberautocomplete.smartSnippets": {
                     "description": "Change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets",
@@ -94,7 +94,7 @@
                         "boolean"
                     ],
                     "required": false,
-                    "default": false
+                    "default": true
                 }
             }
         }
