@@ -250,7 +250,8 @@ export default class StepsHandler {
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
-        const stepsVariants = this.getStepTextInvariants(stepPart);
+        const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
+            this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
             const reg = new RegExp(this.getRegTextForStep(step));

@@ -10,6 +10,7 @@ interface Settings {
         pages?: PagesSettings,
         syncfeatures?: boolean | string,
         strictGherkinCompletion?: boolean,
-        smartSnippets?: boolean
+        smartSnippets?: boolean,
+        stepsInvariants?: boolean
     }
 }

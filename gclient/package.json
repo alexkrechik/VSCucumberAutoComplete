@@ -95,6 +95,14 @@
                     ],
                     "required": false,
                     "default": true
+                },
+                "cucumberautocomplete.stepsInvariants": {
+                    "description": "Show all the 'or' steps parts as separate suggestions (ex. show `I use a` and `I use b` steps suggestions for the `I use (a|b)` step",
+                    "type": [
+                        "boolean"
+                    ],
+                    "required": false,
+                    "default": false
                 }
             }
         }

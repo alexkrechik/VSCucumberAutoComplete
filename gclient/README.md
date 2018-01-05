@@ -16,7 +16,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 * Sort steps suggestions by their using count
 * Option to filter steps completions depending on words used for their defining
 * Option to automatically change all the steps parts, that require some user action, by snippets
-* Show several different completion variants for steps with 'or' RegEx parts (like `(a|b)`)
+* Option to show several different completion variants for steps with 'or' RegEx parts (like `(a|b)`)
 
 ![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
 ## How to use:
