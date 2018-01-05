@@ -102,7 +102,6 @@ describe('getStepInvariants', () => {
             'I do b and then I do d',
             'I do b and then I do f'
         ];
-        console.log(s.getStepTextInvariants(str));
         expect(s.getStepTextInvariants(str)).to.deep.equal(res);
     });
 });
@@ -134,6 +133,14 @@ describe('getRegTextForStep', () => {
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
         });
+    });
+});
+
+describe('getPartialRegParts', () => {
+    const data = 'I do a and b';
+    const res = ['I', 'do', 'a', 'and', 'b'];
+    it (`should correctly parse "${data}" string into parts`, () => {
+        expect(s.getPartialRegParts(data)).to.deep.equal(res);
     });
 });
 
