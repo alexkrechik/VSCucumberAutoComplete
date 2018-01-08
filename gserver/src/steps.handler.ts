@@ -287,7 +287,13 @@ export default class StepsHandler {
         const desc = this.getDescForStep(fullStepLine);
         return stepsVariants.map((step) => {
             const reg = new RegExp(this.getRegTextForStep(step));
-            const partialReg = new RegExp(this.getPartialRegText(step));
+            let partialReg;
+            // Use long regular expression in case of error
+            try {
+                partialReg = new RegExp(this.getPartialRegText(step));
+            } catch (err) {
+                partialReg = reg;
+            }
             //Todo we should store full value here
             const text = this.getTextForStep(step);
             const id = 'step' + getMD5Id(text);
