@@ -157,8 +157,45 @@ export default class StepsHandler {
     }
 
     getPartialRegParts(text: string): string[] {
-        return this.getRegTextForStep(text)
-            .split(' ');
+        // We should separate got string into the parts by space symbol
+        // But we should not touch /()/ RegEx elements
+        text = this.getRegTextForStep(text);
+        let currString = '';
+        let bracesMode = false;
+        let openingBracesNum;
+        let closingBracesNum;
+        const res = [];
+        for (let i = 0; i <= text.length; i++) {
+            const currSymbol = text[i];
+            if (i === text.length) {
+                res.push(currString);
+            } else if (bracesMode) {
+                //We should do this hard check to avoid circular braces errors
+                if (currSymbol === ')') {
+                    closingBracesNum++;
+                    if (openingBracesNum === closingBracesNum) {
+                        bracesMode = false;
+                    }
+                }
+                if (currSymbol === '(') {
+                    openingBracesNum++;
+                }
+                currString += currSymbol;
+            } else {
+                if (currSymbol === ' ') {
+                    res.push(currString);
+                    currString = '';
+                } else if (currSymbol === '(') {
+                    currString += '(';
+                    bracesMode = true;
+                    openingBracesNum = 1;
+                    closingBracesNum = 0;
+                } else {
+                    currString += currSymbol;
+                }
+            }
+        }
+        return res;
     }
 
     getPartialRegText(regText: string): string {
@@ -211,7 +248,7 @@ export default class StepsHandler {
 
         // Return only part we need for our step
         let res = step;
-        const strArray = res.split(' ');
+        const strArray = this.getPartialRegParts(res);
         const currArray = [];
         const { length } = strArray;
         for (let i = 0; i < length; i++) {
@@ -242,15 +279,6 @@ export default class StepsHandler {
         }
 
         return res;
-    }
-
-    getStepPartRe(stepPart: string): RegExp {
-        //Return all the braces into default state
-        stepPart = stepPart.replace(/"[^"]*"/g, '""');
-        //We should not obtain last word
-        stepPart = stepPart.replace(/[^\s]+$/, '');
-        //We should replace/search only string beginning
-        return new RegExp('^' + stepPart);
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
@@ -361,7 +389,7 @@ export default class StepsHandler {
         //We don't need last word in our step part due to it could be incompleted
         stepPart = stepPart.replace(/[^\s]+$/, '');
         const res = this.elements
-            //CFilter via gherkin words comparing if strictGherkinCompletion option provided
+            //Filter via gherkin words comparing if strictGherkinCompletion option provided
             .filter((step) => this.settings.cucumberautocomplete.strictGherkinCompletion ? step.gherkin === gherkinPart : true)
             //Current string without last word should partially match our regexp
             .filter((step) => step.partialReg.test(stepPart))
