@@ -253,10 +253,14 @@ export default class StepsHandler {
         const { length } = strArray;
         for (let i = 0; i < length; i++) {
             currArray.push(strArray.shift());
-            const r = new RegExp('^' + escapeRegExp(currArray.join(' ')));
-            if (!r.test(stepPart)) {
-                res = [].concat(currArray.slice(-1), strArray).join(' ');
-                break;
+            try {
+                const r = new RegExp('^' + escapeRegExp(currArray.join(' ')));
+                if (!r.test(stepPart)) {
+                    res = [].concat(currArray.slice(-1), strArray).join(' ');
+                    break;
+                }
+            } catch (err) {
+                //TODO - show some warning
             }
         }
 
@@ -292,6 +296,7 @@ export default class StepsHandler {
             try {
                 partialReg = new RegExp(this.getPartialRegText(step));
             } catch (err) {
+                // Todo - show some warning
                 partialReg = reg;
             }
             //Todo we should store full value here
