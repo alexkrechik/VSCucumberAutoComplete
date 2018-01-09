@@ -86,7 +86,7 @@
                         "boolean"
                     ],
                     "required": false,
-                    "default": true
+                    "default": false
                 },
                 "cucumberautocomplete.smartSnippets": {
                     "description": "Change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets",
@@ -94,7 +94,7 @@
                         "boolean"
                     ],
                     "required": false,
-                    "default": true
+                    "default": false
                 },
                 "cucumberautocomplete.stepsInvariants": {
                     "description": "Show all the 'or' steps parts as separate suggestions (ex. show `I use a` and `I use b` steps suggestions for the `I use (a|b)` step",
