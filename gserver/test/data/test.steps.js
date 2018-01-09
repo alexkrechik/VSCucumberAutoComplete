@@ -24,3 +24,11 @@ this.When(/^I do something$/, function (next) {
 this.When(/^I say (a|b)$/, function (next) {
     next;
 });
+
+//Multi-lines test
+this.When(
+    /I do some multi-lines test/,
+    function(next) {
+        next;
+    }
+);

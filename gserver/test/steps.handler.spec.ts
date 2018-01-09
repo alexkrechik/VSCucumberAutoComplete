@@ -147,7 +147,7 @@ describe('getPartialRegParts', () => {
 describe('constructor', () => {
     const e = s.getElements();
     it('should fill all the elements', () => {
-        expect(e).to.have.length(4);
+        expect(e).to.have.length(5);
     });
     it('should correctly fill used steps counts', () => {
         expect(e[0]).to.have.property('count', 2);
@@ -174,7 +174,7 @@ describe('constructor', () => {
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
-        expect(s.getElements()).to.have.length(4);
+        expect(s.getElements()).to.have.length(5);
     });
     it('should correctly recreate elements with their count using', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
@@ -247,7 +247,7 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
         const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
-        expect(completion).to.have.length(4);
+        expect(completion).to.have.length(5);
     });
     it('should correctly filter completion', () => {
         const completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });

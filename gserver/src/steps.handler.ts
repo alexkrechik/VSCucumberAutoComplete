@@ -309,10 +309,16 @@ export default class StepsHandler {
 
     getFileSteps(filePath: string): Step[] {
         const definitionFile = clearComments(getFileContent(filePath));
-        return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
+        return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex, lines) => {
             const match = this.getMatch(line);
-            if (match) {
-                const [, beforeGherkin, gherkin, , stepPart] = match;
+            //Add next line to our string to handle two-lines step definitions
+            const nextLine = lines[lineIndex + 1];
+            let nextLineMatch;
+            if (nextLine) {
+                nextLineMatch = this.getMatch(line + nextLine);
+            }
+            if (match || nextLineMatch) {
+                const [, beforeGherkin, gherkin, , stepPart] = match || nextLineMatch;
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(line, stepPart, def, gherkin));
