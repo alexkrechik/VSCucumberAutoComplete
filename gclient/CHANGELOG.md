@@ -1,7 +1,9 @@
-## 2.6.1/2018-01-04
-### Bugfixes:
-* [#155](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/155) Fix snippets to avoid snippets warnings
-* [#156](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/156) Multi language support (Portuguese) doesn't work.
+## 2.7.0/2018-01-10
+* Added cucumberautocomplete.stepsInvariants option. Steps Invariants feature isdisabled by default.
+* Fixed "Unterminated group" error for some steps regexps.
+* Implemented multi languages for the steps getting.
+* Steps could be defined in two strings.
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.7.0+is%3Aclosed)
 
 ## 2.6.0/ 2017-12-24
 * Implemented strictGherkinCompletion extension option that will do strict comparing between gherkin word and step definition function name during showing of completions
