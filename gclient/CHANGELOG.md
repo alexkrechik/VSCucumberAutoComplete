@@ -1,3 +1,6 @@
+## 2.7.1/2018-01-10
+* Extension will not crash in case of invalid regular expression - soch regExp's will be skipped
+
 ## 2.7.0/2018-01-10
 * Added cucumberautocomplete.stepsInvariants option. Steps Invariants feature isdisabled by default.
 * Fixed "Unterminated group" error for some steps regexps.
