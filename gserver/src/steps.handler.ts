@@ -289,22 +289,33 @@ export default class StepsHandler {
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
-        return stepsVariants.map((step) => {
-            const reg = new RegExp(this.getRegTextForStep(step));
-            let partialReg;
-            // Use long regular expression in case of error
-            try {
-                partialReg = new RegExp(this.getPartialRegText(step));
-            } catch (err) {
-                // Todo - show some warning
-                partialReg = reg;
-            }
-            //Todo we should store full value here
-            const text = this.getTextForStep(step);
-            const id = 'step' + getMD5Id(text);
-            const count = this.getElementCount(id);
-            return { id, reg, partialReg, text, desc, def, count, gherkin };
-        });
+        return stepsVariants
+            .filter((step) => {
+                //Filter invalid long regular expressions
+                try {
+                    new RegExp(this.getRegTextForStep(step));
+                    return true;
+                } catch (err) {
+                    //Todo - show some warning
+                    return false;
+                }
+            })
+            .map((step) => {
+                const reg = new RegExp(this.getRegTextForStep(step));
+                let partialReg;
+                // Use long regular expression in case of error
+                try {
+                    partialReg = new RegExp(this.getPartialRegText(step));
+                } catch (err) {
+                    // Todo - show some warning
+                    partialReg = reg;
+                }
+                //Todo we should store full value here
+                const text = this.getTextForStep(step);
+                const id = 'step' + getMD5Id(text);
+                const count = this.getElementCount(id);
+                return { id, reg, partialReg, text, desc, def, count, gherkin };
+            });
     }
 
     getFileSteps(filePath: string): Step[] {

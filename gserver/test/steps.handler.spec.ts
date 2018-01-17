@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 const settings = {
     cucumberautocomplete: {
-        steps: ['/data/test.steps.js'],
+        steps: ['/data/test.steps*.js'],
         syncfeatures: '/data/test.feature',
         smartSnippets: true,
         stepsInvariants: true
