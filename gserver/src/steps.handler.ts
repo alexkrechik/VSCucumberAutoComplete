@@ -143,6 +143,7 @@ export default class StepsHandler {
         step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
         step = step.replace(/{int}/g, '-?\\d+');
         step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
+        step = step.replace(/{string}/g, '"[^"]+"');
 
         //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99

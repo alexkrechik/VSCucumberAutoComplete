@@ -116,7 +116,8 @@ describe('getRegTextForStep', () => {
         const data = [
             ['I use {float}', 'I use -?\\d*\\.?\\d+'],
             ['I use {int}', 'I use -?\\d+'],
-            ['I use {stringInDoubleQuotes}', 'I use "[^"]+"']
+            ['I use {stringInDoubleQuotes}', 'I use "[^"]+"'],
+            ['I use {string}', 'I use "[^"]+"']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
