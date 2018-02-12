@@ -134,6 +134,12 @@ export default class StepsHandler {
 
     getRegTextForStep(step: string): string {
 
+        //Change all the custom parameters from settings
+        this.settings.cucumberautocomplete.customParameters.forEach((p: CustomParameter) => {
+            const { parameter, value } = p;
+            step = step.split(parameter).join(value);
+        });
+
         //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
         step = step.replace(/#{(.*?)}/g, '.*');

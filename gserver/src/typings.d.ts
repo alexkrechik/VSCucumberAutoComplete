@@ -4,6 +4,11 @@ type PagesSettings = {
     [page: string]: string
 };
 
+type CustomParameter = {
+    parameter: string,
+    value: string
+} 
+
 interface Settings {
     cucumberautocomplete: {
         steps?: StepSettings,
@@ -11,6 +16,7 @@ interface Settings {
         syncfeatures?: boolean | string,
         strictGherkinCompletion?: boolean,
         smartSnippets?: boolean,
-        stepsInvariants?: boolean
+        stepsInvariants?: boolean,
+        customParameters?: CustomParameter[]
     }
 }

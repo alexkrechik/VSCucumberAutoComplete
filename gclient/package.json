@@ -103,6 +103,12 @@
                     ],
                     "required": false,
                     "default": false
+                },
+                "cucumberautocomplete.customParameters": {
+                    "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs",
+                    "type": "array",
+                    "required": false,
+                    "default": []
                 }
             }
         }
