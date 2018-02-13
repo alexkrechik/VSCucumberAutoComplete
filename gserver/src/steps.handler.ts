@@ -123,7 +123,7 @@ export default class StepsHandler {
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
 
-        // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But)?[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
+        // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But|defineStep)[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
         return r;
 
     }
@@ -240,7 +240,7 @@ export default class StepsHandler {
     getStepTextInvariants(step: string): string[] {
         //Handle regexp's like 'I do (one|to|three)'
         //TODO - generate correct num of invariants for the circular braces
-        const bracesRegEx = /(\([^\)^\()]+\|[^\(^\)]+\))/;
+        const bracesRegEx = /(\([^\)\()]+\|[^\(\)]+\))/;
         if (~step.search(bracesRegEx)) {
             const match = step.match(bracesRegEx);
             const matchRes = match[1];
