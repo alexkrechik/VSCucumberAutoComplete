@@ -112,6 +112,18 @@ describe('getStepInvariants', () => {
     });
 });
 
+describe('handleCustomParameters', () => {
+    it('should correctly change cucumber parameters', () => {
+        const data = [
+            ['I use ${dictionaryObject} and ${dictionaryObject}',
+            'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")']
+        ];
+        data.forEach(d => {
+            expect(s.handleCustomParameters(d[0])).to.be.equal(d[1]);
+        });
+    });
+});
+
 describe('getRegTextForStep', () => {
     it('should remove ruby interpolation for regex', () => {
         const str = '^the (#{SOMETHING}) cannot work$';
@@ -124,15 +136,6 @@ describe('getRegTextForStep', () => {
             ['I use {int}', 'I use -?\\d+'],
             ['I use {stringInDoubleQuotes}', 'I use "[^"]+"'],
             ['I use {string}', 'I use "[^"]+"']
-        ];
-        data.forEach(d => {
-            expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
-        });
-    });
-    it('should correctly change cucumber parameters', () => {
-        const data = [
-            ['I use ${dictionaryObject} and ${dictionaryObject}',
-            'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);

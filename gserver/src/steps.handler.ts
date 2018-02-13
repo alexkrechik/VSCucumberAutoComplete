@@ -132,13 +132,15 @@ export default class StepsHandler {
         return line.match(this.getStepRegExp());
     }
 
-    getRegTextForStep(step: string): string {
-
-        //Change all the custom parameters from settings
+    handleCustomParameters(step: string): string {
         this.settings.cucumberautocomplete.customParameters.forEach((p: CustomParameter) => {
             const { parameter, value } = p;
             step = step.split(parameter).join(value);
         });
+        return step;
+    }
+
+    getRegTextForStep(step: string): string {
 
         //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
@@ -293,6 +295,7 @@ export default class StepsHandler {
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
+        stepPart = this.handleCustomParameters(stepPart);
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
