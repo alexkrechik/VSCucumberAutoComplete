@@ -41,7 +41,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 }
 ```
 
-#### Use steps and page objects and sync existing feature files for steps counting:
+#### Using of all the parameters available:
 ```javascript
 {
     "cucumberautocomplete.steps": [
@@ -51,6 +51,12 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
     "cucumberautocomplete.syncfeatures": "test/features/*feature",
     "cucumberautocomplete.strictGherkinCompletion": true,
     "cucumberautocomplete.smartSnippets": true,
+    "cucumberautocomplete.customParameters": [
+        {
+            "parameter":"{ab}",
+            "value":"(a|b)"
+        }
+    ],
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
         "pathes": "test/features/page_objects/pathes.storage.js",
