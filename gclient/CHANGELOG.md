@@ -1,5 +1,7 @@
-## 2.7.1/2018-01-10
-* Extension will not crash in case of invalid regular expression - soch regExp's will be skipped
+## 2.8.0/2018-02-14
+* Extension will not crash in case of invalid regular expression - such regExp's will be skipped.
+* Added 'cucumberautocomplete.customParameters' option, that allows to change any step part.
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.8.0+is%3Aclosed)
 
 ## 2.7.0/2018-01-10
 * Added cucumberautocomplete.stepsInvariants option. Steps Invariants feature isdisabled by default.
