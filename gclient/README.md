@@ -69,5 +69,8 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
     }
 }
 ```
-
+#### Issues
 Fill free to create app issues on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete/issues)
+
+#### Thank you
+If this plugin was helpful for you, you can give it a ★ Star on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete)
