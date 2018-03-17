@@ -51,6 +51,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
     "cucumberautocomplete.syncfeatures": "test/features/*feature",
     "cucumberautocomplete.strictGherkinCompletion": true,
     "cucumberautocomplete.smartSnippets": true,
+    "cucumberautocomplete.stepsInvariants": true,
     "cucumberautocomplete.customParameters": [
         {
             "parameter":"{ab}",
