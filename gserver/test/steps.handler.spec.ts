@@ -25,7 +25,8 @@ describe('getMatch', () => {
             `@Given('I do something')`,
             `@Given("I do something")`,
             `@Given /I do something/`,
-            `Given(~'I do something');`
+            `Given(~'I do something');`,
+            'Given(`I do something`);',
         ];
         strings.forEach(str => {
             it(`should parse "${str}" step string`, () => {

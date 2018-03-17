@@ -109,10 +109,10 @@ export default class StepsHandler {
         const gherkinPart = `(${gherkinWords}|defineStep)`;
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-        const nonStepStartSymbols = `[^\/'"\\w]*?`;
+        const nonStepStartSymbols = `[^\/'"\`\\w]*?`;
 
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        const stepStart = `(\/|'|")`;
+        const stepStart = `(\/|'|"|\`)`;
 
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
         const stepBody = '([^\\3]+)';
