@@ -133,6 +133,7 @@ export default class StepsHandler {
     }
 
     handleCustomParameters(step: string): string {
+        if (!step) return '';
         this.settings.cucumberautocomplete.customParameters.forEach((p: CustomParameter) => {
             const { parameter, value } = p;
             step = step.split(parameter).join(value);
@@ -295,7 +296,6 @@ export default class StepsHandler {
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
-        stepPart = this.handleCustomParameters(stepPart);
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
@@ -333,23 +333,27 @@ export default class StepsHandler {
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex, lines) => {
             //TODO optimize
             let match;
-            const currentMatch = this.getMatch(line);
+            let finalLine;
+            const currLine = this.handleCustomParameters(line);
+            const currentMatch = this.getMatch(currLine);
             //Add next line to our string to handle two-lines step definitions
-            const nextLine = lines[lineIndex + 1];
+            const nextLine = this.handleCustomParameters(lines[lineIndex + 1]);
             if (currentMatch) {
                 match = currentMatch;
-            } else if (nextLine && !currentMatch) {
+                finalLine = currLine;
+            } else if (nextLine) {
                 const nextLineMatch = this.getMatch(nextLine);
-                const bothLinesMatch = this.getMatch(line + nextLine);
+                const bothLinesMatch = this.getMatch(currLine + nextLine);
                 if ( bothLinesMatch && !nextLineMatch) {
                     match = bothLinesMatch;
+                    finalLine = currLine + nextLine;
                 }
             }
             if (match) {
                 const [, beforeGherkin, gherkin, , stepPart] = match;
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
-                steps = steps.concat(this.getSteps(line, stepPart, def, gherkin));
+                steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin));
             }
             return steps;
         }, []);
