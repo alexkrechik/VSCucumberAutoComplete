@@ -181,7 +181,7 @@ export default class PagesHandler {
         } else {
             return null;
         }
-    };
+    }
 
     getPageCompletion(line: string, position: Position, page: Page): CompletionItem {
         const search = line.search(/"([^"]*)"$/);
@@ -233,10 +233,10 @@ export default class PagesHandler {
         } else {
             return null;
         }
-    };
+    }
 
     getCompletionResolve(item: CompletionItem): CompletionItem {
         return item;
-    };
+    }
 
 }

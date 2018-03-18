@@ -7,7 +7,7 @@ type PagesSettings = {
 type CustomParameter = {
     parameter: string,
     value: string
-} 
+};
 
 interface Settings {
     cucumberautocomplete: {
