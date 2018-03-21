@@ -1,3 +1,8 @@
+## 2.9.0/2018-03-21
+* Added an ability to define steps using grave accent(`) symbol
+* Fixed customParameters applying to the steps definitions
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.9.0+is%3Aclosed)
+
 ## 2.8.0/2018-02-14
 * Extension will not crash in case of invalid regular expression - such regExp's will be skipped.
 * Added 'cucumberautocomplete.customParameters' option, that allows to change any step part.
