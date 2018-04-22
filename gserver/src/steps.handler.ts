@@ -106,7 +106,7 @@ export default class StepsHandler {
         const startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        const gherkinPart = `(${gherkinWords}|defineStep)`;
+        const gherkinPart = `(${gherkinWords}|defineStep|Step)`;
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = `[^\/'"\`\\w]*?`;

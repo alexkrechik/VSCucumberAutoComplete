@@ -44,7 +44,9 @@ describe('getMatch', () => {
             `Then`,
             `And`,
             `But`,
-            `defineStep`
+            `defineStep`,
+            `@Step`,
+            `Step`
         ];
         gherkinWords.forEach(g => {
             it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
