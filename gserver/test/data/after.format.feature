@@ -1,7 +1,7 @@
 @Fast
 Feature: Formatting feature
 
-This feature was created to test formatting
+	This feature was created to test formatting
 
 
 	Background: Background name
