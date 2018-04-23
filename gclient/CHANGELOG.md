@@ -1,3 +1,9 @@
+## 2.10.0/2018-04-23
+* Added an ability to define steps using "Step" word
+* Disable validation for commented parts of feature files
+* Small formatting fixes
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.10.0)
+
 ## 2.9.0/2018-03-21
 * Added an ability to define steps using grave accent(`) symbol
 * Fixed customParameters applying to the steps definitions
