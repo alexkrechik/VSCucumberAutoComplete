@@ -25,6 +25,24 @@ export function clearComments(text: string): string {
     return strip(text, { silent: true, preserveNewlines: true });
 }
 
+export function clearGherkinComments(text: string): string {
+    //Clear all the multiline comments between ''' and """
+    let commentsMode = false;
+    text = text
+        .split(/\r?\n/g)
+        .map(l => {
+            if (~l.search(/^\s*'''\s*/) || ~l.search(/^\s*"""\s*/)) {
+                commentsMode = !commentsMode;
+                return l;
+            } else {
+                return commentsMode ? '' : l;
+            }
+        })
+        .join('\r\n');
+    //Clear all the other comments
+    return strip(text, { silent: true, preserveNewlines: true });
+}
+
 export function getMD5Id(str: string): string {
     return md5(str);
 }

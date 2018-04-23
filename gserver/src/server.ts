@@ -22,7 +22,7 @@ import {
 import { format } from './format';
 import StepsHandler from './steps.handler';
 import PagesHandler from './pages.handler';
-import { getOSPath } from './util';
+import { getOSPath, clearGherkinComments } from './util';
 import * as glob from 'glob';
 import * as fs from 'fs';
 
@@ -81,7 +81,7 @@ function watchFiles(stepsPathes: string[]): void {
                     populateHandlers();
                     documents.all().forEach((document) => {
                         const text = document.getText();
-                        const diagnostics = validate(text);
+                        const diagnostics = validate(clearGherkinComments(text));
                         connection.sendDiagnostics({ uri: document.uri, diagnostics });
                     });
                 });
@@ -155,7 +155,7 @@ function validate(text: string): Diagnostic[] {
 documents.onDidChangeContent((change): void => {
     const changeText = change.document.getText();
     //Validate document
-    const diagnostics = validate(changeText);
+    const diagnostics = validate(clearGherkinComments(changeText));
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
 });
 
