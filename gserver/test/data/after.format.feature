@@ -19,8 +19,10 @@ Feature: Formatting feature
 		#Comment related to the next string
 		Given I prepare for something
 			"""
-			Some comment regarding prevous step
-			Separated into two lined
+    Some comment regarding prevous step
+    Separated into two lined
+        This line begins from several extra tabs
+    But this line not
 			"""
 
 

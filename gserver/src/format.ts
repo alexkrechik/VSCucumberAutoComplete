@@ -20,6 +20,7 @@ const FORMAT_CONF: FormatConf[] = [
     { text: 'But', type: 'num', indents: 2 },
     { text: '\\|', type: 'num', indents: 3 },
     { text: '"""', type: 'num', indents: 3 },
+    { text: '\'\'\'', type: 'num', indents: 3 },
     { text: '#', type: 'relative' },
     { text: '@', type: 'relative' },
 ];
@@ -29,18 +30,28 @@ function findFormat(line: string): FormatConf {
 }
 
 function correctIndents(text, indent) {
+    let commentsMode = false;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
+            //Return empty string if it contains from spaces only
             if (~line.search(/^\s*$/)) return '';
             //Remove spaces in the end of string
             line = line.replace(/\s*$/, '');
+            //Lines, that placed between comments, should not be formatted
+            if (~line.search(/^\s*'''\s*/) || ~line.search(/^\s*"""\s*/)) {
+                commentsMode = !commentsMode;
+            } else {
+                if (commentsMode === true) return line;
+            }
+            //Now we should find current line format
             const format = findFormat(line);
             let indentCount;
             if (format && format.type === 'num') {
                 indentCount = format.indents;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
+                // In future this behaviour could be reviewed
                 const nextLine = textArr.slice(i + 1).find(l => findFormat(l) && findFormat(l).type === 'num');
                 indentCount = nextLine ? findFormat(nextLine).indents : 0;
             }
