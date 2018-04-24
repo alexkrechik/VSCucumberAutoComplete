@@ -67,16 +67,16 @@ function formatTables(text) {
                 res.push({
                     line: i,
                     block: blockNum,
-        data: l.split(/\s*\|\s*/).reduceRight((accumulator, current, index, arr) => {
-          if (index > 0 && index < arr.length - 1) {
-            if (current.endsWith('\\')) {
-              accumulator[0] = current + '|' + accumulator[0];
-            } else {
-              accumulator.unshift(current);
-            }
-          }
-          return accumulator;
-        }, [])
+                    data: l.split(/\s*\|\s*/).reduceRight((accumulator, current, index, arr) => {
+                      if (index > 0 && index < arr.length - 1) {
+                        if (current.endsWith('\\')) {
+                          accumulator[0] = current + '|' + accumulator[0];
+                        } else {
+                          accumulator.unshift(current);
+                        }
+                      }
+                      return accumulator;
+                    }, [])
                 });
                 if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
                     blockNum++;
