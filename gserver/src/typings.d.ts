@@ -9,6 +9,12 @@ type CustomParameter = {
     value: string
 };
 
+type FormatConf = {
+    text: string,
+    type: string,
+    indents?: number,
+}
+
 interface Settings {
     cucumberautocomplete: {
         steps?: StepSettings,
@@ -17,6 +23,8 @@ interface Settings {
         strictGherkinCompletion?: boolean,
         smartSnippets?: boolean,
         stepsInvariants?: boolean,
-        customParameters?: CustomParameter[]
+        customParameters?: CustomParameter[],
+        skipDocStringsFormat?: boolean,
+        formatConf?: FormatConf[]
     }
 }

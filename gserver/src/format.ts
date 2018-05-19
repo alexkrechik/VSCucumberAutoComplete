@@ -20,29 +20,54 @@ const FORMAT_CONF: FormatConf[] = [
     { text: 'But', type: 'num', indents: 2 },
     { text: '\\|', type: 'num', indents: 3 },
     { text: '"""', type: 'num', indents: 3 },
+    { text: '\'\'\'', type: 'num', indents: 3 },
     { text: '#', type: 'relative' },
     { text: '@', type: 'relative' },
 ];
 
-function findFormat(line: string): FormatConf {
-    return FORMAT_CONF.find(conf => line.search(new RegExp(escapeRegExp('^\\s*' + conf.text))) > -1);
+function findFormat(line: string, settings: Settings): FormatConf {
+    const settingsFormatConf = settings.cucumberautocomplete.formatConf || [];
+    const fnFormatFinder = conf => !!~line.search(new RegExp(escapeRegExp('^\\s*' + conf.text)));
+    const settingsFormat = settingsFormatConf.find(fnFormatFinder);
+    //If settingsFormat find and correct - return it
+    if (settingsFormat && settingsFormat.type) {
+        if (settingsFormat.type === 'num' && settingsFormat.indents && typeof settingsFormat.indents === 'number') {
+            return settingsFormat;
+        }
+        if (settingsFormat.type === 'relative') {
+            return settingsFormat;
+        }
+    }
+    return FORMAT_CONF.find(fnFormatFinder);
 }
 
-function correctIndents(text, indent) {
+function correctIndents(text, indent, settings: Settings) {
+    let commentsMode = false;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
+            //Return empty string if it contains from spaces only
             if (~line.search(/^\s*$/)) return '';
             //Remove spaces in the end of string
             line = line.replace(/\s*$/, '');
-            const format = findFormat(line);
+            //Lines, that placed between comments, should not be formatted
+            if (settings.cucumberautocomplete.skipDocStringsFormat) {
+                if (~line.search(/^\s*'''\s*/) || ~line.search(/^\s*"""\s*/)) {
+                    commentsMode = !commentsMode;
+                } else {
+                    if (commentsMode === true) return line;
+                }
+            }
+            //Now we should find current line format
+            const format = findFormat(line, settings);
             let indentCount;
             if (format && format.type === 'num') {
                 indentCount = format.indents;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
-                const nextLine = textArr.slice(i + 1).find(l => findFormat(l) && findFormat(l).type === 'num');
-                indentCount = nextLine ? findFormat(nextLine).indents : 0;
+                // In future this behaviour could be reviewed
+                const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) && findFormat(l, settings).type === 'num');
+                indentCount = nextLine ? findFormat(nextLine, settings).indents : 0;
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
@@ -68,14 +93,14 @@ function formatTables(text) {
                     line: i,
                     block: blockNum,
                     data: l.split(/\s*\|\s*/).reduceRight((accumulator, current, index, arr) => {
-                      if (index > 0 && index < arr.length - 1) {
-                        if (current.endsWith('\\')) {
-                          accumulator[0] = current + '|' + accumulator[0];
-                        } else {
-                          accumulator.unshift(current);
+                        if (index > 0 && index < arr.length - 1) {
+                            if (current.endsWith('\\')) {
+                                accumulator[0] = current + '|' + accumulator[0];
+                            } else {
+                                accumulator.unshift(current);
+                            }
                         }
-                      }
-                      return accumulator;
+                        return accumulator;
                     }, [])
                 });
                 if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
@@ -108,10 +133,10 @@ function formatTables(text) {
     return textArr.join('\r\n');
 }
 
-export function format(indent: string, text: string): string {
+export function format(indent: string, text: string, settings: Settings): string {
 
     //Insert correct indents for all the lined differs from string start
-    text = correctIndents(text, indent);
+    text = correctIndents(text, indent, settings);
 
     //We should format all the tables present
     text = formatTables(text);
