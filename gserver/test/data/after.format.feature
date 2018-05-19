@@ -43,10 +43,11 @@ Feature: Formatting feature
 		And the protein should be <protein> kg
 
 		Examples:
-			| weight | energy   | protein |
-			| 450    | 26500    | 215     |
-			| 500    | 29500000 | 245     |
-			| 575    | 31500    | 255     |
-			| 600000 | 37000    | 305     |
+			| weight | energy        | protein |
+			| 450    | 26500         | 215     |
+			| 500    | 29500000      | 245     |
+			| 575    | 31500         | 255     |
+			| 600000 | 37000         | 305     |
+			| 345    | 340\|350\|360 | 100     |
 
 #Last string with comment
