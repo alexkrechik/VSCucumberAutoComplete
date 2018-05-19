@@ -32,7 +32,7 @@ Feature: Formatting feature
 		When I do something
 		And do another thing
 		Then I should have a valid result
-		But not an invalid result
+			But not an invalid result
 
 
 	Scenario Outline: feeding a suckler cow
