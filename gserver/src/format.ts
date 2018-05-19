@@ -26,7 +26,7 @@ const FORMAT_CONF: FormatConf[] = [
 ];
 
 function findFormat(line: string, settings: Settings): FormatConf {
-    const settingsFormatConf = settings.cucumberautocomplete.formatConf;
+    const settingsFormatConf = settings.cucumberautocomplete.formatConf || [];
     const fnFormatFinder = conf => !!~line.search(new RegExp(escapeRegExp('^\\s*' + conf.text)));
     const settingsFormat = settingsFormatConf.find(fnFormatFinder);
     //If settingsFormat find and correct - return it
