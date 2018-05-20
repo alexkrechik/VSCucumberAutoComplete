@@ -19,7 +19,7 @@ import {
     FormattingOptions,
     Location
 } from 'vscode-languageserver';
-import { format } from './format';
+import { format, clearText } from './format';
 import StepsHandler from './steps.handler';
 import PagesHandler from './pages.handler';
 import { getOSPath, clearGherkinComments } from './util';
@@ -184,7 +184,9 @@ connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] =
     const textArr = text.split(/\r?\n/g);
     const indent = getIndent(params.options);
     const range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
-    return [TextEdit.replace(range, format(indent, text, settings))];
+    const formattedText = format(indent, text, settings);
+    const clearedText = clearText(formattedText);
+    return [TextEdit.replace(range, clearedText)];
 });
 
 connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
@@ -194,7 +196,9 @@ connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): Te
     const indent = getIndent(params.options);
     const finalRange = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
     const finalText = textArr.splice(finalRange.start.line, finalRange.end.line - finalRange.start.line + 1).join('\r\n');
-    return [TextEdit.replace(finalRange, format(indent, finalText, settings))];
+    const formattedText = format(indent, finalText, settings);
+    const clearedText = clearText(formattedText);
+    return [TextEdit.replace(finalRange, clearedText)];
 });
 
 connection.listen();
