@@ -11,7 +11,7 @@ type CustomParameter = {
 
 type FormatConf = {
     [key: string]: number | 'relative'
-}
+};
 
 interface Settings {
     cucumberautocomplete: {
@@ -26,4 +26,4 @@ interface Settings {
         formatConfOverride?: FormatConf[],
         onTypeFormat?: boolean,
     }
-}
+};
