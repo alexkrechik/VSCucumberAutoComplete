@@ -23,6 +23,7 @@ interface Settings {
         stepsInvariants?: boolean,
         customParameters?: CustomParameter[],
         skipDocStringsFormat?: boolean,
-        formatConfOverride?: FormatConf[]
+        formatConfOverride?: FormatConf[],
+        onTypeFormat?: boolean,
     }
 }

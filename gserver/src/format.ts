@@ -35,8 +35,8 @@ function findFormat(line: string, settings: Settings): FormatConfVal | null {
     return settingsFormat || pesetFormat;
 }
 
-function correctIndents(text, indent, settings: Settings) {
-    let commentsMode = false;
+export function clearText(text: string) {
+    //Remove all the unnecessary spaces in the text
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -44,6 +44,17 @@ function correctIndents(text, indent, settings: Settings) {
             if (~line.search(/^\s*$/)) return '';
             //Remove spaces in the end of string
             line = line.replace(/\s*$/, '');
+            return line;
+        })
+        .join('\r\n');
+}
+
+function correctIndents(text, indent, settings: Settings) {
+    let commentsMode = false;
+    const defaultIndentation = 0;
+    return text
+        .split(/\r?\n/g)
+        .map((line, i, textArr) => {
             //Lines, that placed between comments, should not be formatted
             if (settings.cucumberautocomplete.skipDocStringsFormat) {
                 if (~line.search(/^\s*'''\s*/) || ~line.search(/^\s*"""\s*/)) {
@@ -55,13 +66,19 @@ function correctIndents(text, indent, settings: Settings) {
             //Now we should find current line format
             const format = findFormat(line, settings);
             let indentCount;
-            if (typeof format === 'number') {
+            if (~line.search(/^\s*$/)) { indentCount = 0; }
+            else if (typeof format === 'number') {
                 indentCount = format;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
                 const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) !== null);
-                indentCount = nextLine ? findFormat(nextLine, settings) || 0 : 0;
+                if (nextLine) {
+                    const nextLineFormat = findFormat(nextLine, settings);
+                    indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
+                } else {
+                    indentCount = defaultIndentation;
+                }
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
