@@ -36,6 +36,7 @@ function findFormat(line: string, settings: Settings): FormatConfVal | null {
 }
 
 export function clearText(text: string) {
+    //Remove all the unnecessary spaces in the text
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -50,6 +51,7 @@ export function clearText(text: string) {
 
 function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
+    const defaultIndentation = 0;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -71,7 +73,12 @@ function correctIndents(text, indent, settings: Settings) {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
                 const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) !== null);
-                indentCount = nextLine ? findFormat(nextLine, settings) || 0 : 0;
+                if (nextLine) {
+                    const nextLineFormat = findFormat(nextLine, settings);
+                    indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
+                } else {
+                    indentCount = defaultIndentation;
+                }
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
