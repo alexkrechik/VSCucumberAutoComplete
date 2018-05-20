@@ -50,7 +50,11 @@ connection.onInitialize((params): InitializeResult => {
             },
             definitionProvider: true,
             documentFormattingProvider: true,
-            documentRangeFormattingProvider: true
+            documentRangeFormattingProvider: true,
+            documentOnTypeFormattingProvider: {
+                firstTriggerCharacter: ' ',
+                moreTriggerCharacter: ['@', '#', ':']
+            }
         }
     };
 });
@@ -199,6 +203,19 @@ connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): Te
     const formattedText = format(indent, finalText, settings);
     const clearedText = clearText(formattedText);
     return [TextEdit.replace(finalRange, clearedText)];
+});
+
+connection.onDocumentOnTypeFormatting((params: DocumentFormattingParams): TextEdit[] => {
+    if (settings.cucumberautocomplete.onTypeFormat === true) {
+        const text = documents.get(params.textDocument.uri).getText();
+        const textArr = text.split(/\r?\n/g);
+        const indent = getIndent(params.options);
+        const range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+        const formattedText = format(indent, text, settings);
+        return [TextEdit.replace(range, formattedText)];
+    } else {
+        return [];
+    };
 });
 
 connection.listen();
