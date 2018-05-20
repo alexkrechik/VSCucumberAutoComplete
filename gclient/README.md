@@ -66,9 +66,9 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
     "cucumberautocomplete.skipDocStringsFormat": true,
     "cucucumberautocomplete.formatConfOverride": {
         "And": 3,
-        "But": 3,
-        "\|": "relative"
-    }
+        "But": "relative",
+    },
+    "cucumberautocomplete.onTypeFormat": true,
     "editor.quickSuggestions": {
         "comments": false,
         "strings": true,

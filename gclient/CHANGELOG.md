@@ -1,3 +1,8 @@
+## 2.11.0/2018-05-20
+* Many formatting fixes/improvements (please look at the skipDocStringsFormat, formatConfOverride and onTypeFormat options).
+* Some other small fixes.
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.11.0)
+
 ## 2.10.0/2018-04-23
 * Added an ability to define steps using "Step" word
 * Disable validation for commented parts of feature files
