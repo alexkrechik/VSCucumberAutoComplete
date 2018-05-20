@@ -10,9 +10,7 @@ type CustomParameter = {
 };
 
 type FormatConf = {
-    text: string,
-    type: string,
-    indents?: number,
+    [key: string]: number | 'relative'
 }
 
 interface Settings {
@@ -25,6 +23,6 @@ interface Settings {
         stepsInvariants?: boolean,
         customParameters?: CustomParameter[],
         skipDocStringsFormat?: boolean,
-        formatConf?: FormatConf[]
+        formatConfOverride?: FormatConf[]
     }
 }

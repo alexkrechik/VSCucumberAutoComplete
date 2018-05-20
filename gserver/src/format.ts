@@ -1,44 +1,38 @@
 import { Range } from 'vscode-languageserver';
 import { escapeRegExp } from './util';
 
+type FormatConfVal = number | 'relative';
+
 interface FormatConf {
-    text: string,
-    type: string,
-    indents?: number
+    [key: string]: FormatConfVal
 }
 
-const FORMAT_CONF: FormatConf[] = [
-    { text: 'Feature:', type: 'num', indents: 0 },
-    { text: 'Scenario:', type: 'num', indents: 1 },
-    { text: 'Background:', type: 'num', indents: 1 },
-    { text: 'Scenario Outline:', type: 'num', indents: 1 },
-    { text: 'Examples:', type: 'num', indents: 2 },
-    { text: 'Given', type: 'num', indents: 2 },
-    { text: 'When', type: 'num', indents: 2 },
-    { text: 'Then', type: 'num', indents: 2 },
-    { text: 'And', type: 'num', indents: 2 },
-    { text: 'But', type: 'num', indents: 2 },
-    { text: '\\|', type: 'num', indents: 3 },
-    { text: '"""', type: 'num', indents: 3 },
-    { text: '\'\'\'', type: 'num', indents: 3 },
-    { text: '#', type: 'relative' },
-    { text: '@', type: 'relative' },
-];
+const FORMAT_CONF: FormatConf = {
+    'Feature:': 0,
+    'Scenario:': 1,
+    'Background:': 1,
+    'Scenario Outline:': 1,
+    'Examples:': 2,
+    'Given': 2,
+    'When': 2,
+    'Then': 2,
+    'And': 2,
+    'But': 2,
+    '\\|': 3,
+    '"""': 3,
+    '#': 'relative',
+    '@': 'relative',
+};
 
-function findFormat(line: string, settings: Settings): FormatConf {
-    const settingsFormatConf = settings.cucumberautocomplete.formatConf || [];
-    const fnFormatFinder = conf => !!~line.search(new RegExp(escapeRegExp('^\\s*' + conf.text)));
-    const settingsFormat = settingsFormatConf.find(fnFormatFinder);
-    //If settingsFormat find and correct - return it
-    if (settingsFormat && settingsFormat.type) {
-        if (settingsFormat.type === 'num' && settingsFormat.indents && typeof settingsFormat.indents === 'number') {
-            return settingsFormat;
-        }
-        if (settingsFormat.type === 'relative') {
-            return settingsFormat;
-        }
-    }
-    return FORMAT_CONF.find(fnFormatFinder);
+function findFormat(line: string, settings: Settings): FormatConfVal | null {
+    const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
+    const fnFormatFinder = (conf: FormatConf) => {
+        const key = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
+        return key ? conf[key] : null;
+    };
+    const settingsFormat = fnFormatFinder(settingsFormatConf);
+    const pesetFormat = fnFormatFinder(FORMAT_CONF);
+    return settingsFormat || pesetFormat;
 }
 
 function correctIndents(text, indent, settings: Settings) {
@@ -61,13 +55,13 @@ function correctIndents(text, indent, settings: Settings) {
             //Now we should find current line format
             const format = findFormat(line, settings);
             let indentCount;
-            if (format && format.type === 'num') {
-                indentCount = format.indents;
+            if (typeof format === 'number') {
+                indentCount = format;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) && findFormat(l, settings).type === 'num');
-                indentCount = nextLine ? findFormat(nextLine, settings).indents : 0;
+                const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) !== null);
+                indentCount = nextLine ? findFormat(nextLine, settings) || 0 : 0;
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })

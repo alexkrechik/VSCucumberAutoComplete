@@ -116,11 +116,11 @@
                     "required": false,
                     "default": false
                 },
-                "cucucumberautocomplete.formatConf": {
-                    "description": "Override some formatting via format conf strings = {text: first word in string, type: relative (to the next string) or num, indents - number of indents if type = num}",
-                    "type": "array",
+                "cucucumberautocomplete.formatConfOverride": {
+                    "description": "Override some formatting via format conf strings = {[key: String]: num | 'relative'}, where key - beggining of the string, num - numeric value of indents",
+                    "type": "object",
                     "required": false,
-                    "default": []
+                    "default": {}
                 }           
             }
         }

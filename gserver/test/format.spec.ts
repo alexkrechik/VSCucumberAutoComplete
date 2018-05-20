@@ -5,11 +5,11 @@ import { expect } from 'chai';
 const settings: any = {
     cucumberautocomplete: {
         skipDocStringsFormat: true,
-        formatConf: [
-            { text: 'But', type: 'num', indents: 3 },
-            { text: 'And', type: 'num', indents: 'aaa' },
-            { text: 'When' },
-        ]
+        formatConfOverride: {
+            'But': 3,
+            'And': 'asdasd',
+            'SomeTestKey': 12,
+        }
     }
 };
 
