@@ -26,4 +26,4 @@ interface Settings {
         formatConfOverride?: FormatConf[],
         onTypeFormat?: boolean,
     }
-};
+}
