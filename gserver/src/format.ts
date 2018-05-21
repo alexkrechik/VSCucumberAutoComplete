@@ -49,7 +49,7 @@ export function clearText(text: string) {
         .join('\r\n');
 }
 
-function correctIndents(text, indent, settings: Settings) {
+export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
     return text
@@ -72,7 +72,7 @@ function correctIndents(text, indent, settings: Settings) {
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => findFormat(l, settings) !== null);
+                const nextLine = textArr.slice(i + 1).find(l => typeof findFormat(l, settings) === 'number');
                 if (nextLine) {
                     const nextLineFormat = findFormat(nextLine, settings);
                     indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
