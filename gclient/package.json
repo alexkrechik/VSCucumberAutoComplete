@@ -102,13 +102,13 @@
                     "required": false,
                     "default": []
                 },
-                "cucucumberautocomplete.skipDocStringsFormat": {
+                "cucumberautocomplete.skipDocStringsFormat": {
                     "description": "Skip format of strings, that placed between ''' or \"\"\" strings",
                     "type": "boolean",
                     "required": false,
                     "default": false
                 },
-                "cucucumberautocomplete.formatConfOverride": {
+                "cucumberautocomplete.formatConfOverride": {
                     "description": "Override some formatting via format conf strings = {[key: String]: num | 'relative'}, where key - beggining of the string, num - numeric value of indents",
                     "type": "object",
                     "required": false,
