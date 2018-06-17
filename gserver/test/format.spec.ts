@@ -9,6 +9,7 @@ const settings: any = {
             'But': 3,
             'And': 'asdasd',
             'SomeTestKey': 12,
+            'Scenario Outline': 0,
         }
     }
 };
