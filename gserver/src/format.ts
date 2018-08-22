@@ -32,7 +32,7 @@ function findFormat(line: string, settings: Settings): FormatConfVal | null {
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
     const pesetFormat = fnFormatFinder(FORMAT_CONF);
-    return settingsFormat || pesetFormat;
+    return (settingsFormat === null) ? pesetFormat : settingsFormat;
 }
 
 export function clearText(text: string) {
