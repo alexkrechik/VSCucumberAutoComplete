@@ -20,6 +20,7 @@
     "main": "./out/src/extension",
     "activationEvents": [
         "onLanguage:feature",
+        "onLanguage:testcase",
         "workspaceContains:.vscode/settings.json"
     ],
     "author": "Alexander Krechik",
@@ -35,7 +36,8 @@
                     "cucumber"
                 ],
                 "extensions": [
-                    ".feature"
+                    ".feature",
+                    ".testcase"
                 ],
                 "configuration": "./language-configuration.json"
             }
