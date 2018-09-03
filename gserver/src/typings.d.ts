@@ -5,7 +5,7 @@ type PagesSettings = {
 };
 
 type CustomParameter = {
-    parameter: string,
+    parameter: string | RegExp,
     value: string
 };
 

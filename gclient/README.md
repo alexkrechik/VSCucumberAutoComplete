@@ -56,7 +56,11 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
         {
             "parameter":"{ab}",
             "value":"(a|b)"
-        }
+        },
+        {
+            "parameter":/\{a.*\}/,
+            "value":"a"
+        },
     ],
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
