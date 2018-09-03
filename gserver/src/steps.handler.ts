@@ -423,7 +423,7 @@ export default class StepsHandler {
         }
     }
 
-    getDefinition(line: string, char: number): Definition | null {
+    getDefinition(line: string): Definition | null {
         const match = this.getGherkinMatch(line);
         if (!match) {
             return null;
@@ -432,7 +432,7 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
-    getCompletion(line: string, position: Position): CompletionItem[] | null {
+    getCompletion(line: string): CompletionItem[] | null {
         //Get line part without gherkin part
         const match = this.getGherkinMatch(line);
         if (!match) {

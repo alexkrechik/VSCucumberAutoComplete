@@ -129,7 +129,7 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
         return pagesHandler.getCompletion(line, position.position);
     }
     if (handleSteps() && stepsHandler) {
-        return stepsHandler.getCompletion(line, position.position);
+        return stepsHandler.getCompletion(line);
     }
 });
 
@@ -173,7 +173,7 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
         return pagesHandler.getDefinition(line, char);
     }
     if (handleSteps() && stepsHandler) {
-        return stepsHandler.getDefinition(line, char);
+        return stepsHandler.getDefinition(line);
     }
     return Location.create(uri, Range.create(pos, pos));
 });

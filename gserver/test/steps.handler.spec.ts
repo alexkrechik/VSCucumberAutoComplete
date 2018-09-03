@@ -257,42 +257,42 @@ describe('validate', () => {
 
 describe('getDefinition', () => {
     it('should return correct definition for any gherkin position', () => {
-        const definition0 = s.getDefinition('When I do something', 0);
-        const definition21 = s.getDefinition('When I do something', 21);
+        const definition0 = s.getDefinition('When I do something');
+        const definition21 = s.getDefinition('When I do something');
         expect(definition0).to.not.be.null;
         expect(definition21).to.not.be.null;
     });
     it('should not return definition for missing step', () => {
-        const definition = s.getDefinition('When I do something else', 0);
+        const definition = s.getDefinition('When I do something else');
         expect(definition).to.be.null;
     });
     it('should correctly handle spaces at the line beginning', () => {
-        const definition = s.getDefinition('   When I do something', 0);
+        const definition = s.getDefinition('   When I do something');
         expect(definition).to.not.be.null;
     });
 });
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
+        const completion = s.getCompletion(' When I do');
         expect(completion).to.have.length(5);
     });
     it('should correctly filter completion', () => {
-        const completion = s.getCompletion(' When I do another th', { character: 14, line: 2 });
+        const completion = s.getCompletion(' When I do another th');
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('I do another thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        const completion = s.getCompletion('I do another th', { character: 14, line: 2 });
+        const completion = s.getCompletion('I do another th');
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        const completion = s.getCompletion('When non-existent step', { character: 14, line: 2 });
+        const completion = s.getCompletion('When non-existent step');
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        const completion = s.getCompletion(' When I do', { character: 10, line: 2 });
+        const completion = s.getCompletion(' When I do');
         expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
     });
