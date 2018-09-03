@@ -22,7 +22,7 @@ const settings = {
 
 const s = new StepsHandler(__dirname, settings);
 
-describe('getMatch', () => {
+describe('geStepDefinitionMatch', () => {
     describe('gherkin strings types', () => {
         const strings = [
             `Given(/I do something/, function(){);`,
@@ -34,7 +34,7 @@ describe('getMatch', () => {
         ];
         strings.forEach(str => {
             it(`should parse "${str}" step string`, () => {
-                const match = s.getMatch(str);
+                const match = s.geStepDefinitionMatch(str);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equal('I do something');
             });
@@ -54,7 +54,7 @@ describe('getMatch', () => {
         ];
         gherkinWords.forEach(g => {
             it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
-                const match = s.getMatch(`${g}(/I do something/, function(){);`);
+                const match = s.geStepDefinitionMatch(`${g}(/I do something/, function(){);`);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equal('I do something');
             });
@@ -70,7 +70,7 @@ describe('getMatch', () => {
         ];
         nonStandardStrings.forEach(str => {
             it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
-                const match = s.getMatch(str[0]);
+                const match = s.geStepDefinitionMatch(str[0]);
                 expect(match).to.not.be.null;
                 expect(match[4]).to.be.equals(str[1]);
             });
@@ -85,7 +85,7 @@ describe('getMatch', () => {
         ];
         inbvalidStrings.forEach(str => {
             it(`should not parse "${str}" string`, () => {
-                const match = s.getMatch(str);
+                const match = s.geStepDefinitionMatch(str);
                 expect(match).to.be.null;
             });
         });
@@ -94,7 +94,7 @@ describe('getMatch', () => {
     describe('gherkin words in the middle of lines', () => {
         const line = 'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
         const match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
-        expect(s.getMatch(line)[4]).to.be.equals(match);
+        expect(s.geStepDefinitionMatch(line)[4]).to.be.equals(match);
     });
 });
 

@@ -75,7 +75,7 @@ export default class StepsHandler {
         files.forEach(f => {
             const text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
-                const match = line.match(this.getGherkinRegEx());
+                const match = this.getGherkinMatch(line);
                 if (match) {
                     const step = this.getStepByText(match[4]);
                     if (step) {
@@ -128,8 +128,12 @@ export default class StepsHandler {
 
     }
 
-    getMatch(line: string): RegExpMatchArray {
+    geStepDefinitionMatch(line: string): RegExpMatchArray {
         return line.match(this.getStepRegExp());
+    }
+
+    getGherkinMatch(line: string): RegExpMatchArray {
+        return line.match(this.getGherkinRegEx());
     }
 
     handleCustomParameters(step: string): string {
@@ -335,15 +339,15 @@ export default class StepsHandler {
             let match;
             let finalLine;
             const currLine = this.handleCustomParameters(line);
-            const currentMatch = this.getMatch(currLine);
+            const currentMatch = this.geStepDefinitionMatch(currLine);
             //Add next line to our string to handle two-lines step definitions
             const nextLine = this.handleCustomParameters(lines[lineIndex + 1]);
             if (currentMatch) {
                 match = currentMatch;
                 finalLine = currLine;
             } else if (nextLine) {
-                const nextLineMatch = this.getMatch(nextLine);
-                const bothLinesMatch = this.getMatch(currLine + nextLine);
+                const nextLineMatch = this.geStepDefinitionMatch(nextLine);
+                const bothLinesMatch = this.geStepDefinitionMatch(currLine + nextLine);
                 if ( bothLinesMatch && !nextLineMatch) {
                     match = bothLinesMatch;
                     finalLine = currLine + nextLine;
@@ -398,7 +402,7 @@ export default class StepsHandler {
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
         const lineForError = line.replace(/^\s*/, '');
-        const match = line.match(this.getGherkinRegEx());
+        const match = this.getGherkinMatch(line);
         if (!match) {
             return null;
         }
@@ -420,7 +424,7 @@ export default class StepsHandler {
     }
 
     getDefinition(line: string, char: number): Definition | null {
-        const match = line.match(this.getGherkinRegEx());
+        const match = this.getGherkinMatch(line);
         if (!match) {
             return null;
         }
@@ -430,7 +434,7 @@ export default class StepsHandler {
 
     getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
-        const match = line.match(this.getGherkinRegEx());
+        const match = this.getGherkinMatch(line);
         if (!match) {
             return null;
         }
