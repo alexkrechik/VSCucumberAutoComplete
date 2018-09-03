@@ -99,7 +99,7 @@
                     "default": false
                 },
                 "cucumberautocomplete.customParameters": {
-                    "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs",
+                    "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs. Parameter could be string or RegEx object",
                     "type": "array",
                     "required": false,
                     "default": []

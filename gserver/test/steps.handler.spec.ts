@@ -11,6 +11,10 @@ const settings = {
             {
                 parameter: '${dictionaryObject}',
                 value: '([a-zA-Z0-9_-]+ dictionary|"[^"]*")'
+            },
+            {
+                parameter: /\{a.*\}/,
+                value: 'aa'
             }
         ]
     }
@@ -119,7 +123,9 @@ describe('handleCustomParameters', () => {
     it('should correctly change cucumber parameters', () => {
         const data = [
             ['I use ${dictionaryObject} and ${dictionaryObject}',
-            'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")']
+            'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")'],
+            ['I use {aTest} parameter', 'I use aa parameter'],
+            ['I use {bTest} parameter', 'I use {bTest} parameter'],
         ];
         data.forEach(d => {
             expect(s.handleCustomParameters(d[0])).to.be.equal(d[1]);
