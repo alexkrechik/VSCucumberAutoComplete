@@ -151,9 +151,9 @@
     <key>strings_double_quote</key>
     <dict>
       <key>begin</key>
-      <string>(?&lt;![a-zA-Z'])"</string>
+      <string>(?&lt;![a-zA-Z0-9'])"</string>
       <key>end</key>
-      <string>"(?![a-zA-Z'])</string>
+      <string>"(?![a-zA-Z0-9'])</string>
       <key>name</key>
       <string>string.quoted.double</string>
       <key>patterns</key>
@@ -169,9 +169,9 @@
     <key>strings_single_quote</key>
     <dict>
       <key>begin</key>
-      <string>(?&lt;![a-zA-Z"])'</string>
+      <string>(?&lt;![a-zA-Z0-9"])'</string>
       <key>end</key>
-      <string>'(?![a-zA-Z"])</string>
+      <string>'(?![a-zA-Z0-9"])</string>
       <key>name</key>
       <string>string.quoted.single</string>
       <key>patterns</key>
