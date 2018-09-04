@@ -8,6 +8,7 @@ const settings = {
         syncfeatures: '/data/test.feature',
         smartSnippets: true,
         stepsInvariants: true,
+        strictGherkinCompletion: true,
         customParameters: [
             {
                 parameter: '${dictionaryObject}',
@@ -281,27 +282,36 @@ describe('getDefinition', () => {
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        const completion = s.getCompletion(' When I do', '');
+        const completion = s.getCompletion(' When I do', 1, '');
         expect(completion).to.have.length(6);
     });
     it('should correctly filter completion', () => {
-        const completion = s.getCompletion(' When I do another th', '');
+        const completion = s.getCompletion(' When I do another th', 1, '');
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('I do another thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        const completion = s.getCompletion('I do another th', '');
+        const completion = s.getCompletion('I do another th', 1, '');
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        const completion = s.getCompletion('When non-existent step', '');
+        const completion = s.getCompletion('When non-existent step', 1, '');
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        const completion = s.getCompletion(' When I do', '');
+        const completion = s.getCompletion(' When I do', 1, '');
         expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
+    });
+    it ('should return proper text in case of strict gherkin option', () => {
+        const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+        expect(s.getCompletion(' Given I do', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' When I do', 1, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' Then I do', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I do', 0, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I do', 2, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' And I do', 4, strictGherkinFeature)).to.be.null;
     });
 });
 

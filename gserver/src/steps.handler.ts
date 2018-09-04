@@ -466,7 +466,7 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
-    getCompletion(line: string, text: string): CompletionItem[] | null {
+    getCompletion(line: string, lineNumber: number, text: string): CompletionItem[] | null {
         //Get line part without gherkin part
         const match = this.getGherkinMatch(line, text);
         if (!match) {
@@ -477,7 +477,31 @@ export default class StepsHandler {
         stepPart = stepPart.replace(/[^\s]+$/, '');
         const res = this.elements
             //Filter via gherkin words comparing if strictGherkinCompletion option provided
-            .filter((step) => this.settings.cucumberautocomplete.strictGherkinCompletion ? step.gherkin === gherkinPart : true)
+            .filter((step) => {
+                if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
+                    //We should find previous Gherkin word in case of 'And' word
+                    if (gherkinPart === 'And') {
+                        //TODO - use all the 'And' and 'Given', 'When', 'Then' available words analogs
+                        const prevGherkinWord = text
+                            .split(/\r?\n/g)
+                            .slice(0, lineNumber)
+                            .reduceRight((res, val) => {
+                                if (!res) {
+                                    const [, , prevGherkinPart] = this.getGherkinMatch(val, text);
+                                    if (~['Given', 'When', 'Then'].indexOf(prevGherkinPart)) {
+                                        res = prevGherkinPart;
+                                    }
+                                }
+                                return res;
+                            }, '');
+                        return prevGherkinWord ? step.gherkin === prevGherkinWord : false;
+                    } else {
+                        return step.gherkin === gherkinPart;
+                    }
+                } else {
+                    return true;
+                };
+            })
             //Current string without last word should partially match our regexp
             .filter((step) => step.partialReg.test(stepPart))
             //We got all the steps we need so we could make completions from them

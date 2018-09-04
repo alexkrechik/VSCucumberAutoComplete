@@ -129,7 +129,7 @@ connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[]
         return pagesHandler.getCompletion(line, position.position);
     }
     if (handleSteps() && stepsHandler) {
-        return stepsHandler.getCompletion(line, text);
+        return stepsHandler.getCompletion(line, position.position.line, text);
     }
 });
 
