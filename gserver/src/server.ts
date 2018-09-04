@@ -122,14 +122,14 @@ documents.onDidOpen(() => {
 });
 
 connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
-    const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
-    const line = text[position.position.line];
+    const text = documents.get(position.textDocument.uri).getText();
+    const line = text.split(/\r?\n/g)[position.position.line];
     const char = position.position.character;
     if (pagesPosition(line, char) && pagesHandler) {
         return pagesHandler.getCompletion(line, position.position);
     }
     if (handleSteps() && stepsHandler) {
-        return stepsHandler.getCompletion(line);
+        return stepsHandler.getCompletion(line, text);
     }
 });
 
@@ -146,7 +146,7 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 function validate(text: string): Diagnostic[] {
     return text.split(/\r?\n/g).reduce((res, line, i) => {
         let diagnostic;
-        if (handleSteps() && stepsHandler && (diagnostic = stepsHandler.validate(line, i))) {
+        if (handleSteps() && stepsHandler && (diagnostic = stepsHandler.validate(line, i, text))) {
             res.push(diagnostic);
         } else if (handlePages() && pagesHandler) {
             const pagesDiagnosticArr = pagesHandler.validate(line, i);
@@ -164,8 +164,8 @@ documents.onDidChangeContent((change): void => {
 });
 
 connection.onDefinition((position: TextDocumentPositionParams): Definition => {
-    const text = documents.get(position.textDocument.uri).getText().split(/\r?\n/g);
-    const line = text[position.position.line];
+    const text = documents.get(position.textDocument.uri).getText();
+    const line = text.split(/\r?\n/g)[position.position.line];
     const char = position.position.character;
     const pos = position.position;
     const { uri } = position.textDocument;
@@ -173,7 +173,7 @@ connection.onDefinition((position: TextDocumentPositionParams): Definition => {
         return pagesHandler.getDefinition(line, char);
     }
     if (handleSteps() && stepsHandler) {
-        return stepsHandler.getDefinition(line);
+        return stepsHandler.getDefinition(line, text);
     }
     return Location.create(uri, Range.create(pos, pos));
 });
