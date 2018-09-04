@@ -281,25 +281,25 @@ describe('getDefinition', () => {
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        const completion = s.getCompletion(' When I do', '');
+        const completion = s.getCompletion(' When I do', 1, '');
         expect(completion).to.have.length(6);
     });
     it('should correctly filter completion', () => {
-        const completion = s.getCompletion(' When I do another th', '');
+        const completion = s.getCompletion(' When I do another th', 1, '');
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('I do another thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        const completion = s.getCompletion('I do another th', '');
+        const completion = s.getCompletion('I do another th', 1, '');
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        const completion = s.getCompletion('When non-existent step', '');
+        const completion = s.getCompletion('When non-existent step', 1, '');
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        const completion = s.getCompletion(' When I do', '');
+        const completion = s.getCompletion(' When I do', 1, '');
         expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
     });
