@@ -8,6 +8,7 @@ const settings = {
         syncfeatures: '/data/test.feature',
         smartSnippets: true,
         stepsInvariants: true,
+        strictGherkinCompletion: true,
         customParameters: [
             {
                 parameter: '${dictionaryObject}',
@@ -302,6 +303,15 @@ describe('getCompletion', () => {
         const completion = s.getCompletion(' When I do', 1, '');
         expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
+    });
+    it ('should return proper text in case of strict gherkin option', () => {
+        const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+        expect(s.getCompletion(' Given I do', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' When I do', 1, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' Then I do', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I do', 0, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I do', 2, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' And I do', 4, strictGherkinFeature)).to.be.null;
     });
 });
 
