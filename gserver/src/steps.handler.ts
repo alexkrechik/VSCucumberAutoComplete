@@ -21,7 +21,6 @@ import {
 } from 'vscode-languageserver';
 
 import * as glob from 'glob';
-import { settings } from 'cluster';
 
 export type Step = {
     id: string,
@@ -75,7 +74,7 @@ export default class StepsHandler {
         files.forEach(f => {
             const text = getFileContent(f);
             text.split(/\r?\n/g).forEach(line => {
-                const match = line.match(this.getGherkinRegEx());
+                const match = this.getGherkinMatch(line, text);
                 if (match) {
                     const step = this.getStepByText(match[4]);
                     if (step) {
@@ -128,8 +127,47 @@ export default class StepsHandler {
 
     }
 
-    getMatch(line: string): RegExpMatchArray {
+    geStepDefinitionMatch(line: string): RegExpMatchArray {
         return line.match(this.getStepRegExp());
+    }
+
+    getOutlineVars(text: string) {
+        return text.split(/\r?\n/g).reduce((res, a, i, arr) => {
+            if (a.match(/^\s*Examples:\s*$/) && arr[i + 2]) {
+                const names = arr[i + 1].split(/\s*\|\s*/).slice(1, -1);
+                const values = arr[i + 2].split(/\s*\|\s*/).slice(1, -1);
+                names.forEach((n, i) => {
+                    if (values[i]) {
+                        res[n] = values[i];
+                    }
+                });
+            }
+            return res;
+        }, {});
+    }
+
+    getGherkinMatch(line: string, document: string): RegExpMatchArray {
+        const outlineMatch = line.match(/<.*?>/g);
+        if (outlineMatch) {
+            const outlineVars = this.getOutlineVars(document);
+            //We should support both outlines lines variants - with and without quotes
+            const pureLine = outlineMatch.map(s => s.replace(/<|>/g, '')).reduce((resLine, key) => {
+                if (outlineVars[key]) {
+                    resLine = resLine.replace(`<${key}>`, outlineVars[key]);
+                }
+                return resLine;
+            }, line);
+            const quotesLine = outlineMatch.map(s => s.replace(/<|>/g, '')).reduce((resLine, key) => {
+                if (outlineVars[key]) {
+                    resLine = resLine.replace(`<${key}>`, `"${outlineVars[key]}"`);
+                }
+                return resLine;
+            }, line);
+            const pureMatch = pureLine.match(this.getGherkinRegEx());
+            const quotesMatch = quotesLine.match(this.getGherkinRegEx());
+            return this.getStepByText(quotesMatch[4]) ? quotesMatch : pureMatch;
+        }
+        return line.match(this.getGherkinRegEx());
     }
 
     handleCustomParameters(step: string): string {
@@ -335,15 +373,15 @@ export default class StepsHandler {
             let match;
             let finalLine;
             const currLine = this.handleCustomParameters(line);
-            const currentMatch = this.getMatch(currLine);
+            const currentMatch = this.geStepDefinitionMatch(currLine);
             //Add next line to our string to handle two-lines step definitions
             const nextLine = this.handleCustomParameters(lines[lineIndex + 1]);
             if (currentMatch) {
                 match = currentMatch;
                 finalLine = currLine;
             } else if (nextLine) {
-                const nextLineMatch = this.getMatch(nextLine);
-                const bothLinesMatch = this.getMatch(currLine + nextLine);
+                const nextLineMatch = this.geStepDefinitionMatch(nextLine);
+                const bothLinesMatch = this.geStepDefinitionMatch(currLine + nextLine);
                 if ( bothLinesMatch && !nextLineMatch) {
                     match = bothLinesMatch;
                     finalLine = currLine + nextLine;
@@ -395,10 +433,10 @@ export default class StepsHandler {
         return this.elements.find(s => s.reg.test(text));
     }
 
-    validate(line: string, lineNum: number): Diagnostic | null {
+    validate(line: string, lineNum: number, text: string): Diagnostic | null {
         line = line.replace(/\s*$/, '');
         const lineForError = line.replace(/^\s*/, '');
-        const match = line.match(this.getGherkinRegEx());
+        const match = this.getGherkinMatch(line, text);
         if (!match) {
             return null;
         }
@@ -419,8 +457,8 @@ export default class StepsHandler {
         }
     }
 
-    getDefinition(line: string, char: number): Definition | null {
-        const match = line.match(this.getGherkinRegEx());
+    getDefinition(line: string, text: string): Definition | null {
+        const match = this.getGherkinMatch(line, text);
         if (!match) {
             return null;
         }
@@ -428,9 +466,9 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
-    getCompletion(line: string, position: Position): CompletionItem[] | null {
+    getCompletion(line: string, text: string): CompletionItem[] | null {
         //Get line part without gherkin part
-        const match = line.match(this.getGherkinRegEx());
+        const match = this.getGherkinMatch(line, text);
         if (!match) {
             return null;
         }
