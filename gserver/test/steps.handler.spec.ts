@@ -1,5 +1,6 @@
 import StepsHandler from '../src/steps.handler';
 import { expect } from 'chai';
+import { getFileContent } from '../src/util';
 
 const settings = {
     cucumberautocomplete: {
@@ -175,7 +176,7 @@ describe('getPartialRegParts', () => {
 describe('constructor', () => {
     const e = s.getElements();
     it('should fill all the elements', () => {
-        expect(e).to.have.length(5);
+        expect(e).to.have.length(6);
     });
     it('should correctly fill used steps counts', () => {
         expect(e[0]).to.have.property('count', 2);
@@ -202,7 +203,7 @@ describe('constructor', () => {
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
-        expect(s.getElements()).to.have.length(5);
+        expect(s.getElements()).to.have.length(6);
     });
     it('should correctly recreate elements with their count using', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
@@ -229,70 +230,76 @@ describe('validateConfiguration', () => {
 
 describe('validate', () => {
     it('should not return diagnostic for correct lines', () => {
-        expect(s.validate('When I do something', 1)).to.be.null;
-        expect(s.validate('    When I do something', 1)).to.be.null;
-        expect(s.validate('When I do another thing', 1)).to.be.null;
-        expect(s.validate('When I do something  ', 1)).to.be.null;
-        expect(s.validate('When  I do something  ', 1)).to.be.null;
+        expect(s.validate('When I do something', 1, '')).to.be.null;
+        expect(s.validate('    When I do something', 1, '')).to.be.null;
+        expect(s.validate('When I do another thing', 1, '')).to.be.null;
+        expect(s.validate('When I do something  ', 1, '')).to.be.null;
+        expect(s.validate('When  I do something  ', 1, '')).to.be.null;
     });
     it('should not check non-Gherkin steps', () => {
-        expect(s.validate('Non_gherkin_word do something else', 1)).to.be.null;
+        expect(s.validate('Non_gherkin_word do something else', 1, '')).to.be.null;
     });
     it('should return an diagnostic for lines beggining with Given', () => {
-        expect(s.validate('Given I do something else', 1)).to.not.be.null;
+        expect(s.validate('Given I do something else', 1, '')).to.not.be.null;
     });
     it('should return an diagnostic for lines beggining with When', () => {
-        expect(s.validate('When I do something else', 1)).to.not.be.null;
+        expect(s.validate('When I do something else', 1, '')).to.not.be.null;
     });
     it('should return an diagnostic for lines beggining with Then', () => {
-        expect(s.validate('Then I do something else', 1)).to.not.be.null;
+        expect(s.validate('Then I do something else', 1, '')).to.not.be.null;
     });
     it('should return an diagnostic for lines beggining with And', () => {
-        expect(s.validate('And I do something else', 1)).to.not.be.null;
+        expect(s.validate('And I do something else', 1, '')).to.not.be.null;
     });
     it('should return an diagnostic for lines beggining with But', () => {
-        expect(s.validate('But I do something else', 1)).to.not.be.null;
+        expect(s.validate('But I do something else', 1, '')).to.not.be.null;
+    });
+    it('should correctly handle outline steps', () => {
+        const outlineFeature = getFileContent(__dirname + '/data/outlines.feature');
+        expect(s.validate('When I test outline using "<number1>" variable', 1, outlineFeature)).to.be.null;
+        expect(s.validate('When I test outline using <number2> variable', 1, outlineFeature)).to.be.null;
+        expect(s.validate('When I test outline using <string1> variable', 1, outlineFeature)).to.not.be.null;
     });
 });
 
 describe('getDefinition', () => {
     it('should return correct definition for any gherkin position', () => {
-        const definition0 = s.getDefinition('When I do something');
-        const definition21 = s.getDefinition('When I do something');
+        const definition0 = s.getDefinition('When I do something', '');
+        const definition21 = s.getDefinition('When I do something', '');
         expect(definition0).to.not.be.null;
         expect(definition21).to.not.be.null;
     });
     it('should not return definition for missing step', () => {
-        const definition = s.getDefinition('When I do something else');
+        const definition = s.getDefinition('When I do something else', '');
         expect(definition).to.be.null;
     });
     it('should correctly handle spaces at the line beginning', () => {
-        const definition = s.getDefinition('   When I do something');
+        const definition = s.getDefinition('   When I do something', '');
         expect(definition).to.not.be.null;
     });
 });
 
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
-        const completion = s.getCompletion(' When I do');
-        expect(completion).to.have.length(5);
+        const completion = s.getCompletion(' When I do', '');
+        expect(completion).to.have.length(6);
     });
     it('should correctly filter completion', () => {
-        const completion = s.getCompletion(' When I do another th');
+        const completion = s.getCompletion(' When I do another th', '');
         expect(completion).to.have.length(1);
         expect(completion[0].label).to.be.equal('I do another thing');
         expect(completion[0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
-        const completion = s.getCompletion('I do another th');
+        const completion = s.getCompletion('I do another th', '');
         expect(completion).to.be.null;
     });
     it('should not return completion for non-existing steps', () => {
-        const completion = s.getCompletion('When non-existent step');
+        const completion = s.getCompletion('When non-existent step', '');
         expect(completion).to.be.null;
     });
     it('should return proper sortText', () => {
-        const completion = s.getCompletion(' When I do');
+        const completion = s.getCompletion(' When I do', '');
         expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
     });

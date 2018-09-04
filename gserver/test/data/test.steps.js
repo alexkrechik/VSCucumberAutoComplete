@@ -32,3 +32,8 @@ this.When(
         next;
     }
 );
+
+//Outlines test
+this.When(/^I test outline using "[0-9]*" variable$/, function (next) {
+    next;
+});
