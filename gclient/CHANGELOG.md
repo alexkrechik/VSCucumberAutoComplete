@@ -1,3 +1,9 @@
+## 2.12.0/2018-09-05
+* Implemented proper steps suggestions after "And" word in Strict Gherkin Suggestions mode
+* Fixed steps detection for Scenario Outline strings
+* Added extension support for '.testcase' files
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.12.0)
+
 ## 2.11.0/2018-05-20
 * Many formatting fixes/improvements (please look at the skipDocStringsFormat, formatConfOverride and onTypeFormat options).
 * Some other small fixes.
