@@ -20,16 +20,33 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Cucumberautocomplete part of VSCode settings:**
+```
+{
+  "cucumberautocomplete.steps": [
+      "features/step_definitions/*.js",
+      "node_modules/@revjet/csp-qa/src/steps/*.js"
+  ],
+  "cucumberautocomplete.skipDocStringsFormat": true,
+  "cucumberautocomplete.syncfeatures": "features/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": true,
+  "cucumberautocomplete.smartSnippets": true,
+  "cucumberautocomplete.stepsInvariants": true,
+  "cucumberautocomplete.onTypeFormat": false,
+  "cucumberautocomplete.formatConfOverride": {
+      "And": 0,
+  }
+}
+```
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Step definition:**
+If applicable, add example of step definition:
+```
+When(/^I rename the run to "([^"]*)"$/, (name) =>
+  // ... whatever
+);
+```
 
-**Additional context**
-Add any other context about the problem here.
+**Gherkin step line**
+If applicable, add step line from gherkin file
+`When I rename the run to "([^"]*)"`
