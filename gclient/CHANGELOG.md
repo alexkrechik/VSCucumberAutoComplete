@@ -1,3 +1,6 @@
+## 2.12.1/2018-09-06
+* Fixed [#211](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/211) 'workspace/didChangeConfiguration' failed
+
 ## 2.12.0/2018-09-05
 * Implemented proper steps suggestions after "And" word in Strict Gherkin Suggestions mode
 * Fixed steps detection for Scenario Outline strings
