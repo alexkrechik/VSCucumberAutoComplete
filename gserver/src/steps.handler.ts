@@ -165,7 +165,11 @@ export default class StepsHandler {
             }, line);
             const pureMatch = pureLine.match(this.getGherkinRegEx());
             const quotesMatch = quotesLine.match(this.getGherkinRegEx());
-            return this.getStepByText(quotesMatch[4]) ? quotesMatch : pureMatch;
+            if (quotesMatch && quotesMatch[4] && this.getStepByText(quotesMatch[4])) {
+                return quotesMatch;
+            } else {
+                return pureMatch;
+            }
         }
         return line.match(this.getGherkinRegEx());
     }
