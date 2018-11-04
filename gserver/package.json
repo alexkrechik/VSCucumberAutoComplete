@@ -10,7 +10,8 @@
     "glob": "^7.1.1",
     "md5": "^2.2.1",
     "strip-comments": "^0.4.4",
-    "vscode-languageserver": "^3.5.0"
+    "vscode-languageserver": "^3.5.0",
+    "doctrine": "^2.1.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
