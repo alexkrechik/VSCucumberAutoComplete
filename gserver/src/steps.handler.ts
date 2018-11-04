@@ -137,7 +137,7 @@ export default class StepsHandler {
     }
 
     getPositionFromMatchIndex(matchIndex: number, fileContent: string): {line: number, chr: number} {
-        let line = 0;
+        let line = -1;
         let lastLineIndex = 0;
         let chr = 0;
         let match;
@@ -367,7 +367,8 @@ export default class StepsHandler {
             const stepParsedComment = commentParser.parse(stepRawComment.trim(), {unwrap: true, sloppy: true, recoverable: true});
 
             if (clearComments(rawMatch + '*/').match(stepCommentValidator)) {
-                const stepPosition = this.getPositionFromMatchIndex(rawStepMatch.index, definitionFile);
+
+                const stepPosition = this.getPositionFromMatchIndex(rawStepMatch.index + rawMatch.indexOf(stepBody), definitionFile);
 
                 const pos = Position.create(stepPosition.line, stepPosition.chr);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
