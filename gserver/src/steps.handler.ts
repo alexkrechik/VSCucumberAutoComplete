@@ -38,6 +38,10 @@ export type StepsCountHash = {
     [step: string]: number
 };
 
+interface JSDocComments {
+    [key: number]: string
+}
+
 const gherkinWords = escapeRegExp(`하지만|조건|먼저|만일|만약|단|그리고|그러면|那麼|那么|而且|同時|當|当|前提|假設|假定|假如|但是|但し|並且|并且|もし|ならば|ただし|しかし|かつ|و|متى|لكن|عندما|ثم|بفرض|اذاً|כאשר|וגם|בהינתן|אזי|אז|אבל|Якщо|Унда|То|Тогда|Припустимощо|Припустимо|Онда|Но|Нехай|Лекин|Когато|Када|Кад|Ктомуже|И|Задато|Задати|Задате|Если|Допустим|Дадено|Ва|Бирок|Аммо|Али|Але|Агар|А|І|Și|És|anrhegediga|Zatati|Zakładając|Zadato|Zadate|Zadano|Zadani|Zadan|Youseknowwhenyousegot|Youseknowlikewhen|Yna|Yaknowhow|Yagotta|Y|Wun|Wtedy|Wheny'all|When|Wenn|WEN|Và|Ve|Und|Un|Thì|Theny'all|Then|Tapi|Tak|Tada|Tad|Så|Stel|Soit|Siis|Si|Quando|Quand|Quan|Pryd|Pokud|Pokiaľ|Però|Pero|Pak|Oraz|Onda|Ond|Oletetaan|Og|Och|Ozaman|Når|När|Niin|Nhưng|N|Mutta|Men|Mas|Maka|Majd|Mais|Maar|Ma|Lorsque|Lorsqu'|Kun|Kuid|Kui|Khi|Keď|Ketika|Když|Kai|Kada|Kad|Jeżeli|Ja|Ir|ICANHAZ|Ha|Givun|Givet|Giveny'all|Given|Gitt|Gegeven|Gegebensei|Fakat|Eğerki|Etantdonné|Et|Então|Entonces|Entao|En|Eeldades|E|Duota|Dun|Donat|Donada|Diyelimki|Dengan|Denyousegotta|De|Dato|Dar|Dann|Dan|Dado|Dacă|Daca|DEN|Când|Cuando|Cho|Cept|Cand|Cal|Buty'all|But|Buh|Biết|Bet|BUT|Atès|Atunci|Atesa|Angenommen|Andy'all|And|Ama|Als|Alors|Allora|Ali|Aleshores|Ale|Akkor|Aber|AN|Ataké|A`);
 
 const commentParser = require('doctrine');
@@ -102,57 +106,36 @@ export default class StepsHandler {
     }
 
     getStepRegExp(): RegExp {
-        //Catch the /** */ block above the step definition
-        const commaCatcherStart = '(?:\\/\\*(?:\\n|.)+?)?';
-
-        const stepComment = '(\\/\\*\\*(?:.|\\n)+?\\*\\/\\s*)?';
 
         //Actually, we dont care what the symbols are before our 'Gherkin' word
         //But they shouldn't end with letter
-        const startPart = '^(?:[^\'"/]*?[^\\w])?';
+        const startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
+
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
         const gherkinPart = `(${gherkinWords}|defineStep|Step|StepDefinition)`;
+
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = `[^\/'"\`\\w]*?`;
+
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        const stepStart = `([\\/'"\`])`;
-        //Our step could contain any symbols, (even our 'stepStart' in the case of a regexp that includes '\/')
-        const stepBody = '([^\\3]+?)';
-        //Step should be ended with same symbol it begins, maybe some regexp modifiers
-        const stepEnd = '\\3[igm]* *(?:\\)|,|;|$)';
-        //Catch the function name (and allow for the option object), if available
-        const functionNameMatch = '(?: *(?:\\s*{.+} *,)?\\s*(?:(?:async )?(?:function ?([^(]+)?)?)? ?\\([^)]+\\))?';
+        const stepStart = `(\/|'|"|\`)`;
 
-        //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...), global to allow for iterative exec processing, and multiline to use ^ properly
-        const r = new RegExp(stepComment + commaCatcherStart +  startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd + functionNameMatch, 'igm');
+        //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
+        const stepBody = '([^\\3]+)';
 
-        // /(\/\*\*(?:.|\n)+?\*\/\s*)?(?:\/\*(?:\n|.)+?)?^(?:[^'"\/]*?[^\w])?(Given|When|Then|And|But|defineStep|Step|StepDefinition)[^\/'"`\w]*?([\/'"`])([^\3]+?)\3[igm]* *(?:\)|,|;|$)(?: *(?:\s*{.+} *,)?\s*(?:(?:async )?(?:function ?([^(]+)?)?)? ?\([^)]+\))?/gim
+        //Step should be ended with same symbol it begins
+        const stepEnd = '\\3';
 
+        //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
+        const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
+
+        // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But|defineStep)[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
         return r;
+
     }
 
     geStepDefinitionMatch(line: string): RegExpMatchArray {
-        const result = this.getStepRegExp().exec(line);
-        return (result) ? Array.from(result) : result;
-    }
-
-    getPositionFromMatchIndex(matchIndex: number, fileContent: string): {line: number, chr: number} {
-        let line = -1;
-        let lastLineIndex = 0;
-        let chr = 0;
-        let match;
-        const re = /(^)[\s\S]/gm;
-        do {
-            match = re.exec(fileContent);
-            if (match && match.index > matchIndex) {
-                chr = matchIndex - lastLineIndex;
-                break;
-            }
-            lastLineIndex = match.index;
-            line = line + 1;
-        } while (match);
-
-        return {line, chr};
+        return line.match(this.getStepRegExp());
     }
 
     getOutlineVars(text: string) {
@@ -293,6 +276,17 @@ export default class StepsHandler {
         return step;
     }
 
+    getDescForStep(step: string): string {
+
+        //Remove 'Function body' part
+        step = step.replace(/\{.*/, '');
+
+        //Remove spaces in the beginning end in the end of string
+        step = step.replace(/^\s*/, '').replace(/\s*$/, '');
+
+        return step;
+    }
+
     getStepTextInvariants(step: string): string[] {
         //Handle regexp's like 'I do (one|to|three)'
         //TODO - generate correct num of invariants for the circular braces
@@ -350,85 +344,98 @@ export default class StepsHandler {
         return res;
     }
 
-    getFileSteps(filePath: string): Step[] {
-        const definitionFile = getFileContent(filePath);
-
-        const stepMatcher = this.getStepRegExp();
-        const stepCommentValidator = this.getStepRegExp();
-
-        const steps: Step[] = [];
-
-        let rawStepMatch = stepMatcher.exec(definitionFile);
-
-        while (rawStepMatch) {
-
-            const [rawMatch, stepRawComment = '', gherkin, , stepBody, stepFunctionName] = Array.from(rawStepMatch);
-
-            const stepParsedComment = commentParser.parse(stepRawComment.trim(), {unwrap: true, sloppy: true, recoverable: true});
-
-            if (clearComments(rawMatch + '*/').match(stepCommentValidator)) {
-
-                const stepPosition = this.getPositionFromMatchIndex(rawStepMatch.index + rawMatch.indexOf(stepBody), definitionFile);
-
-                const pos = Position.create(stepPosition.line, stepPosition.chr);
-                const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
-
-                const desc = this.getDescForStep(rawMatch);
-
-                const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants
-                        ? this.getStepTextInvariants(stepBody)
-                        : [stepBody];
-
-                    stepsVariants.forEach(stepVariant => {
-                        try {
-                            const reg = new RegExp(this.getRegTextForStep(stepVariant));
-
-                            let partialReg;
-                            // Use long regular expression in case of error
-                            try {
-                                partialReg = new RegExp(this.getPartialRegText(stepVariant));
-                            }
-                            catch (err) {
-                                // Todo - show some warning
-                                partialReg = reg;
-                            }
-
-                            const text = this.getTextForStep(stepVariant);
-                            const id = 'step' + getMD5Id(text);
-                            const count = this.getElementCount(id);
-                            const documentation = stepParsedComment.description ||
-                                (stepParsedComment.tags.find(tag => tag.title === 'description') || {}).description ||
-                                (stepParsedComment.tags.find(tag => tag.title === 'desc') || {}).description ||
-                                stepFunctionName ||
-                                '';
-
-                            steps.push({
-                                id, reg, partialReg, text, desc, def, count, gherkin, documentation: documentation.trim()
-                            });
-
-                        } catch (e) {
-
-                        }
-
-                    });
-            }
-
-            // Proceed to next step match
-            rawStepMatch = stepMatcher.exec(definitionFile);
-        }
-
-        return steps;
+    getDocumentation(stepRawComment: string) {
+        const stepParsedComment = commentParser.parse(stepRawComment.trim(), {unwrap: true, sloppy: true, recoverable: true});
+        return stepParsedComment.description ||
+        (stepParsedComment.tags.find(tag => tag.title === 'description') || {}).description ||
+        (stepParsedComment.tags.find(tag => tag.title === 'desc') || {}).description ||
+        stepRawComment;
     }
 
-    getDescForStep(step: string): string {
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string, comments: JSDocComments): Step[] {
+        const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
+            this.getStepTextInvariants(stepPart) : [stepPart];
+        const desc = this.getDescForStep(fullStepLine);
+        const comment = comments[def.range.start.line];
+        const documentation = comment ? this.getDocumentation(comment) : fullStepLine;
+        return stepsVariants
+            .filter((step) => {
+                //Filter invalid long regular expressions
+                try {
+                    new RegExp(this.getRegTextForStep(step));
+                    return true;
+                } catch (err) {
+                    //Todo - show some warning
+                    return false;
+                }
+            })
+            .map((step) => {
+                const reg = new RegExp(this.getRegTextForStep(step));
+                let partialReg;
+                // Use long regular expression in case of error
+                try {
+                    partialReg = new RegExp(this.getPartialRegText(step));
+                } catch (err) {
+                    // Todo - show some warning
+                    partialReg = reg;
+                }
+                //Todo we should store full value here
+                const text = this.getTextForStep(step);
+                const id = 'step' + getMD5Id(text);
+                const count = this.getElementCount(id);
+                return { id, reg, partialReg, text, desc, def, count, gherkin, documentation };
+            });
+    }
 
-        //Remove 'Function body' part
-        step = step.replace(/\{.*/, '');
+    getMultiLineComments(content: string): JSDocComments {
+        return content.split(/\r?\n/g).reduce((res, line, i) => {
+            if (!!~line.search(/^\s*\/\*/)) {
+                res.current = `${line}\n`;
+                res.commentMode = true;
+            } else if (!!~line.search(/^\s*\*\//)) {
+                res.current += `${line}\n`;
+                res.comments[i + 1] = res.current;
+                res.commentMode = false;
+            } else if (res.commentMode) {
+                res.current += `${line}\n`;
+            }
+            return res;
+        }, {
+            comments: {}, current: '', commentMode: false
+        }).comments;
+    }
 
-        //Remove spaces in the beginning end in the end of string
-        step = step.replace(/^\s*/, '').replace(/\s*$/, '');
-
-        return step;
+    getFileSteps(filePath: string): Step[] {
+        const fileContent = getFileContent(filePath);
+        const fileComments = this.getMultiLineComments(fileContent);
+        const definitionFile = clearComments(fileContent);
+        return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex, lines) => {
+            //TODO optimize
+            let match;
+            let finalLine;
+            const currLine = this.handleCustomParameters(line);
+            const currentMatch = this.geStepDefinitionMatch(currLine);
+            //Add next line to our string to handle two-lines step definitions
+            const nextLine = this.handleCustomParameters(lines[lineIndex + 1]);
+            if (currentMatch) {
+                match = currentMatch;
+                finalLine = currLine;
+            } else if (nextLine) {
+                const nextLineMatch = this.geStepDefinitionMatch(nextLine);
+                const bothLinesMatch = this.geStepDefinitionMatch(currLine + nextLine);
+                if ( bothLinesMatch && !nextLineMatch) {
+                    match = bothLinesMatch;
+                    finalLine = currLine + nextLine;
+                }
+            }
+            if (match) {
+                const [, beforeGherkin, gherkin, , stepPart] = match;
+                const pos = Position.create(lineIndex, beforeGherkin.length);
+                const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
+                steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
+            }
+            return steps;
+        }, []);
     }
 
     validateConfiguration(settingsFile: string, stepsPathes: StepSettings, workSpaceRoot: string): Diagnostic[] {

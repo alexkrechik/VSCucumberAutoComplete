@@ -1,11 +1,3 @@
-this.When(/I write named functions/, function namedFunction(next) {
-    next;
-});
-
-this.When(/I write named async functions/, async function namedAsyncFunction(next) {
-    next;
-});
-
 /**
  * unstructured description
  */

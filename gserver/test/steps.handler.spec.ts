@@ -231,12 +231,10 @@ describe('validateConfiguration', () => {
 
 describe('Documentation parser', () => {
     const sDocumentation = new StepsHandler(__dirname, {
-        cucumberautocomplete: {steps: ['/data/test.documentation*.js']}
-    });
-
-    it('should extract function name when available', () => {
-        expect(sDocumentation.elements.some(step => step.documentation === 'namedFunction')).to.be.true;
-        expect(sDocumentation.elements.some(step => step.documentation === 'namedAsyncFunction')).to.be.true;
+        cucumberautocomplete: {
+            steps: ['/data/test.documentation*.js'],
+            customParameters: []
+        },
     });
 
     it('should extract JSDOC properties when available', () => {
