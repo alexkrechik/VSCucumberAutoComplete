@@ -229,6 +229,22 @@ describe('validateConfiguration', () => {
     });
 });
 
+describe('Documentation parser', () => {
+    const sDocumentation = new StepsHandler(__dirname, {
+        cucumberautocomplete: {
+            steps: ['/data/test.documentation*.js'],
+            customParameters: []
+        },
+    });
+
+    it('should extract JSDOC properties when available', () => {
+        expect(sDocumentation.elements.some(step => step.documentation === 'unstructured description')).to.be.true;
+        expect(sDocumentation.elements.some(step => step.documentation === 'structured description')).to.be.true;
+        expect(sDocumentation.elements.some(step => step.documentation === 'structured name')).to.be.true;
+        expect(sDocumentation.elements.some(step => step.documentation === 'Overriding description')).to.be.true;
+    });
+});
+
 describe('validate', () => {
     it('should not return diagnostic for correct lines', () => {
         expect(s.validate('When I do something', 1, '')).to.be.null;

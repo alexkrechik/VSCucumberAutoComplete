@@ -30,14 +30,21 @@ export type Step = {
     desc: string,
     def: Definition,
     count: number,
-    gherkin: string
+    gherkin: string,
+    documentation: string
 };
 
 export type StepsCountHash = {
     [step: string]: number
 };
 
+interface JSDocComments {
+    [key: number]: string
+}
+
 const gherkinWords = escapeRegExp(`하지만|조건|먼저|만일|만약|단|그리고|그러면|那麼|那么|而且|同時|當|当|前提|假設|假定|假如|但是|但し|並且|并且|もし|ならば|ただし|しかし|かつ|و|متى|لكن|عندما|ثم|بفرض|اذاً|כאשר|וגם|בהינתן|אזי|אז|אבל|Якщо|Унда|То|Тогда|Припустимощо|Припустимо|Онда|Но|Нехай|Лекин|Когато|Када|Кад|Ктомуже|И|Задато|Задати|Задате|Если|Допустим|Дадено|Ва|Бирок|Аммо|Али|Але|Агар|А|І|Și|És|anrhegediga|Zatati|Zakładając|Zadato|Zadate|Zadano|Zadani|Zadan|Youseknowwhenyousegot|Youseknowlikewhen|Yna|Yaknowhow|Yagotta|Y|Wun|Wtedy|Wheny'all|When|Wenn|WEN|Và|Ve|Und|Un|Thì|Theny'all|Then|Tapi|Tak|Tada|Tad|Så|Stel|Soit|Siis|Si|Quando|Quand|Quan|Pryd|Pokud|Pokiaľ|Però|Pero|Pak|Oraz|Onda|Ond|Oletetaan|Og|Och|Ozaman|Når|När|Niin|Nhưng|N|Mutta|Men|Mas|Maka|Majd|Mais|Maar|Ma|Lorsque|Lorsqu'|Kun|Kuid|Kui|Khi|Keď|Ketika|Když|Kai|Kada|Kad|Jeżeli|Ja|Ir|ICANHAZ|Ha|Givun|Givet|Giveny'all|Given|Gitt|Gegeven|Gegebensei|Fakat|Eğerki|Etantdonné|Et|Então|Entonces|Entao|En|Eeldades|E|Duota|Dun|Donat|Donada|Diyelimki|Dengan|Denyousegotta|De|Dato|Dar|Dann|Dan|Dado|Dacă|Daca|DEN|Când|Cuando|Cho|Cept|Cand|Cal|Buty'all|But|Buh|Biết|Bet|BUT|Atès|Atunci|Atesa|Angenommen|Andy'all|And|Ama|Als|Alors|Allora|Ali|Aleshores|Ale|Akkor|Aber|AN|Ataké|A`);
+
+const commentParser = require('doctrine');
 
 export default class StepsHandler {
 
@@ -337,10 +344,20 @@ export default class StepsHandler {
         return res;
     }
 
-    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string): Step[] {
+    getDocumentation(stepRawComment: string) {
+        const stepParsedComment = commentParser.parse(stepRawComment.trim(), {unwrap: true, sloppy: true, recoverable: true});
+        return stepParsedComment.description ||
+        (stepParsedComment.tags.find(tag => tag.title === 'description') || {}).description ||
+        (stepParsedComment.tags.find(tag => tag.title === 'desc') || {}).description ||
+        stepRawComment;
+    }
+
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string, comments: JSDocComments): Step[] {
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
+        const comment = comments[def.range.start.line];
+        const documentation = comment ? this.getDocumentation(comment) : fullStepLine;
         return stepsVariants
             .filter((step) => {
                 //Filter invalid long regular expressions
@@ -366,12 +383,32 @@ export default class StepsHandler {
                 const text = this.getTextForStep(step);
                 const id = 'step' + getMD5Id(text);
                 const count = this.getElementCount(id);
-                return { id, reg, partialReg, text, desc, def, count, gherkin };
+                return { id, reg, partialReg, text, desc, def, count, gherkin, documentation };
             });
     }
 
+    getMultiLineComments(content: string): JSDocComments {
+        return content.split(/\r?\n/g).reduce((res, line, i) => {
+            if (!!~line.search(/^\s*\/\*/)) {
+                res.current = `${line}\n`;
+                res.commentMode = true;
+            } else if (!!~line.search(/^\s*\*\//)) {
+                res.current += `${line}\n`;
+                res.comments[i + 1] = res.current;
+                res.commentMode = false;
+            } else if (res.commentMode) {
+                res.current += `${line}\n`;
+            }
+            return res;
+        }, {
+            comments: {}, current: '', commentMode: false
+        }).comments;
+    }
+
     getFileSteps(filePath: string): Step[] {
-        const definitionFile = clearComments(getFileContent(filePath));
+        const fileContent = getFileContent(filePath);
+        const fileComments = this.getMultiLineComments(fileContent);
+        const definitionFile = clearComments(fileContent);
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex, lines) => {
             //TODO optimize
             let match;
@@ -395,7 +432,7 @@ export default class StepsHandler {
                 const [, beforeGherkin, gherkin, , stepPart] = match;
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
-                steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin));
+                steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
             }
             return steps;
         }, []);
@@ -514,6 +551,7 @@ export default class StepsHandler {
                     label: step.text,
                     kind: CompletionItemKind.Snippet,
                     data: step.id,
+                    documentation: step.documentation,
                     sortText: getSortPrefix(step.count, 5) + '_' + step.text,
                     insertText: this.getCompletionInsertText(step.text, stepPart),
                     insertTextFormat: InsertTextFormat.Snippet
