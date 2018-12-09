@@ -196,12 +196,20 @@ export default class StepsHandler {
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
         step = step.replace(/#{(.*?)}/g, '.*');
 
-        //Built in transforms
+        //Parameter-types
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
+        //https://docs.cucumber.io/cucumber/cucumber-expressions/
         step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
         step = step.replace(/{int}/g, '-?\\d+');
         step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
         step = step.replace(/{string}/g, '"[^"]+"');
+        step = step.replace(/{}/g, '.*');
+
+        //Optional Text
+        step = step.replace(/\(([a-z]+)\)/g, '($1)?');
+
+        //Alternative text
+        step = step.replace(/([a-zA-Z]+)\/([a-zA-Z]+)/, '($1|$2)');
 
         //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99

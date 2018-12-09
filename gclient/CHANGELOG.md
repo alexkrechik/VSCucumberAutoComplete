@@ -1,3 +1,7 @@
+## 2.13.0
+* Show description for the steps suggestions (Correspond JSDoc field or step definition line)
+* Added support of new Parameter types, Optional text and Alternative Text cucumber expressions
+
 ## 2.12.1/2018-09-06
 * Fixed [#211](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/211) 'workspace/didChangeConfiguration' failed
 
