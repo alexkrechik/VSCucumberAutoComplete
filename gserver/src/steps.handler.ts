@@ -347,6 +347,9 @@ export default class StepsHandler {
                     res = res.replace(match[i], () => '${' + num + ':}');
                 }
             }
+        } else {
+            //We can replace some outputs, ex. strings in brackets to make insert strings more neat
+            res = res.replace(/\"\[\^\"\]\+\"/g, '""');
         }
 
         return res;
