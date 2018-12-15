@@ -539,9 +539,12 @@ export default class StepsHandler {
                             .slice(0, lineNumber)
                             .reduceRight((res, val) => {
                                 if (!res) {
-                                    const [, , prevGherkinPart] = this.getGherkinMatch(val, text);
-                                    if (~['Given', 'When', 'Then'].indexOf(prevGherkinPart)) {
-                                        res = prevGherkinPart;
+                                    const match = this.getGherkinMatch(val, text);
+                                    if (match) {
+                                        const [, , prevGherkinPart] = match;
+                                        if (~['Given', 'When', 'Then'].indexOf(prevGherkinPart)) {
+                                            res = prevGherkinPart;
+                                        }
                                     }
                                 }
                                 return res;
