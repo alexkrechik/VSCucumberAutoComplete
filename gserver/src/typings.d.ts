@@ -25,5 +25,6 @@ interface Settings {
         skipDocStringsFormat?: boolean,
         formatConfOverride?: FormatConf[],
         onTypeFormat?: boolean,
+        gherkinDefinitionPart?: string
     }
 }

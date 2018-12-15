@@ -1,6 +1,7 @@
 ## 2.13.0
 * Show description for the steps suggestions (Correspond JSDoc field or step definition line)
 * Added support of new Parameter types, Optional text and Alternative Text cucumber expressions
+* Added an ability to provide some custom Gherkin Definition RegEx Part
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.13.0)
 
 ## 2.12.0/2018-09-05

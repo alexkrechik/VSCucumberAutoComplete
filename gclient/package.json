@@ -121,6 +121,12 @@
                     "type": "boolean",
                     "required": false,
                     "default": false
+                },
+                "cucumberautocomplete.gherkinDefinitionPart": {
+                    "description": "Provide step definition name part of regex(ex. '@(given|when|then|step)\\(' in case of python-like steps. Please ensure, that they are placed in regex match '()' braces",
+                    "type": "string",
+                    "required": false,
+                    "default": false
                 }
             }
         }
