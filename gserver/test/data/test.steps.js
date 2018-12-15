@@ -37,3 +37,6 @@ this.When(
 this.When(/^I test outline using "[0-9]*" variable$/, function (next) {
     next;
 });
+
+//Lower Case step definition test
+this.when(/I test lower case step definition/, function(next){})
