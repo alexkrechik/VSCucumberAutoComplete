@@ -22,6 +22,8 @@ const settings = {
     }
 };
 
+const stepsDefinitionNum = 7;
+
 const s = new StepsHandler(__dirname, settings);
 
 describe('geStepDefinitionMatch', () => {
@@ -180,7 +182,7 @@ describe('getPartialRegParts', () => {
 describe('constructor', () => {
     const e = s.getElements();
     it('should fill all the elements', () => {
-        expect(e).to.have.length(6);
+        expect(e).to.have.length(stepsDefinitionNum);
     });
     it('should correctly fill used steps counts', () => {
         expect(e[0]).to.have.property('count', 2);
@@ -207,7 +209,7 @@ describe('constructor', () => {
 describe('populate', () => {
     it('should not create duplicates via populating', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
-        expect(s.getElements()).to.have.length(6);
+        expect(s.getElements()).to.have.length(stepsDefinitionNum);
     });
     it('should correctly recreate elements with their count using', () => {
         s.populate(__dirname, settings.cucumberautocomplete.steps);
@@ -302,7 +304,7 @@ describe('getDefinition', () => {
 describe('getCompletion', () => {
     it('should return all the variants found', () => {
         const completion = s.getCompletion(' When I do', 1, '');
-        expect(completion).to.have.length(6);
+        expect(completion).to.have.length(stepsDefinitionNum);
     });
     it('should correctly filter completion', () => {
         const completion = s.getCompletion(' When I do another th', 1, '');
@@ -331,6 +333,15 @@ describe('getCompletion', () => {
         expect(s.getCompletion(' And I do', 0, strictGherkinFeature)).to.be.null;
         expect(s.getCompletion(' And I do', 2, strictGherkinFeature)).to.not.be.null;
         expect(s.getCompletion(' And I do', 4, strictGherkinFeature)).to.be.null;
+    });
+    it ('should show correct completion for lower case step definitions', () => {
+        const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+        expect(s.getCompletion(' Given I test lower case ', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' When I test lower case ', 1, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' Then I test lower case ', 1, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I test lower case ', 0, strictGherkinFeature)).to.be.null;
+        expect(s.getCompletion(' And I test lower case ', 2, strictGherkinFeature)).to.not.be.null;
+        expect(s.getCompletion(' And I test lower case ', 4, strictGherkinFeature)).to.be.null;
     });
 });
 
