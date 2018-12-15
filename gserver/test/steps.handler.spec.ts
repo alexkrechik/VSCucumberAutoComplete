@@ -364,3 +364,30 @@ describe('getCompletionInsertText', () => {
         });
     });
 });
+
+describe('gherkin definition part overrids', () => {
+    const customSettings = {
+        cucumberautocomplete: {
+            ...settings.cucumberautocomplete,
+            gherkinDefinitionPart: '(steptest)\\(',
+            steps: ['/data/gherkinDefinitionPart.steps.js'],
+            strictGherkinCompletion: false
+        }
+    };
+    const customStepsHandler = new StepsHandler(__dirname, customSettings);
+    const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+
+    it('should suggest only proper step definitions', () => {
+        expect(customStepsHandler.getCompletion(' When I test something ', 1, strictGherkinFeature)).to.be.null;
+        expect(customStepsHandler.getCompletion(' And I test something ', 2, strictGherkinFeature)).to.be.null;
+        expect(customStepsHandler.getCompletion(' When I test gherkinDefinitionPart ', 1, strictGherkinFeature)).to.not.be.null;
+        expect(customStepsHandler.getCompletion(' And I test gherkinDefinitionPart ', 2, strictGherkinFeature)).to.not.be.null;
+    });
+
+    it('should properly validate steps', () => {
+        expect(customStepsHandler.validate('When I test something else', 1, '')).to.not.be.null;
+        expect(customStepsHandler.validate('Given I test something else', 1, '')).to.not.be.null;
+        expect(customStepsHandler.validate('When I test gherkinDefinitionPart option', 1, '')).to.be.null;
+        expect(customStepsHandler.validate('Given I test gherkinDefinitionPart option', 1, '')).to.be.null;
+    });
+});
