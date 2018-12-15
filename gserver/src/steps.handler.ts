@@ -543,9 +543,9 @@ export default class StepsHandler {
                                 }
                                 return res;
                             }, '');
-                        return prevGherkinWord ? step.gherkin === prevGherkinWord : false;
+                        return prevGherkinWord ? step.gherkin.toLowerCase() === prevGherkinWord.toLowerCase() : false;
                     } else {
-                        return step.gherkin === gherkinPart;
+                        return step.gherkin.toLowerCase() === gherkinPart.toLowerCase();
                     }
                 } else {
                     return true;
