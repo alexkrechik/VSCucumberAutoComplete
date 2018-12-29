@@ -1,6 +1,8 @@
-## 2.13.0
-* Show description for the steps suggestions (Correspond JSDoc field or step definition line)
-* Added support of new Parameter types, Optional text and Alternative Text cucumber expressions
+## 2.13.0/2018-12-29
+* Implemented all the foreign 'Given/When/Then' words support
+* Corrected completion getting in case of strictGherkinCompletion option and foreign gherkin words
+* Show, if present, JSDoc step field as suggestion description
+* Added support of 'Parameter Types', 'Optional Text' and 'Alternative Text' cucumber expressions
 * Added an ability to provide some custom Gherkin Definition RegEx Part
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.13.0)
 
