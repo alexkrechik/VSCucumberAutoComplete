@@ -9,6 +9,13 @@ import {
 } from './util';
 
 import {
+    allGherkinWords,
+    GherkinType,
+    getGherkinType,
+    getGherkinTypeLower
+} from './gherkin';
+
+import {
     Definition,
     CompletionItem,
     Diagnostic,
@@ -42,8 +49,6 @@ interface JSDocComments {
     [key: number]: string
 }
 
-const gherkinWords = escapeRegExp(`하지만|조건|먼저|만일|만약|단|그리고|그러면|那麼|那么|而且|同時|當|当|前提|假設|假定|假如|但是|但し|並且|并且|もし|ならば|ただし|しかし|かつ|و|متى|لكن|عندما|ثم|بفرض|اذاً|כאשר|וגם|בהינתן|אזי|אז|אבל|Якщо|Унда|То|Тогда|Припустимощо|Припустимо|Онда|Но|Нехай|Лекин|Когато|Када|Кад|Ктомуже|И|Задато|Задати|Задате|Если|Допустим|Дадено|Ва|Бирок|Аммо|Али|Але|Агар|А|І|Și|És|anrhegediga|Zatati|Zakładając|Zadato|Zadate|Zadano|Zadani|Zadan|Youseknowwhenyousegot|Youseknowlikewhen|Yna|Yaknowhow|Yagotta|Y|Wun|Wtedy|Wheny'all|When|Wenn|WEN|Và|Ve|Und|Un|Thì|Theny'all|Then|Tapi|Tak|Tada|Tad|Så|Stel|Soit|Siis|Si|Quando|Quand|Quan|Pryd|Pokud|Pokiaľ|Però|Pero|Pak|Oraz|Onda|Ond|Oletetaan|Og|Och|Ozaman|Når|När|Niin|Nhưng|N|Mutta|Men|Mas|Maka|Majd|Mais|Maar|Ma|Lorsque|Lorsqu'|Kun|Kuid|Kui|Khi|Keď|Ketika|Když|Kai|Kada|Kad|Jeżeli|Ja|Ir|ICANHAZ|Ha|Givun|Givet|Giveny'all|Given|Gitt|Gegeven|Gegebensei|Fakat|Eğerki|Etantdonné|Et|Então|Entonces|Entao|En|Eeldades|E|Duota|Dun|Donat|Donada|Diyelimki|Dengan|Denyousegotta|De|Dato|Dar|Dann|Dan|Dado|Dacă|Daca|DEN|Când|Cuando|Cho|Cept|Cand|Cal|Buty'all|But|Buh|Biết|Bet|BUT|Atès|Atunci|Atesa|Angenommen|Andy'all|And|Ama|Als|Alors|Allora|Ali|Aleshores|Ale|Akkor|Aber|AN|Ataké|A`);
-
 const commentParser = require('doctrine');
 
 export default class StepsHandler {
@@ -68,7 +73,7 @@ export default class StepsHandler {
     }
 
     getGherkinRegEx() {
-        return new RegExp(`^(\\s*)(${gherkinWords})(\\s+)(.*)`);
+        return new RegExp(`^(\\s*)(${allGherkinWords})(\\s+)(.*)`);
     }
 
     getElements(): Step[] {
@@ -112,7 +117,7 @@ export default class StepsHandler {
         const startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        const gherkinPart = this.settings.cucumberautocomplete.gherkinDefinitionPart || `(${gherkinWords}|defineStep|Step|StepDefinition)`;
+        const gherkinPart = this.settings.cucumberautocomplete.gherkinDefinitionPart || `(${allGherkinWords}|defineStep|Step|StepDefinition)`;
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = `[^\/'"\`\\w]*?`;
@@ -531,27 +536,28 @@ export default class StepsHandler {
             //Filter via gherkin words comparing if strictGherkinCompletion option provided
             .filter((step) => {
                 if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
-                    //We should find previous Gherkin word in case of 'And' word
-                    if (gherkinPart === 'And') {
-                        //TODO - use all the 'And' and 'Given', 'When', 'Then' available words analogs
-                        const prevGherkinWord = text
+                    //We should find previous Gherkin word in case of 'And' or 'But' word
+                    const gherkinType = getGherkinType(gherkinPart);
+                    if (gherkinType === GherkinType.And || gherkinType === GherkinType.But) {
+                        const prevGherkinWordType = text
                             .split(/\r?\n/g)
                             .slice(0, lineNumber)
                             .reduceRight((res, val) => {
-                                if (!res) {
+                                if (res === GherkinType.Other) {
                                     const match = this.getGherkinMatch(val, text);
                                     if (match) {
                                         const [, , prevGherkinPart] = match;
-                                        if (~['Given', 'When', 'Then'].indexOf(prevGherkinPart)) {
-                                            res = prevGherkinPart;
+                                        const prevGherkinPartType = getGherkinTypeLower(prevGherkinPart);
+                                        if (~[GherkinType.Given, GherkinType.When, GherkinType.Then].indexOf(prevGherkinPartType)) {
+                                            res = prevGherkinPartType;
                                         }
                                     }
                                 }
                                 return res;
-                            }, '');
-                        return prevGherkinWord ? step.gherkin.toLowerCase() === prevGherkinWord.toLowerCase() : false;
+                            }, GherkinType.Other);
+                        return getGherkinTypeLower(step.gherkin) === prevGherkinWordType;
                     } else {
-                        return step.gherkin.toLowerCase() === gherkinPart.toLowerCase();
+                        return getGherkinTypeLower(step.gherkin) === getGherkinTypeLower(gherkinPart);
                     }
                 } else {
                     return true;
