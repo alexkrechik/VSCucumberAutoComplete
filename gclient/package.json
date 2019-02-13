@@ -8,6 +8,14 @@
     "license": "MIT",
     "displayName": "Cucumber (Gherkin) Full Support",
     "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
+    "homepage": "https://github.com/alexkrechik/VSCucumberAutoComplete",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
+    },
+    "bugs": {
+        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete/issues"
+    },
     "categories": [
         "Programming Languages"
     ],
