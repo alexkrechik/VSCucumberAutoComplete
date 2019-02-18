@@ -1,4 +1,4 @@
-## 2.13.0/2018-12-29
+## 2.13.1/2018-02-18
 * Implemented all the foreign 'Given/When/Then' words support
 * Corrected completion getting in case of strictGherkinCompletion option and foreign gherkin words
 * Show, if present, JSDoc step field as suggestion description
