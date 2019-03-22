@@ -8,6 +8,8 @@ interface FormatConf {
 }
 
 const FORMAT_CONF: FormatConf = {
+    'Ability': 0,
+    'Business Need': 0,
     'Feature:': 0,
     'Scenario:': 1,
     'Background:': 1,

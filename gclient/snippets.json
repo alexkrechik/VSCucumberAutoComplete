@@ -29,6 +29,22 @@
             "And ${1:Start to type your And step here}"
         ]
     },
+    "Insert Ability": {
+        "prefix": "Ability",
+        "body": [
+            "Ability: ${1:Ability name}",
+            "",
+            "   ${2:Ability Description}"
+        ]
+    },
+    "Insert Business Need": {
+        "prefix": "Business Need",
+        "body": [
+            "Business Need: ${1:Business Need name}",
+            "",
+            "   ${2:Business Need Description}"
+        ]
+    },
     "Insert Feature": {
         "prefix": "Feature",
         "body": [
