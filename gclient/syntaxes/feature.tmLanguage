@@ -144,7 +144,7 @@
     <key>scenario_outline_variable</key>
     <dict>
       <key>match</key>
-      <string>&lt;[a-zA-Z0-9_-]*&gt;</string>
+      <string>&lt;[a-zA-Z0-9 _-]*&gt;</string>
       <key>name</key>
       <string>variable.other</string>
     </dict>
