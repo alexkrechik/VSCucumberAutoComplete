@@ -20,6 +20,7 @@ const FORMAT_CONF: FormatConf = {
     'Then': 2,
     'And': 2,
     'But': 2,
+    '\\*': 2,
     '\\|': 3,
     '"""': 3,
     '#': 'relative',

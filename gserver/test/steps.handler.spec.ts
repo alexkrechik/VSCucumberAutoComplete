@@ -54,7 +54,8 @@ describe('geStepDefinitionMatch', () => {
             `But`,
             `defineStep`,
             `@Step`,
-            `Step`
+            `Step`,
+            `*`
         ];
         gherkinWords.forEach(g => {
             it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
@@ -276,6 +277,9 @@ describe('validate', () => {
     });
     it('should return an diagnostic for lines beggining with But', () => {
         expect(s.validate('But I do something else', 1, '')).to.not.be.null;
+    });
+    it('should return an diagnostic for lines beggining with *', () => {
+        expect(s.validate('* I do something else', 1, '')).to.not.be.null;
     });
     it('should correctly handle outline steps', () => {
         const outlineFeature = getFileContent(__dirname + '/data/outlines.feature');
