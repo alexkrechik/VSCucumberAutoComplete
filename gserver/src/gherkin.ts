@@ -29,7 +29,7 @@ export enum GherkinType {
     Other
 }
 
-export const getGherkinType = (word: string) => {
+export const getGherkinType = (word: string): GherkinType => {
     if (!!~givenWordsArr.indexOf(word)) {
         return GherkinType.Given;
     }
@@ -48,7 +48,7 @@ export const getGherkinType = (word: string) => {
     return GherkinType.Other;
 };
 
-export const getGherkinTypeLower = (word: string) => {
+export const getGherkinTypeLower = (word: string): GherkinType => {
     const lowerWord = word.toLowerCase();
     if (!!~givenWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.Given;

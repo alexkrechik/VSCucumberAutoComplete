@@ -37,7 +37,7 @@ export type Step = {
     desc: string,
     def: Definition,
     count: number,
-    gherkin: string,
+    gherkin: GherkinType,
     documentation: string
 };
 
@@ -368,7 +368,7 @@ export default class StepsHandler {
         stepRawComment;
     }
 
-    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string, comments: JSDocComments): Step[] {
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: GherkinType, comments: JSDocComments): Step[] {
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
@@ -445,7 +445,8 @@ export default class StepsHandler {
                 }
             }
             if (match) {
-                const [, beforeGherkin, gherkin, , stepPart] = match;
+                const [, beforeGherkin, gherkinString, , stepPart] = match;
+                const gherkin = getGherkinTypeLower(gherkinString);
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
@@ -486,8 +487,9 @@ export default class StepsHandler {
             ), []);
     }
 
-    getStepByText(text: string): Step {
-        return this.elements.find(s => s.reg.test(text));
+    getStepByText(text: string, gherkin?: GherkinType): Step {
+        return this.elements
+            .find(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
     }
 
     validate(line: string, lineNum: number, text: string): Diagnostic | null {
@@ -498,7 +500,11 @@ export default class StepsHandler {
             return null;
         }
         const beforeGherkin = match[1];
-        const step = this.getStepByText(match[4]);
+        const gherkinPart = match[2];
+        const step = this.getStepByText(match[4], this.settings.cucumberautocomplete.strictGherkinValidation
+            ? this.getStrictGherkinType(gherkinPart, lineNum, text)
+            : undefined
+        );
         if (step) {
             return null;
         } else {
@@ -523,6 +529,30 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
+    getStrictGherkinType(gherkinPart: string, lineNumber: number, text: string) {
+        const gherkinType = getGherkinType(gherkinPart);
+        if (gherkinType === GherkinType.And || gherkinType === GherkinType.But) {
+            return text
+                .split(/\r?\n/g)
+                .slice(0, lineNumber)
+                .reduceRight((res, val) => {
+                    if (res === GherkinType.Other) {
+                        const match = this.getGherkinMatch(val, text);
+                        if (match) {
+                            const [, , prevGherkinPart] = match;
+                            const prevGherkinPartType = getGherkinTypeLower(prevGherkinPart);
+                            if (~[GherkinType.Given, GherkinType.When, GherkinType.Then].indexOf(prevGherkinPartType)) {
+                                res = prevGherkinPartType;
+                            }
+                        }
+                    }
+                    return res;
+                }, GherkinType.Other);
+        } else {
+            return getGherkinTypeLower(gherkinPart);
+        }
+    }
+
     getCompletion(line: string, lineNumber: number, text: string): CompletionItem[] | null {
         //Get line part without gherkin part
         const match = this.getGherkinMatch(line, text);
@@ -536,29 +566,8 @@ export default class StepsHandler {
             //Filter via gherkin words comparing if strictGherkinCompletion option provided
             .filter((step) => {
                 if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
-                    //We should find previous Gherkin word in case of 'And' or 'But' word
-                    const gherkinType = getGherkinType(gherkinPart);
-                    if (gherkinType === GherkinType.And || gherkinType === GherkinType.But) {
-                        const prevGherkinWordType = text
-                            .split(/\r?\n/g)
-                            .slice(0, lineNumber)
-                            .reduceRight((res, val) => {
-                                if (res === GherkinType.Other) {
-                                    const match = this.getGherkinMatch(val, text);
-                                    if (match) {
-                                        const [, , prevGherkinPart] = match;
-                                        const prevGherkinPartType = getGherkinTypeLower(prevGherkinPart);
-                                        if (~[GherkinType.Given, GherkinType.When, GherkinType.Then].indexOf(prevGherkinPartType)) {
-                                            res = prevGherkinPartType;
-                                        }
-                                    }
-                                }
-                                return res;
-                            }, GherkinType.Other);
-                        return getGherkinTypeLower(step.gherkin) === prevGherkinWordType;
-                    } else {
-                        return getGherkinTypeLower(step.gherkin) === getGherkinTypeLower(gherkinPart);
-                    }
+                    const strictGherkinPart = this.getStrictGherkinType(gherkinPart, lineNumber, text);
+                    return step.gherkin === strictGherkinPart;
                 } else {
                     return true;
                 };

@@ -1,4 +1,5 @@
 import StepsHandler from '../src/steps.handler';
+import { GherkinType } from '../src/gherkin';
 import { expect } from 'chai';
 import { getFileContent } from '../src/util';
 
@@ -196,8 +197,9 @@ describe('constructor', () => {
         const firstElement = e[0];
         expect(firstElement).to.have.property('desc', 'this.When(/^I do something$/, function (next)');
         expect(firstElement).to.have.property('id', 'stepc0c243868293a93f35e3a05e2b844793');
-        // TODO check
-        // expect(firstElement).to.have.property('reg', /^I do something$/);
+        expect(firstElement).to.have.property('gherkin', GherkinType.When);
+        expect(firstElement.reg.toString()).to.be.eq('/^I do something$/');
+        expect(firstElement.partialReg.toString()).to.be.eq('/^(^I|$)( |$)(do|$)( |$)(something$|$)/');
         expect(firstElement).to.have.property('text', 'I do something');
         expect(firstElement.def).to.have.deep.property('range');
         expect(firstElement.def['uri']).to.have.string('test.steps.js');
@@ -260,6 +262,13 @@ describe('validate', () => {
         expect(s.validate('When I do something  ', 1, '')).to.be.null;
         expect(s.validate('When  I do something  ', 1, '')).to.be.null;
     });
+    it('should not return diagnostic for uncorresponding gherkin words lines', () => {
+        expect(s.validate('Given I do something', 1, '')).to.be.null;
+        expect(s.validate('When I do something', 1, '')).to.be.null;
+        expect(s.validate('Then I do something', 1, '')).to.be.null;
+        expect(s.validate('And I do something', 1, '')).to.be.null;
+        expect(s.validate('But I do something', 1, '')).to.be.null;
+    });
     it('should not check non-Gherkin steps', () => {
         expect(s.validate('Non_gherkin_word do something else', 1, '')).to.be.null;
     });
@@ -286,6 +295,22 @@ describe('validate', () => {
         expect(s.validate('When I test outline using "<number1>" variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <number2> variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <string1> variable', 1, outlineFeature)).to.not.be.null;
+    });
+    it('should correctly validate steps with incorrect gherkin word in case of strictGherkinValidation', () => {
+        const strictGherkinHandler = new StepsHandler(__dirname, {
+            cucumberautocomplete: {
+                ...settings.cucumberautocomplete,
+                strictGherkinValidation: true
+            }
+        });
+        const testFeature = getFileContent(__dirname + '/data/test.feature');
+        expect(strictGherkinHandler.validate('Given I do something', 12, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('When I do something', 12, testFeature)).to.be.null;
+        expect(strictGherkinHandler.validate('Then I do something', 12, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('And I do something', 5, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('But I do something', 5, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('And I do something', 12, testFeature)).to.be.null;
+        expect(strictGherkinHandler.validate('But I do something', 12, testFeature)).to.be.null;
     });
 });
 
