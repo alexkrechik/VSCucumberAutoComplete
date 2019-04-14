@@ -37,7 +37,7 @@ export type Step = {
     desc: string,
     def: Definition,
     count: number,
-    gherkin: string,
+    gherkin: GherkinType,
     documentation: string
 };
 
@@ -368,7 +368,7 @@ export default class StepsHandler {
         stepRawComment;
     }
 
-    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string, comments: JSDocComments): Step[] {
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: GherkinType, comments: JSDocComments): Step[] {
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
@@ -445,7 +445,8 @@ export default class StepsHandler {
                 }
             }
             if (match) {
-                const [, beforeGherkin, gherkin, , stepPart] = match;
+                const [, beforeGherkin, gherkinString, , stepPart] = match;
+                const gherkin = getGherkinTypeLower(gherkinString);
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
@@ -561,7 +562,7 @@ export default class StepsHandler {
             .filter((step) => {
                 if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
                     const strictGherkinPart = this.getStrictGherkinType(gherkinPart, lineNumber, text);
-                    return getGherkinTypeLower(step.gherkin) === strictGherkinPart;
+                    return step.gherkin === strictGherkinPart;
                 } else {
                     return true;
                 };

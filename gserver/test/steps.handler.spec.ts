@@ -1,4 +1,5 @@
 import StepsHandler from '../src/steps.handler';
+import { GherkinType } from '../src/gherkin';
 import { expect } from 'chai';
 import { getFileContent } from '../src/util';
 
@@ -196,8 +197,9 @@ describe('constructor', () => {
         const firstElement = e[0];
         expect(firstElement).to.have.property('desc', 'this.When(/^I do something$/, function (next)');
         expect(firstElement).to.have.property('id', 'stepc0c243868293a93f35e3a05e2b844793');
-        // TODO check
-        // expect(firstElement).to.have.property('reg', /^I do something$/);
+        expect(firstElement).to.have.property('gherkin', GherkinType.When);
+        expect(firstElement.reg.toString()).to.be.eq('/^I do something$/');
+        expect(firstElement.partialReg.toString()).to.be.eq('/^(^I|$)( |$)(do|$)( |$)(something$|$)/');
         expect(firstElement).to.have.property('text', 'I do something');
         expect(firstElement.def).to.have.deep.property('range');
         expect(firstElement.def['uri']).to.have.string('test.steps.js');
