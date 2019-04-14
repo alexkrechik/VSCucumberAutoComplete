@@ -19,6 +19,7 @@ interface Settings {
         pages?: PagesSettings,
         syncfeatures?: boolean | string,
         strictGherkinCompletion?: boolean,
+        strictGherkinValidation?: boolean,
         smartSnippets?: boolean,
         stepsInvariants?: boolean,
         customParameters?: CustomParameter[],

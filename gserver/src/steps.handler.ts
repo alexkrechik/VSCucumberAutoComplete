@@ -487,8 +487,9 @@ export default class StepsHandler {
             ), []);
     }
 
-    getStepByText(text: string): Step {
-        return this.elements.find(s => s.reg.test(text));
+    getStepByText(text: string, gherkin?: GherkinType): Step {
+        return this.elements
+            .find(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
     }
 
     validate(line: string, lineNum: number, text: string): Diagnostic | null {
@@ -499,7 +500,11 @@ export default class StepsHandler {
             return null;
         }
         const beforeGherkin = match[1];
-        const step = this.getStepByText(match[4]);
+        const gherkinPart = match[2];
+        const step = this.getStepByText(match[4], this.settings.cucumberautocomplete.strictGherkinValidation
+            ? this.getStrictGherkinType(gherkinPart, lineNum, text)
+            : undefined
+        );
         if (step) {
             return null;
         } else {

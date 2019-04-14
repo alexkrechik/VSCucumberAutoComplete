@@ -262,6 +262,13 @@ describe('validate', () => {
         expect(s.validate('When I do something  ', 1, '')).to.be.null;
         expect(s.validate('When  I do something  ', 1, '')).to.be.null;
     });
+    it('should not return diagnostic for uncorresponding gherkin words lines', () => {
+        expect(s.validate('Given I do something', 1, '')).to.be.null;
+        expect(s.validate('When I do something', 1, '')).to.be.null;
+        expect(s.validate('Then I do something', 1, '')).to.be.null;
+        expect(s.validate('And I do something', 1, '')).to.be.null;
+        expect(s.validate('But I do something', 1, '')).to.be.null;
+    });
     it('should not check non-Gherkin steps', () => {
         expect(s.validate('Non_gherkin_word do something else', 1, '')).to.be.null;
     });
@@ -288,6 +295,22 @@ describe('validate', () => {
         expect(s.validate('When I test outline using "<number1>" variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <number2> variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <string1> variable', 1, outlineFeature)).to.not.be.null;
+    });
+    it('should correctly validate steps with incorrect gherkin word in case of strictGherkinValidation', () => {
+        const strictGherkinHandler = new StepsHandler(__dirname, {
+            cucumberautocomplete: {
+                ...settings.cucumberautocomplete,
+                strictGherkinValidation: true
+            }
+        });
+        const testFeature = getFileContent(__dirname + '/data/test.feature');
+        expect(strictGherkinHandler.validate('Given I do something', 12, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('When I do something', 12, testFeature)).to.be.null;
+        expect(strictGherkinHandler.validate('Then I do something', 12, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('And I do something', 5, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('But I do something', 5, testFeature)).to.not.be.null;
+        expect(strictGherkinHandler.validate('And I do something', 12, testFeature)).to.be.null;
+        expect(strictGherkinHandler.validate('But I do something', 12, testFeature)).to.be.null;
     });
 });
 
