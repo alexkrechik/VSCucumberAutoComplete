@@ -5,8 +5,8 @@ import { getFileContent } from '../src/util';
 
 const settings = {
     cucumberautocomplete: {
-        steps: ['/data/test.steps*.js'],
-        syncfeatures: '/data/test.feature',
+        steps: ['/data/steps/test.steps*.js'],
+        syncfeatures: '/data/features/test.feature',
         smartSnippets: true,
         stepsInvariants: true,
         strictGherkinCompletion: true,
@@ -241,7 +241,7 @@ describe('validateConfiguration', () => {
 describe('Documentation parser', () => {
     const sDocumentation = new StepsHandler(__dirname, {
         cucumberautocomplete: {
-            steps: ['/data/test.documentation*.js'],
+            steps: ['/data/steps/test.documentation*.js'],
             customParameters: []
         },
     });
@@ -291,7 +291,7 @@ describe('validate', () => {
         expect(s.validate('* I do something else', 1, '')).to.not.be.null;
     });
     it('should correctly handle outline steps', () => {
-        const outlineFeature = getFileContent(__dirname + '/data/outlines.feature');
+        const outlineFeature = getFileContent(__dirname + '/data/features/outlines.feature');
         expect(s.validate('When I test outline using "<number1>" variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <number2> variable', 1, outlineFeature)).to.be.null;
         expect(s.validate('When I test outline using <string1> variable', 1, outlineFeature)).to.not.be.null;
@@ -303,7 +303,7 @@ describe('validate', () => {
                 strictGherkinValidation: true
             }
         });
-        const testFeature = getFileContent(__dirname + '/data/test.feature');
+        const testFeature = getFileContent(__dirname + '/data/features/test.feature');
         expect(strictGherkinHandler.validate('Given I do something', 12, testFeature)).to.not.be.null;
         expect(strictGherkinHandler.validate('When I do something', 12, testFeature)).to.be.null;
         expect(strictGherkinHandler.validate('Then I do something', 12, testFeature)).to.not.be.null;
@@ -356,7 +356,7 @@ describe('getCompletion', () => {
         expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
     });
     it ('should return proper text in case of strict gherkin option', () => {
-        const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+        const strictGherkinFeature = getFileContent(__dirname + '/data/features/strict.gherkin.feature');
         expect(s.getCompletion(' Given I do', 1, strictGherkinFeature)).to.be.null;
         expect(s.getCompletion(' When I do', 1, strictGherkinFeature)).to.not.be.null;
         expect(s.getCompletion(' Then I do', 1, strictGherkinFeature)).to.be.null;
@@ -365,7 +365,7 @@ describe('getCompletion', () => {
         expect(s.getCompletion(' And I do', 4, strictGherkinFeature)).to.be.null;
     });
     it ('should show correct completion for lower case step definitions', () => {
-        const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+        const strictGherkinFeature = getFileContent(__dirname + '/data/features/strict.gherkin.feature');
         expect(s.getCompletion(' Given I test lower case ', 1, strictGherkinFeature)).to.be.null;
         expect(s.getCompletion(' When I test lower case ', 1, strictGherkinFeature)).to.not.be.null;
         expect(s.getCompletion(' Then I test lower case ', 1, strictGherkinFeature)).to.be.null;
@@ -395,17 +395,17 @@ describe('getCompletionInsertText', () => {
     });
 });
 
-describe('gherkin definition part overrids', () => {
+describe('gherkin definition part overrides', () => {
     const customSettings = {
         cucumberautocomplete: {
             ...settings.cucumberautocomplete,
             gherkinDefinitionPart: '(steptest)\\(',
-            steps: ['/data/gherkinDefinitionPart.steps.js'],
+            steps: ['/data/steps/gherkinDefinitionPart.steps.js'],
             strictGherkinCompletion: false
         }
     };
     const customStepsHandler = new StepsHandler(__dirname, customSettings);
-    const strictGherkinFeature = getFileContent(__dirname + '/data/strict.gherkin.feature');
+    const strictGherkinFeature = getFileContent(__dirname + '/data/features/strict.gherkin.feature');
 
     it('should suggest only proper step definitions', () => {
         expect(customStepsHandler.getCompletion(' When I test something ', 1, strictGherkinFeature)).to.be.null;
