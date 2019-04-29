@@ -79,7 +79,8 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
         "strings": true,
         "other": true
     },
-    "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\("
+    "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\(",
+    "cucumberautocomplete.stepRegExSymbol": "'"
 }
 ```
 #### Issues
