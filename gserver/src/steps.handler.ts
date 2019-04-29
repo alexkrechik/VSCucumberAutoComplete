@@ -122,14 +122,14 @@ export default class StepsHandler {
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = `[^\/'"\`\\w]*?`;
 
+        // Step part getting
+        const { stepRegExSymbol } = this.settings.cucumberautocomplete;
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        const stepStart = `(\/|'|"|\`)`;
-
+        const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(\/|'|"|\`)`;
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        const stepBody = '([^\\3]+)';
-
+        const stepBody = stepRegExSymbol ? `([^${stepRegExSymbol}]+)` : '([^\\3]+)';
         //Step should be ended with same symbol it begins
-        const stepEnd = '\\3';
+        const stepEnd = stepRegExSymbol ? stepRegExSymbol : '\\3';
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');

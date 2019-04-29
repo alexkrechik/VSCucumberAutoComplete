@@ -421,3 +421,20 @@ describe('gherkin definition part overrides', () => {
         expect(customStepsHandler.validate('Given I test gherkinDefinitionPart option', 1, '')).to.be.null;
     });
 });
+
+describe('gherkin regex step start', () => {
+    const customSettings = {
+        cucumberautocomplete: {
+            ...settings.cucumberautocomplete,
+            stepRegExSymbol: '\\\'',
+            steps: ['/data/steps/stepRegExSymbol.steps.js']
+        }
+    };
+    const customStepsHandler = new StepsHandler(__dirname, customSettings);
+    const elements = customStepsHandler.getElements();
+
+    it('should correctly parse steps differs from stepRegExSymbol var', () => {
+        expect(elements.length).to.be.eq(1);
+        expect(elements[0].text).to.be.eq('I test quotes step');
+    });
+});

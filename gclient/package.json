@@ -141,6 +141,12 @@
                     "type": "string",
                     "required": false,
                     "default": false
+                },
+                "cucumberautocomplete.stepRegExSymbol": {
+                    "descrioption": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
+                    "type": "string",
+                    "required": false,
+                    "default": false
                 }
             }
         }
