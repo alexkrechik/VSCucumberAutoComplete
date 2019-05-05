@@ -1,4 +1,11 @@
-## 2.13.1/2018-02-18
+## 2.14.0/2019-05-05
+* Added stepRegExSymbol extension option
+* Added strictGherkinValidation extension option
+* Added extension support for "Ability" and "Business Need" synonyms for the "Feature"
+* Implemented full support of '*' (any) gherkin symbol
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.14.0)
+
+## 2.13.1/2019-02-18
 * Implemented all the foreign 'Given/When/Then' words support
 * Corrected completion getting in case of strictGherkinCompletion option and foreign gherkin words
 * Show, if present, JSDoc step field as suggestion description
