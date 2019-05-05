@@ -5,7 +5,8 @@ const whenWords = escapeRegExp(`Wanneer|متى|عندما|Cuan|Եթե|Երբ|Cua
 const thenWords = escapeRegExp(`Dan|اذاً|ثم|Alavez|Allora|Antonces|Ապա|Entós|But at the end of the day I reckon|O halda|Zatim|То|Aleshores|Cal|那么|那麼|Lè sa a|Le sa a|Onda|Pak|Så|🙏|Then|Do|Siis|Niin|Alors|Entón|Logo|მაშინ|Dann|Τότε|પછી|אז|אזי|तब|तदा|Akkor|Þá|Maka|Ansin|ならば|Njuk|Banjur|ನಂತರ|vaj|그러면|DEN|Tad|Tada|dann|Тогаш|Togash|Kemudian|Тэгэхэд|Үүний дараа|Tha|Þa|Ða|Tha the|Þa þe|Ða ðe|ਤਦ|آنگاه|Let go and haul|Wtedy|Então|Entao|Atunci|Затем|Тогда|Dun|Den youse gotta|Онда|Tak|Potom|Nato|Potem|Takrat|Entonces|அப்பொழுது|Нәтиҗәдә|అప్పుడు|ดังนั้น|O zaman|Тоді|پھر|تب|Унда|Thì|Yna`);
 const andWords = escapeRegExp(`En|و|Y|E|Եվ|Ya|Too right|Və|Həm|A|И|而且|并且|同时|並且|同時|Ak|Epi|A také|Og|😂|And|Kaj|Ja|Et que|Et qu'|Et|და|Und|Και|અને|וגם|और|तथा|És|Dan|Agus|かつ|Lan|ಮತ್ತು|'ej|latlh|그리고|AN|Un|Ir|an|a|Мөн|Тэгээд|Ond|7|ਅਤੇ|Aye|Oraz|Si|Și|Şi|К тому же|Также|An|A tiež|A taktiež|A zároveň|In|Ter|Och|மேலும்|மற்றும்|Һәм|Вә|మరియు|และ|Ve|І|А також|Та|اور|Ва|Và`);
 const butWords = escapeRegExp(`Maar|لكن|Pero|Բայց|Peru|Yeah nah|Amma|Ancaq|Ali|Но|Però|但是|Men|Ale|😔|But|Sed|Kuid|Mutta|Mais que|Mais qu'|Mais|მაგ­რამ|Aber|Αλλά|પણ|אבל|पर|परन्तु|किन्तु|De|En|Tapi|Ach|Ma|しかし|但し|ただし|Nanging|Ananging|ಆದರೆ|'ach|'a|하지만|단|BUT|Bet|awer|mä|No|Tetapi|Гэхдээ|Харин|Ac|ਪਰ|اما|Avast!|Mas|Dar|А|Иначе|Buh|Али|Toda|Ampak|Vendar|ஆனால்|Ләкин|Әмма|కాని|แต่|Fakat|Ama|Але|لیکن|Лекин|Бирок|Аммо|Nhưng|Ond`);
-export const allGherkinWords = `${givenWords}|${whenWords}|${thenWords}|${andWords}|${butWords}`;
+const otherWords = escapeRegExp(`\\*`);
+export const allGherkinWords = `${givenWords}|${whenWords}|${thenWords}|${andWords}|${butWords}|${otherWords}`;
 
 const givenWordsArr = givenWords.split('|');
 const whenWordsArr = whenWords.split('|');
@@ -28,7 +29,7 @@ export enum GherkinType {
     Other
 }
 
-export const getGherkinType = (word: string) => {
+export const getGherkinType = (word: string): GherkinType => {
     if (!!~givenWordsArr.indexOf(word)) {
         return GherkinType.Given;
     }
@@ -47,7 +48,7 @@ export const getGherkinType = (word: string) => {
     return GherkinType.Other;
 };
 
-export const getGherkinTypeLower = (word: string) => {
+export const getGherkinTypeLower = (word: string): GherkinType => {
     const lowerWord = word.toLowerCase();
     if (!!~givenWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.Given;

@@ -8,6 +8,8 @@ interface FormatConf {
 }
 
 const FORMAT_CONF: FormatConf = {
+    'Ability': 0,
+    'Business Need': 0,
     'Feature:': 0,
     'Scenario:': 1,
     'Background:': 1,
@@ -18,6 +20,7 @@ const FORMAT_CONF: FormatConf = {
     'Then': 2,
     'And': 2,
     'But': 2,
+    '\\*': 2,
     '\\|': 3,
     '"""': 3,
     '#': 'relative',
@@ -114,7 +117,8 @@ function formatTables(text) {
                         return accumulator;
                     }, [])
                 });
-                if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
+            } else {
+                if (!~l.search(/^\s*#/)) {
                     blockNum++;
                 }
             }

@@ -37,7 +37,7 @@ export type Step = {
     desc: string,
     def: Definition,
     count: number,
-    gherkin: string,
+    gherkin: GherkinType,
     documentation: string
 };
 
@@ -122,14 +122,14 @@ export default class StepsHandler {
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = `[^\/'"\`\\w]*?`;
 
+        // Step part getting
+        const { stepRegExSymbol } = this.settings.cucumberautocomplete;
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        const stepStart = `(\/|'|"|\`)`;
-
+        const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(\/|'|"|\`)`;
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        const stepBody = '([^\\3]+)';
-
+        const stepBody = stepRegExSymbol ? `([^${stepRegExSymbol}]+)` : '([^\\3]+)';
         //Step should be ended with same symbol it begins
-        const stepEnd = '\\3';
+        const stepEnd = stepRegExSymbol ? stepRegExSymbol : '\\3';
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         const r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
@@ -213,14 +213,14 @@ export default class StepsHandler {
         //Optional Text
         step = step.replace(/\(([a-z]+)\)/g, '($1)?');
 
-        //Alternative text
-        step = step.replace(/([a-zA-Z]+)\/([a-zA-Z]+)/, '($1|$2)');
+        //Alternative text a/b/c === (a|b|c)
+        step = step.replace(/([a-zA-Z]+)(?:\/([a-zA-Z]+))+/g, match => `(${match.replace(/\//g, '|')})`);
 
         //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
         //Cucumber Expressions Custom Parameter Type Documentation
         //https://docs.cucumber.io/cucumber-expressions/#custom-parameters
-        step = step.replace(/([^\\]){(?![\d,])(.*?)}/g, '$1.*');
+        step = step.replace(/([^\\]|^){(?![\d,])(.*?)}/g, '$1.*');
 
         //Escape all the regex symbols to avoid errors
         step = escapeRegExp(step);
@@ -368,7 +368,7 @@ export default class StepsHandler {
         stepRawComment;
     }
 
-    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: string, comments: JSDocComments): Step[] {
+    getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: GherkinType, comments: JSDocComments): Step[] {
         const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants ?
             this.getStepTextInvariants(stepPart) : [stepPart];
         const desc = this.getDescForStep(fullStepLine);
@@ -445,7 +445,8 @@ export default class StepsHandler {
                 }
             }
             if (match) {
-                const [, beforeGherkin, gherkin, , stepPart] = match;
+                const [, beforeGherkin, gherkinString, , stepPart] = match;
+                const gherkin = getGherkinTypeLower(gherkinString);
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
@@ -486,8 +487,9 @@ export default class StepsHandler {
             ), []);
     }
 
-    getStepByText(text: string): Step {
-        return this.elements.find(s => s.reg.test(text));
+    getStepByText(text: string, gherkin?: GherkinType): Step {
+        return this.elements
+            .find(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
     }
 
     validate(line: string, lineNum: number, text: string): Diagnostic | null {
@@ -498,7 +500,11 @@ export default class StepsHandler {
             return null;
         }
         const beforeGherkin = match[1];
-        const step = this.getStepByText(match[4]);
+        const gherkinPart = match[2];
+        const step = this.getStepByText(match[4], this.settings.cucumberautocomplete.strictGherkinValidation
+            ? this.getStrictGherkinType(gherkinPart, lineNum, text)
+            : undefined
+        );
         if (step) {
             return null;
         } else {
@@ -523,6 +529,30 @@ export default class StepsHandler {
         return step ? step.def : null;
     }
 
+    getStrictGherkinType(gherkinPart: string, lineNumber: number, text: string) {
+        const gherkinType = getGherkinType(gherkinPart);
+        if (gherkinType === GherkinType.And || gherkinType === GherkinType.But) {
+            return text
+                .split(/\r?\n/g)
+                .slice(0, lineNumber)
+                .reduceRight((res, val) => {
+                    if (res === GherkinType.Other) {
+                        const match = this.getGherkinMatch(val, text);
+                        if (match) {
+                            const [, , prevGherkinPart] = match;
+                            const prevGherkinPartType = getGherkinTypeLower(prevGherkinPart);
+                            if (~[GherkinType.Given, GherkinType.When, GherkinType.Then].indexOf(prevGherkinPartType)) {
+                                res = prevGherkinPartType;
+                            }
+                        }
+                    }
+                    return res;
+                }, GherkinType.Other);
+        } else {
+            return getGherkinTypeLower(gherkinPart);
+        }
+    }
+
     getCompletion(line: string, lineNumber: number, text: string): CompletionItem[] | null {
         //Get line part without gherkin part
         const match = this.getGherkinMatch(line, text);
@@ -536,29 +566,8 @@ export default class StepsHandler {
             //Filter via gherkin words comparing if strictGherkinCompletion option provided
             .filter((step) => {
                 if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
-                    //We should find previous Gherkin word in case of 'And' or 'But' word
-                    const gherkinType = getGherkinType(gherkinPart);
-                    if (gherkinType === GherkinType.And || gherkinType === GherkinType.But) {
-                        const prevGherkinWordType = text
-                            .split(/\r?\n/g)
-                            .slice(0, lineNumber)
-                            .reduceRight((res, val) => {
-                                if (res === GherkinType.Other) {
-                                    const match = this.getGherkinMatch(val, text);
-                                    if (match) {
-                                        const [, , prevGherkinPart] = match;
-                                        const prevGherkinPartType = getGherkinTypeLower(prevGherkinPart);
-                                        if (~[GherkinType.Given, GherkinType.When, GherkinType.Then].indexOf(prevGherkinPartType)) {
-                                            res = prevGherkinPartType;
-                                        }
-                                    }
-                                }
-                                return res;
-                            }, GherkinType.Other);
-                        return getGherkinTypeLower(step.gherkin) === prevGherkinWordType;
-                    } else {
-                        return getGherkinTypeLower(step.gherkin) === getGherkinTypeLower(gherkinPart);
-                    }
+                    const strictGherkinPart = this.getStrictGherkinType(gherkinPart, lineNumber, text);
+                    return step.gherkin === strictGherkinPart;
                 } else {
                     return true;
                 };

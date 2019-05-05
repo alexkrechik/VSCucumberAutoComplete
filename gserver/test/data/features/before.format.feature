@@ -35,6 +35,11 @@ Then I should have a valid result
 But not an invalid result
 
 
+Scenario: Should properly format star gherkin word
+
+* I do something
+
+
 Scenario Outline: feeding a suckler cow      
 
 Given the cow weighs <weight> kg

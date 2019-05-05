@@ -50,6 +50,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
     ],
     "cucumberautocomplete.syncfeatures": "test/features/*feature",
     "cucumberautocomplete.strictGherkinCompletion": true,
+    "cucumberautocomplete.strictGherkinValidation": true,
     "cucumberautocomplete.smartSnippets": true,
     "cucumberautocomplete.stepsInvariants": true,
     "cucumberautocomplete.customParameters": [
@@ -78,7 +79,8 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
         "strings": true,
         "other": true
     },
-    "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\("
+    "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\(",
+    "cucumberautocomplete.stepRegExSymbol": "'"
 }
 ```
 #### Issues
