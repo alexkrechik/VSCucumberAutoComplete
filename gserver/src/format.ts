@@ -117,7 +117,8 @@ function formatTables(text) {
                         return accumulator;
                     }, [])
                 });
-                if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
+            } else {
+                if (!~l.search(/^\s*#/)) {
                     blockNum++;
                 }
             }
