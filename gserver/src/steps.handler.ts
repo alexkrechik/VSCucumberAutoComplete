@@ -213,8 +213,8 @@ export default class StepsHandler {
         //Optional Text
         step = step.replace(/\(([a-z]+)\)/g, '($1)?');
 
-        //Alternative text
-        step = step.replace(/([a-zA-Z]+)\/([a-zA-Z]+)/, '($1|$2)');
+        //Alternative text a/b/c === (a|b|c)
+        step = step.replace(/([a-zA-Z]+)(?:\/([a-zA-Z]+))+/g, match => `(${match.replace(/\//g, '|')})`);
 
         //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
