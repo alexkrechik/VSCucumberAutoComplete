@@ -55,6 +55,16 @@
                 "language": "feature",
                 "scopeName": "text.gherkin.feature",
                 "path": "./syntaxes/feature.tmLanguage"
+            },
+            {
+                "injectTo": [
+                    "text.gherkin.feature"
+                ],
+                "scopeName": "text.gherkin.feature.json",
+                "path": "./syntaxes/json-embed.json",
+                "embeddedLanguages": {
+                    "meta.embedded.block.json": "json"
+                }
             }
         ],
         "snippets": [
