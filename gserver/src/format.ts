@@ -150,9 +150,9 @@ function formatTables(text) {
 
 // Consider a CJK character is 2 spaces
 function stringBytesLen(c) {
-    var n = c.length, s;
-    var len = 0;
-    for (var i = 0; i < n; i++) {
+    let n = c.length, s;
+    let len = 0;
+    for (let i = 0; i < n; i++) {
         s = c.charCodeAt(i);
         while (s > 0) {
             len++;
