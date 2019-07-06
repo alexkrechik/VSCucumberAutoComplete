@@ -25,6 +25,15 @@ Feature: Formatting feature
     But this line not
 			"""
 
+			And here is the json
+			"""
+			[
+				{
+					"json": "text"
+				}
+			]
+			"""
+
 
 	@Other
 	Scenario: Some other scenario
