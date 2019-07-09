@@ -1,3 +1,8 @@
+## 2.14.1/2019-07-09
+* Corrected JSON-related parts formatting
+* Fixed some issues related to non-English languages
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.15.0)
+
 ## 2.14.0/2019-05-05
 * Added stepRegExSymbol extension option
 * Added strictGherkinValidation extension option
