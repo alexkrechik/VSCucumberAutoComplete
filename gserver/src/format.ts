@@ -148,6 +148,45 @@ function formatTables(text) {
     return textArr.join('\r\n');
 }
 
+
+function formatJson(textBody: string, indent: string) {
+    let rxTextBlock = /^\s*"""([\s\S.]*?)"""/gm;
+    let rxQuoteBegin = /"""/g;
+
+    let textArr = textBody.match(rxTextBlock);
+
+    if (textArr === null) {
+        return textBody
+    }
+
+    for (let txt of textArr) {
+        let preJson = txt.replace(rxQuoteBegin, '')
+        if (!isJson(preJson)) {
+            continue
+        }
+
+        let rxIndentTotal = /^([\s\S]*?)"""/
+        let textIndentTotal = txt.match(rxIndentTotal);
+        let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '')
+
+        let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
+        jsonTxt = '\n"""\n' + jsonTxt + '\n"""'
+        jsonTxt = jsonTxt.replace(/^/gm, textIndent)
+
+        textBody = textBody.replace(txt, jsonTxt)
+    }
+    return textBody;
+}
+
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 // Consider a CJK character is 2 spaces
 function stringBytesLen(c) {
     let n = c.length, s;
@@ -169,6 +208,9 @@ export function format(indent: string, text: string, settings: Settings): string
 
     //We should format all the tables present
     text = formatTables(text);
+
+    // JSON beautifier
+    text = formatJson(text, indent);
 
     return text;
 
