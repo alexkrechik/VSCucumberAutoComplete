@@ -7,14 +7,14 @@ This feature was created to test formatting
 Background: Background name
 
 Given the following users exist:
-| name |email| twitter|
-| Aslak|    aslak@cucumber.io | @aslak_hellesoy |
-| Julien|julien@cucumber.io| @jbpros|
-| Matt|matt@cucumber.io| @mattwynne|
+| name |email| twitter| CJK Message 訊息 |
+| Aslak|    aslak@cucumber.io | @aslak_hellesoy | Yoo Hello world |
+| Julien|julien@cucumber.io| @jbpros| Yoo 你好 世界 |
+| Matt|matt@cucumber.io| @mattwynne| Yoo こんにちは 世界 |
 
 
 #This comment is related to this Scenario:
-Scenario: Some scenario     
+Scenario: Some scenario
 
 #Comment related to the next string
 Given I prepare for something
@@ -45,7 +45,7 @@ Scenario: Should properly format star gherkin word
 * I do something
 
 
-Scenario Outline: feeding a suckler cow      
+Scenario Outline: feeding a suckler cow
 
 Given the cow weighs <weight> kg
 When we calculate the feeding requirements

@@ -129,9 +129,9 @@ function formatTables(text) {
     const maxes = blocks.reduce((res, b) => {
         const block = b.block;
         if (res[block]) {
-            res[block] = res[block].map((v, i) => Math.max(v, b.data[i].length));
+            res[block] = res[block].map((v, i) => Math.max(v, stringBytesLen(b.data[i])));
         } else {
-            res[block] = b.data.map(v => v.length);
+            res[block] = b.data.map(v => stringBytesLen(v));
         }
         return res;
     }, []);
@@ -139,7 +139,7 @@ function formatTables(text) {
     //Change all the 'block' lines in our document using correct distance between words
     blocks.forEach(block => {
         let change = block.data
-            .map((d, i) => ` ${d}${' '.repeat(maxes[block.block][i] - d.length)} `)
+            .map((d, i) => ` ${d}${' '.repeat(maxes[block.block][i] - stringBytesLen(d))} `)
             .join('|');
         change = `|${change}|`;
         textArr[block.line] = textArr[block.line].replace(/\|.*/, change);
@@ -147,6 +147,7 @@ function formatTables(text) {
 
     return textArr.join('\r\n');
 }
+
 
 function formatJson(textBody: string, indent: string) {
     let rxTextBlock = /^\s*"""([\s\S.]*?)"""/gm;
@@ -184,6 +185,20 @@ function isJson(str) {
         return false;
     }
     return true;
+}
+
+// Consider a CJK character is 2 spaces
+function stringBytesLen(c) {
+    let n = c.length, s;
+    let len = 0;
+    for (let i = 0; i < n; i++) {
+        s = c.charCodeAt(i);
+        while (s > 0) {
+            len++;
+            s = s >> 8;
+        }
+    }
+    return len;
 }
 
 export function format(indent: string, text: string, settings: Settings): string {
