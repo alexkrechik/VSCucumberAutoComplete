@@ -7,10 +7,10 @@ Feature: Formatting feature
 	Background: Background name
 
 		Given the following users exist:
-			| name   | email              | twitter         |
-			| Aslak  | aslak@cucumber.io  | @aslak_hellesoy |
-			| Julien | julien@cucumber.io | @jbpros         |
-			| Matt   | matt@cucumber.io   | @mattwynne      |
+			| name   | email              | twitter         | CJK Message 訊息    |
+			| Aslak  | aslak@cucumber.io  | @aslak_hellesoy | Yoo Hello world     |
+			| Julien | julien@cucumber.io | @jbpros         | Yoo 你好 世界       |
+			| Matt   | matt@cucumber.io   | @mattwynne      | Yoo こんにちは 世界 |
 
 
 	#This comment is related to this Scenario:
