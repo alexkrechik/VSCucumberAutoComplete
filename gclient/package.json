@@ -170,7 +170,6 @@
     },
     "devDependencies": {
         "@types/node": "^6.0.52",
-        "jscs": "^3.0.7",
         "typescript": "~2.3.0",
         "vscode": "^1.1.10"
     },
