@@ -164,13 +164,12 @@ function formatJson(textBody: string, indent: string) {
         let taggedMap = {}
         let taggedTexts;
         while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
-            console.log(taggedTexts)
-            for (let i in taggedTexts) {
+            taggedTexts.forEach(function (tag, index) {
                 let uuid = createUUID()
 
-                taggedMap[uuid] = taggedTexts[i]
-                preJson = preJson.replace(taggedTexts[i], uuid)
-            }
+                taggedMap[uuid] = tag
+                preJson = preJson.replace(tag, uuid)
+            })
         }
         if (!isJson(preJson)) {
             continue

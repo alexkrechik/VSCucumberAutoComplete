@@ -32,7 +32,7 @@ And here is the json
 
 And here is the tagged json
 """
-[{"json":<text>}]
+[{"<json>":<text>}]
 """
 
 

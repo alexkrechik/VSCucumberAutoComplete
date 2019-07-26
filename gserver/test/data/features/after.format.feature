@@ -38,7 +38,7 @@ Feature: Formatting feature
 			"""
 			[
 				{
-					"json": <text>
+					"<json>": <text>
 				}
 			]
 			"""
