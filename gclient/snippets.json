@@ -34,7 +34,7 @@
         "body": [
             "Ability: ${1:Ability name}",
             "",
-            "   ${2:Ability Description}"
+            "    ${2:Ability Description}"
         ]
     },
     "Insert Business Need": {
@@ -42,7 +42,7 @@
         "body": [
             "Business Need: ${1:Business Need name}",
             "",
-            "   ${2:Business Need Description}"
+            "    ${2:Business Need Description}"
         ]
     },
     "Insert Feature": {
@@ -50,7 +50,7 @@
         "body": [
             "Feature: ${1:Feature name}",
             "",
-            "   ${2:Feature Description}"
+            "    ${2:Feature Description}"
         ]
     },
     "Insert Scenario": {
@@ -75,8 +75,8 @@
         "prefix": "Examples",
         "body": [
             "Examples:",
-                "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
-                "| ${4:Value 1}  | ${5:Value 2}  | ${6:Value 3}  |"
+            "    | ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
+            "    | ${4:Value 1}  | ${5:Value 2}  | ${6:Value 3}  |"
         ]
     }
 }
