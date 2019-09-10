@@ -30,6 +30,11 @@ And here is the json
 [{"json":"text"}]
 """
 
+And here is the tagged json
+"""
+[{"<json>":<text>}]
+"""
+
 
 @Other
 Scenario: Some other scenario

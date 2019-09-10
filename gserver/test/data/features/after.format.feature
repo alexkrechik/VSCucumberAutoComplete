@@ -34,6 +34,15 @@ Feature: Formatting feature
 			]
 			"""
 
+			And here is the tagged json
+			"""
+			[
+				{
+					"<json>": <text>
+				}
+			]
+			"""
+
 
 	@Other
 	Scenario: Some other scenario

@@ -161,6 +161,16 @@ function formatJson(textBody: string, indent: string) {
 
     for (let txt of textArr) {
         let preJson = txt.replace(rxQuoteBegin, '')
+        let taggedMap = {}
+        let taggedTexts;
+        while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
+            taggedTexts.forEach(function (tag, index) {
+                let uuid = createUUID()
+
+                taggedMap[uuid] = tag
+                preJson = preJson.replace(tag, uuid)
+            })
+        }
         if (!isJson(preJson)) {
             continue
         }
@@ -173,6 +183,12 @@ function formatJson(textBody: string, indent: string) {
         jsonTxt = '\n"""\n' + jsonTxt + '\n"""'
         jsonTxt = jsonTxt.replace(/^/gm, textIndent)
 
+        // Restore tagged json
+        for (let uuid in taggedMap) {
+            if (taggedMap.hasOwnProperty(uuid)) {
+                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid])
+            }
+        }
         textBody = textBody.replace(txt, jsonTxt)
     }
     return textBody;
@@ -185,6 +201,10 @@ function isJson(str) {
         return false;
     }
     return true;
+}
+
+function createUUID() {
+    return (Math.floor(Math.random() * 1000000000)).toString()
 }
 
 // Consider a CJK character is 2 spaces
