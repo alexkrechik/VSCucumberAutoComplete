@@ -157,6 +157,12 @@
                     "type": "string",
                     "required": false,
                     "default": false
+                },
+                "cucumberautocomplete.stepsBaseFile": {
+                    "descrioption": "Provide step defintion name together with the step file name as prefix",
+                    "type": "boolean",
+                    "required": false,
+                    "default": false
                 }
             }
         }

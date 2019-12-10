@@ -357,6 +357,10 @@ export default class StepsHandler {
             res = res.replace(/\"\[\^\"\]\+\"/g, '""');
         }
 
+        if (this.settings.cucumberautocomplete.stepsBaseFile) {
+            //remove the file prefix when the step is selected to the feature file
+            res = res.substr(res.indexOf("-")+1, res.length);
+        }
         return res;
     }
 
@@ -366,6 +370,19 @@ export default class StepsHandler {
         (stepParsedComment.tags.find(tag => tag.title === 'description') || {}).description ||
         (stepParsedComment.tags.find(tag => tag.title === 'desc') || {}).description ||
         stepRawComment;
+    }
+
+    getStepsBaseFile(fullStepLine: string, stepPart: string, def: Location, gherkin: GherkinType, comments: JSDocComments): Step[] {     
+        //here requerie the step file name use "test-steps.js" pattern 
+        let fileName = def.uri.substring(def.uri.lastIndexOf("/")+1, def.uri.lastIndexOf("-")).concat("-");
+        if(stepPart.startsWith("^")){
+            stepPart = "^".concat(fileName).concat(stepPart.substr(1,stepPart.length));
+        } else {
+            stepPart = fileName.concat(stepPart);
+        }
+     
+        let steps = this.getSteps(fullStepLine, stepPart, def, gherkin, comments);
+        return steps;
     }
 
     getSteps(fullStepLine: string, stepPart: string, def: Location, gherkin: GherkinType, comments: JSDocComments): Step[] {
@@ -450,6 +467,9 @@ export default class StepsHandler {
                 const pos = Position.create(lineIndex, beforeGherkin.length);
                 const def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(finalLine, stepPart, def, gherkin, fileComments));
+                if(this.settings.cucumberautocomplete.stepsBaseFile){
+                    steps = steps.concat(this.getStepsBaseFile(finalLine, stepPart, def, gherkin, fileComments));
+                }
             }
             return steps;
         }, []);

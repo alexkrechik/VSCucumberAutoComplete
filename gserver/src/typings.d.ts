@@ -27,6 +27,7 @@ interface Settings {
         formatConfOverride?: FormatConf[],
         onTypeFormat?: boolean,
         gherkinDefinitionPart?: string,
-        stepRegExSymbol?: string
+        stepRegExSymbol?: string,
+        stepsBaseFile?: boolean
     }
 }
