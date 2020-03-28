@@ -32,8 +32,8 @@ const FORMAT_CONF: FormatConf = {
 function findFormat(line: string, settings: Settings): FormatConfVal | null {
     const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
     const fnFormatFinder = (conf: FormatConf) => {
-        const key = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return key ? conf[key] : null;
+        const matchedKey = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
+        return matchedKey ? conf[matchedKey] : null;
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
     const presetFormat = fnFormatFinder(FORMAT_CONF);
