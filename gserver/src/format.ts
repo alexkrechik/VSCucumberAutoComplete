@@ -56,7 +56,6 @@ export function clearText(text: string) {
 export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
-    let baseIndentation = 0;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
