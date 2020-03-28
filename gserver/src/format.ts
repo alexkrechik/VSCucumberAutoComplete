@@ -36,8 +36,8 @@ function findFormat(line: string, settings: Settings): FormatConfVal | null {
         return key ? conf[key] : null;
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
-    const pesetFormat = fnFormatFinder(FORMAT_CONF);
-    return (settingsFormat === null) ? pesetFormat : settingsFormat;
+    const presetFormat = fnFormatFinder(FORMAT_CONF);
+    return (settingsFormat === null) ? presetFormat : settingsFormat;
 }
 
 export function clearText(text: string) {
