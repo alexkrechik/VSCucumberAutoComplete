@@ -28,7 +28,7 @@ const FORMAT_CONF: FormatConf = {
     '@': 'relative',
 };
 
-function findFormat(line: string, settings: Settings): FormatConfVal | null {
+function findIndentation(line: string, settings: Settings): FormatConfVal | null {
     const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
     const fnFormatFinder = (conf: FormatConf) => {
         const matchedKey = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
@@ -68,7 +68,7 @@ export function correctIndents(text, indent, settings: Settings) {
                 }
             }
             //Now we should find current line format
-            const format = findFormat(line, settings);
+            const format = findIndentation(line, settings);
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
             else if (typeof format === 'number') {
@@ -76,9 +76,9 @@ export function correctIndents(text, indent, settings: Settings) {
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => typeof findFormat(l, settings) === 'number');
+                const nextLine = textArr.slice(i + 1).find(l => typeof findIndentation(l, settings) === 'number');
                 if (nextLine) {
-                    const nextLineFormat = findFormat(nextLine, settings);
+                    const nextLineFormat = findIndentation(nextLine, settings);
                     indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
                 } else {
                     indentCount = defaultIndentation;
