@@ -13,6 +13,7 @@ const FORMAT_CONF: FormatConf = {
     'Feature:': 0,
     'Rule': 1,
     'Scenario:': 1,
+    'Example:': 1,
     'Background:': 1,
     'Scenario Outline:': 1,
     'Examples:': 2,
