@@ -11,7 +11,7 @@ const FORMAT_CONF: FormatConf = {
     'Ability': 0,
     'Business Need': 0,
     'Feature:': 0,
-    'Rule': 1,
+    'Rule:': 1,
     'Scenario:': 1,
     'Example:': 1,
     'Background:': 1,
