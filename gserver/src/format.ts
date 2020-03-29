@@ -6,6 +6,11 @@ interface FormatConf {
     [key: string]: FormatConfVal
 }
 
+interface ResolvedFormat {
+    symbol: string;
+    value: FormatConfVal;
+}
+
 const FORMAT_CONF: FormatConf = {
     'Ability': 0,
     'Business Need': 0,
@@ -29,10 +34,15 @@ const FORMAT_CONF: FormatConf = {
 };
 
 function findIndentation(line: string, settings: Settings): FormatConfVal | null {
+    const format = findFormat(line, settings);
+    return format ? format.value : null;
+}
+
+function findFormat(line: string, settings: Settings): ResolvedFormat | null {
     const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
-    const fnFormatFinder = (conf: FormatConf) => {
-        const matchedKey = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return matchedKey ? conf[matchedKey] : null;
+    const fnFormatFinder = (conf: FormatConf): ResolvedFormat | null => {
+        const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
+        return symbol ? {symbol, value: conf[symbol]} : null;
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
     const presetFormat = fnFormatFinder(FORMAT_CONF);
