@@ -15,7 +15,7 @@ const settings: any = {
 };
 
 describe('format', () => {
-    ['general'].forEach(name => {
+    ['general', 'rule'].forEach(name => {
         describe(`for ${name} syntax`, () => {
             let after = getFileContent(`${__dirname}/data/features/after/${name}.feature`).split(/\r?\n/);
             let beforeU = getFileContent(`${__dirname}/data/features/before/${name}.feature`);
