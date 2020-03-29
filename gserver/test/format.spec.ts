@@ -20,6 +20,6 @@ describe('format', () => {
     let beforeUArr = beforeU.split(/\r?\n/);
     let before = clearText(format('\t', beforeU, settings)).split(/\r?\n/);
     it(`should not change lines num`, () => expect(before.length).to.be.equal(after.length));
-    beforeUArr.forEach((l, i) => it(`should correctly format "${l}" line`, () =>
+    beforeUArr.forEach((l, i) => it(`should correctly format line ${i + 1}: "${l}"`, () =>
         expect(before[i]).to.be.equal(after[i])));
 });
