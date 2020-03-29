@@ -1,22 +1,20 @@
-import { format, clearText } from '../src/format';
-import { getFileContent } from '../src/util';
-import { expect } from 'chai';
-
-const userSettings: any = {
-    cucumberautocomplete: {
-        skipDocStringsFormat: true,
-        formatConfOverride: {
-            'But': 3,
-            'And': 'asdasd',
-            'SomeTestKey': 12,
-            'Scenario Outline': 0,
-        }
-    }
-};
+import {clearText, format} from '../src/format';
+import {getFileContent} from '../src/util';
+import {expect} from 'chai';
 
 describe('format', () => {
     [
-        {name: 'general', settings: userSettings},
+        {name: 'general', settings: {
+                cucumberautocomplete: {
+                    skipDocStringsFormat: true,
+                    formatConfOverride: {
+                        'But': 3,
+                        'And': 'asdasd',
+                        'SomeTestKey': 12,
+                        'Scenario Outline': 0,
+                    }
+                }
+            }},
         {name: 'rule', settings: undefined}
     ].forEach(feature => {
         describe(`for ${feature.name} syntax`, () => {
