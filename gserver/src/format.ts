@@ -63,7 +63,7 @@ export function clearText(text: string) {
         .join('\r\n');
 }
 
-export function correctIndents(text, indent, settings: Settings) {
+export function correctIndents(text, indent, settings: Settings = {cucumberautocomplete: {}}) {
     let commentsMode = false;
     const defaultIndentation = 0;
     let currentIndentation = defaultIndentation;
@@ -239,7 +239,7 @@ function stringBytesLen(c) {
     return len;
 }
 
-export function format(indent: string, text: string, settings: Settings): string {
+export function format(indent: string, text: string, settings?: Settings): string {
 
     //Insert correct indents for all the lined differs from string start
     text = correctIndents(text, indent, settings);
