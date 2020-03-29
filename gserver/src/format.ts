@@ -78,18 +78,18 @@ export function correctIndents(text, indent, settings: Settings) {
                 }
             }
             //Now we should find current line format
-            const format = findIndentation(line, settings);
+            const format: ResolvedFormat = findFormat(line, settings);
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
-            else if (typeof format === 'number') {
-                indentCount = format;
+            else if (format && typeof format.value === 'number') {
+                indentCount = format.value;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
                 const nextLine = textArr.slice(i + 1).find(l => typeof findIndentation(l, settings) === 'number');
                 if (nextLine) {
-                    const nextLineFormat = findIndentation(nextLine, settings);
-                    indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
+                    const nextLineIndentation = findIndentation(nextLine, settings);
+                    indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
                 } else {
                     indentCount = defaultIndentation;
                 }
