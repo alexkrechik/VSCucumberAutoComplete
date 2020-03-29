@@ -66,6 +66,7 @@ export function clearText(text: string) {
 export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
+    let currentIndentation = defaultIndentation;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -79,10 +80,13 @@ export function correctIndents(text, indent, settings: Settings) {
             }
             //Now we should find current line format
             const format: ResolvedFormat = findFormat(line, settings);
+            if (format && format.symbol === 'Rule:') {
+                currentIndentation = defaultIndentation;
+            }
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
             else if (format && typeof format.value === 'number') {
-                indentCount = format.value;
+                indentCount = format.value + currentIndentation;
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
@@ -93,6 +97,9 @@ export function correctIndents(text, indent, settings: Settings) {
                 } else {
                     indentCount = defaultIndentation;
                 }
+            }
+            if (format && format.symbol === 'Rule:') {
+                currentIndentation++;
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
