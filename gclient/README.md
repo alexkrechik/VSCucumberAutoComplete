@@ -4,13 +4,14 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 ## This extension adds rich language support for the Cucumber (Gherkin) language to VS Code, including:
 * Syntax highlight
 * Basic Snippets support
-* Auto-parsing of feature steps from pathes, provided in settings.json
+* Auto-parsing of feature steps from paths, provided in settings.json
 * Autocompletion of steps
 * Ontype validation for all the steps
 * Definitions support for all the steps parts
 * Document format support, including tables formatting
 * Supporting of many spoken languages
-* Gherking page objects native support
+* Gherkin page objects native support
+* Multiple programming languages, JS, TS, Ruby, Kotlin etc.
 
 ## Important extension goals are improving of steps suggestions list and minimization of user edits after step inserting:
 * Sort steps suggestions by their using count
@@ -20,8 +21,8 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 
 ![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
 ## How to use:
-1. Open your app in vscode
-2. Install cucumberautocomplete extension
+1. Open your app in VS Code
+2. Install `cucumberautocomplete` extension
 3. In the opened app root create (if absent) .vscode folder with settings.json file or just run ```mkdir .vscode && touch .vscode/settings.json```
 4. Add all the needed settings to the settings.json file
 5. Reload app to apply all the extension changes
@@ -87,4 +88,4 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 Fill free to create app issues on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete/issues)
 
 #### Thank you
-If this plugin was helpful for you, you can give it a ★ Star on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete)
+If this plugin was helpful for you, you could give it a ★ Star on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete)
