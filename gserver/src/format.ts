@@ -63,10 +63,12 @@ export function clearText(text: string) {
         .join('\r\n');
 }
 
-export function correctIndents(text, indent, settings: Settings = {cucumberautocomplete: {}}) {
+export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
-    let currentIndentation = defaultIndentation;
+    let insideRule = false
+    const ruleValue = findFormat('Rule:', settings).value
+    const ruleIndentation = typeof ruleValue === 'number' ? ruleValue : 0
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -79,14 +81,14 @@ export function correctIndents(text, indent, settings: Settings = {cucumberautoc
                 }
             }
             //Now we should find current line format
-            const format: ResolvedFormat = findFormat(line, settings);
+            const format = findFormat(line, settings);
             if (format && format.symbol === 'Rule:') {
-                currentIndentation = defaultIndentation;
+                insideRule = true
             }
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
             else if (format && typeof format.value === 'number') {
-                indentCount = format.value + currentIndentation;
+                indentCount = format.value + (insideRule && format.symbol !== 'Rule:' ? ruleIndentation : 0);
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
@@ -97,9 +99,6 @@ export function correctIndents(text, indent, settings: Settings = {cucumberautoc
                 } else {
                     indentCount = defaultIndentation;
                 }
-            }
-            if (format && format.symbol === 'Rule:') {
-                currentIndentation++;
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
@@ -239,7 +238,7 @@ function stringBytesLen(c) {
     return len;
 }
 
-export function format(indent: string, text: string, settings?: Settings): string {
+export function format(indent: string, text: string, settings: Settings): string {
 
     //Insert correct indents for all the lined differs from string start
     text = correctIndents(text, indent, settings);
