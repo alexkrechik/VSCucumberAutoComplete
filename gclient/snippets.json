@@ -59,6 +59,18 @@
             "Scenario: ${1:Scenario name}"
         ]
     },
+    "Insert Example": {
+        "prefix": "Example",
+        "body": [
+            "Example: ${1:Example name}"
+        ]
+    },
+    "Insert Rule": {
+        "prefix": "Rule",
+        "body": [
+            "Rule: ${1:Rule name}"
+        ]
+    },
     "Insert Background": {
         "prefix": "Background",
         "body": [

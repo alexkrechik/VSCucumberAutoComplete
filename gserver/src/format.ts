@@ -1,4 +1,3 @@
-import { Range } from 'vscode-languageserver';
 import { escapeRegExp } from './util';
 
 type FormatConfVal = number | 'relative';
@@ -7,11 +6,18 @@ interface FormatConf {
     [key: string]: FormatConfVal
 }
 
+interface ResolvedFormat {
+    symbol: string;
+    value: FormatConfVal;
+}
+
 const FORMAT_CONF: FormatConf = {
     'Ability': 0,
     'Business Need': 0,
     'Feature:': 0,
+    'Rule:': 1,
     'Scenario:': 1,
+    'Example:': 1,
     'Background:': 1,
     'Scenario Outline:': 1,
     'Examples:': 2,
@@ -27,15 +33,20 @@ const FORMAT_CONF: FormatConf = {
     '@': 'relative',
 };
 
-function findFormat(line: string, settings: Settings): FormatConfVal | null {
+function findIndentation(line: string, settings: Settings): FormatConfVal | null {
+    const format = findFormat(line, settings);
+    return format ? format.value : null;
+}
+
+function findFormat(line: string, settings: Settings): ResolvedFormat | null {
     const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
-    const fnFormatFinder = (conf: FormatConf) => {
-        const key = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return key ? conf[key] : null;
+    const fnFormatFinder = (conf: FormatConf): ResolvedFormat | null => {
+        const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
+        return symbol ? {symbol, value: conf[symbol]} : null;
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
-    const pesetFormat = fnFormatFinder(FORMAT_CONF);
-    return (settingsFormat === null) ? pesetFormat : settingsFormat;
+    const presetFormat = fnFormatFinder(FORMAT_CONF);
+    return (settingsFormat === null) ? presetFormat : settingsFormat;
 }
 
 export function clearText(text: string) {
@@ -55,6 +66,9 @@ export function clearText(text: string) {
 export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
+    let insideRule = false
+    const ruleValue = findFormat('Rule:', settings).value
+    const ruleIndentation = typeof ruleValue === 'number' ? ruleValue : 0
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -68,17 +82,20 @@ export function correctIndents(text, indent, settings: Settings) {
             }
             //Now we should find current line format
             const format = findFormat(line, settings);
+            if (format && format.symbol === 'Rule:') {
+                insideRule = true
+            }
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
-            else if (typeof format === 'number') {
-                indentCount = format;
+            else if (format && typeof format.value === 'number') {
+                indentCount = format.value + (insideRule && format.symbol !== 'Rule:' ? ruleIndentation : 0);
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => typeof findFormat(l, settings) === 'number');
+                const nextLine = textArr.slice(i + 1).find(l => typeof findIndentation(l, settings) === 'number');
                 if (nextLine) {
-                    const nextLineFormat = findFormat(nextLine, settings);
-                    indentCount = nextLineFormat === null ? defaultIndentation : nextLineFormat;
+                    const nextLineIndentation = findIndentation(nextLine, settings);
+                    indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
                 } else {
                     indentCount = defaultIndentation;
                 }
