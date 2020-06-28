@@ -1,16 +1,18 @@
-## 2.14.1/2019-07-09
+## 2.15.0
+* Added support for Gherkin 6 syntax (Rule and Example keywords)
+* Added all the steps description into the Readme file
 * Corrected JSON-related parts formatting
 * Fixed some issues related to non-English languages
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.15.0)
 
-## 2.14.0/2019-05-05
+## 2.14.0
 * Added stepRegExSymbol extension option
 * Added strictGherkinValidation extension option
 * Added extension support for "Ability" and "Business Need" synonyms for the "Feature"
 * Implemented full support of '*' (any) gherkin symbol
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.14.0)
 
-## 2.13.1/2019-02-18
+## 2.13.1
 * Implemented all the foreign 'Given/When/Then' words support
 * Corrected completion getting in case of strictGherkinCompletion option and foreign gherkin words
 * Show, if present, JSDoc step field as suggestion description
@@ -18,52 +20,52 @@
 * Added an ability to provide some custom Gherkin Definition RegEx Part
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.13.0)
 
-## 2.12.0/2018-09-05
+## 2.12.0
 * Implemented proper steps suggestions after "And" word in Strict Gherkin Suggestions mode
 * Fixed steps detection for Scenario Outline strings
 * Added extension support for '.testcase' files
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.12.0)
 
-## 2.11.0/2018-05-20
+## 2.11.0
 * Many formatting fixes/improvements (please look at the skipDocStringsFormat, formatConfOverride and onTypeFormat options).
 * Some other small fixes.
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.11.0)
 
-## 2.10.0/2018-04-23
+## 2.10.0
 * Added an ability to define steps using "Step" word
 * Disable validation for commented parts of feature files
 * Small formatting fixes
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.10.0)
 
-## 2.9.0/2018-03-21
+## 2.9.0
 * Added an ability to define steps using grave accent(`) symbol
 * Fixed customParameters applying to the steps definitions
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.9.0+is%3Aclosed)
 
-## 2.8.0/2018-02-14
+## 2.8.0
 * Extension will not crash in case of invalid regular expression - such regExp's will be skipped.
 * Added 'cucumberautocomplete.customParameters' option, that allows to change any step part.
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.8.0+is%3Aclosed)
 
-## 2.7.0/2018-01-10
-* Added cucumberautocomplete.stepsInvariants option. Steps Invariants feature isdisabled by default.
+## 2.7.0
+* Added cucumberautocomplete.stepsInvariants option. Steps Invariants feature is disabled by default.
 * Fixed "Unterminated group" error for some steps regexps.
 * Implemented multi languages for the steps getting.
 * Steps could be defined in two strings.
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.7.0+is%3Aclosed)
 
-## 2.6.0/ 2017-12-24
+## 2.6.0
 * Implemented strictGherkinCompletion extension option that will do strict comparing between gherkin word and step definition function name during showing of completions
 * Implemented smartSnippets extension option that will automatically change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.6.0+is%3Aclosed)
 
-## 2.5.0/ 2017-12-08
+## 2.5.0
 * Added support of 'Go To Definition'/'Step Diagnostic' for many languages.
 * Added auto-update steps / wrong steps errors after files with steps changing.
 * Steps, which contains some 'or' parts (like `I do (something|another thing)`) will be showed as several different steps
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.5.0+is%3Aclosed)
 
-## 2.4.0/ 2017-07-15
+## 2.4.0
 ### Features/Improvements:
 * [#124](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/124) Cucumber 2 support
 * [#118](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/118) Syntax should highlight tags and nested variables
@@ -71,7 +73,7 @@
 * [#102](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/102) Fix snippets to avoid snippets warnings
 * [#99](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99) CucumberJS v2.X regex syntax {.*} not being detected
 
-## 2.3.0 / 2017-06-07
+## 2.3.0
 ### MAIN CHANGES
 * Added an ability to provide glop pattern fo features, that should be synced for steps using count getting
 * Many features formatting improvements/bugfixes
@@ -87,7 +89,7 @@
 * [#93](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/93) Background should be on the same level as Scenario
 * [#95](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/95) two spaces after Then not find
 
-## 2.2.0 / 2017-05-26
+## 2.2.0
 ### MAIN CHANGES
 * All the steps suggestions are sorted by their using count
 * Using count will be taken from user input + from all the feature files (if `cucumberautocomplete.syncfeatures=true`)
@@ -104,7 +106,7 @@
 * [#63](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/63) Highlighting as a comment when the # is after text
 * [#79](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/79) Finding step definitions
 
-## 2.1.0 / 2017-04-20
+## 2.1.0
 ### MAIN CHANGES
 * Gherkin steps definitions in all the languages should be supported by default
 * cucumber.regexpstart and cucumber.regexpend settings were removed due to this
@@ -121,7 +123,7 @@
 * [#53](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/53) Page objects suggestions doesnt work with new VSCode
 * [#40](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/40) Objects from commented lines should not be added as steps and page objects
 
-## 2.0.0 / 2017-01-21
+## 2.0.0
 ### MAIN CHANGES
 * cucumberautocomplete.steps setting format was changed to glob style due to [#24](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/24)
 ### Features/Improvements:
@@ -132,7 +134,7 @@
 ### Bugfixes:
 * [#25](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/25) Add support for Cucumber-TSFlow
 
-## 1.1.0 / 2017-01-13
+## 1.1.0
 ### MAIN CHANGES
 * All the steps and page objects will be updated automatically after any key in any feature file pressing
 ### Features:
