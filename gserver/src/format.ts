@@ -66,9 +66,9 @@ export function clearText(text: string) {
 export function correctIndents(text, indent, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
-    let insideRule = false
-    const ruleValue = findFormat('Rule:', settings).value
-    const ruleIndentation = typeof ruleValue === 'number' ? ruleValue : 0
+    let insideRule = false;
+    const ruleValue = findFormat('Rule:', settings).value;
+    const ruleIndentation = typeof ruleValue === 'number' ? ruleValue : 0;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
@@ -83,7 +83,7 @@ export function correctIndents(text, indent, settings: Settings) {
             //Now we should find current line format
             const format = findFormat(line, settings);
             if (format && format.symbol === 'Rule:') {
-                insideRule = true
+                insideRule = true;
             }
             let indentCount;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
@@ -173,40 +173,40 @@ function formatJson(textBody: string, indent: string) {
     let textArr = textBody.match(rxTextBlock);
 
     if (textArr === null) {
-        return textBody
+        return textBody;
     }
 
     for (let txt of textArr) {
-        let preJson = txt.replace(rxQuoteBegin, '')
-        let taggedMap = {}
+        let preJson = txt.replace(rxQuoteBegin, '');
+        let taggedMap = {};
         let taggedTexts;
         while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
             taggedTexts.forEach(function (tag, index) {
-                let uuid = createUUID()
+                let uuid = createUUID();
 
-                taggedMap[uuid] = tag
-                preJson = preJson.replace(tag, uuid)
-            })
+                taggedMap[uuid] = tag;
+                preJson = preJson.replace(tag, uuid);
+            });
         }
         if (!isJson(preJson)) {
-            continue
+            continue;
         }
 
-        let rxIndentTotal = /^([\s\S]*?)"""/
+        let rxIndentTotal = /^([\s\S]*?)"""/;
         let textIndentTotal = txt.match(rxIndentTotal);
-        let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '')
+        let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '');
 
         let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
-        jsonTxt = '\n"""\n' + jsonTxt + '\n"""'
-        jsonTxt = jsonTxt.replace(/^/gm, textIndent)
+        jsonTxt = '\n"""\n' + jsonTxt + '\n"""';
+        jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json
         for (let uuid in taggedMap) {
             if (taggedMap.hasOwnProperty(uuid)) {
-                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid])
+                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
             }
         }
-        textBody = textBody.replace(txt, jsonTxt)
+        textBody = textBody.replace(txt, jsonTxt);
     }
     return textBody;
 }
@@ -221,7 +221,7 @@ function isJson(str) {
 }
 
 function createUUID() {
-    return (Math.floor(Math.random() * 1000000000)).toString()
+    return (Math.floor(Math.random() * 1000000000)).toString();
 }
 
 // Consider a CJK character is 2 spaces
