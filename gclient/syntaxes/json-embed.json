@@ -5,7 +5,7 @@
   "patterns": [
     {
       "contentName": "meta.embedded.block.json",
-      "begin": "(json|JSON)\\s*$",
+      "begin": "(json|JSON)\\s*$\\v*\"\"\"",
       "end": "(?<=\"\"\")",
       "patterns": [
         {
