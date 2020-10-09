@@ -18,20 +18,24 @@ Feature: Highlander
 
 	Rule: Users are notified about overdue tasks on first use of the day
 
-	This text is
-	at the rule level
+		This text is
+		at the rule level
 
 		Background:
 
-		This text is
-		at the rule background level
+			This text is
+			at the rule background level
 
 			Given I have overdue tasks
+				"""
+				Task details
+				"""
 
+		@tag
 		Example: First use of the day
 
-		This text is
-		at the rule example level
+			This text is
+			at the rule example level
 
 			Given I last used the app yesterday
 			When I use the app
@@ -39,8 +43,8 @@ Feature: Highlander
 
 		Example: Already used today
 
-		This text is
-		also at the rule example level
+			This text is
+			also at the rule example level
 
 			Given I last used the app earlier today
 			When I use the app
