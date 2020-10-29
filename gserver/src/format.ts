@@ -33,6 +33,9 @@ const FORMAT_CONF: FormatConf = {
     '@': 'relative',
 };
 
+const cjkRegex = /[\u3000-\u9fff\uac00-\ud7af\uff01-\uff60]/g;
+
+
 function findIndentation(line: string, settings: Settings): FormatConfVal | null {
     const format = findFormat(line, settings);
     return format ? format.value : null;
@@ -42,7 +45,7 @@ function findFormat(line: string, settings: Settings): ResolvedFormat | null {
     const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
     const fnFormatFinder = (conf: FormatConf): ResolvedFormat | null => {
         const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return symbol ? {symbol, value: conf[symbol]} : null;
+        return symbol ? { symbol, value: conf[symbol] } : null;
     };
     const settingsFormat = fnFormatFinder(settingsFormatConf);
     const presetFormat = fnFormatFinder(FORMAT_CONF);
@@ -225,17 +228,8 @@ function createUUID() {
 }
 
 // Consider a CJK character is 2 spaces
-function stringBytesLen(c) {
-    let n = c.length, s;
-    let len = 0;
-    for (let i = 0; i < n; i++) {
-        s = c.charCodeAt(i);
-        while (s > 0) {
-            len++;
-            s = s >> 8;
-        }
-    }
-    return len;
+function stringBytesLen(str: string) {
+    return str.length + (str.match(cjkRegex) || []).length;
 }
 
 export function format(indent: string, text: string, settings: Settings): string {
