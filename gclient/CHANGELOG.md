@@ -1,3 +1,8 @@
+## 2.15.1
+* Fixed autoformat with unicode characters
+* Fixed issue of steps highlighting, that ends with 'JSON' keyword
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
+
 ## 2.15.0
 * Added support for Gherkin 6 syntax (Rule and Example keywords)
 * Added all the steps description into the Readme file
