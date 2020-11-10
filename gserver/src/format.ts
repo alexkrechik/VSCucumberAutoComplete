@@ -225,17 +225,15 @@ function createUUID() {
 }
 
 // Consider a CJK character is 2 spaces
-function stringBytesLen(c) {
-    let n = c.length, s;
-    let len = 0;
-    for (let i = 0; i < n; i++) {
-        s = c.charCodeAt(i);
-        while (s > 0) {
-            len++;
-            s = s >> 8;
-        }
+function stringBytesLen(s) {
+    let length = s.length;
+    for (let i = 0; i < s.length; i++) {
+      let c = s.charCodeAt(i);
+
+      if (c > 0x2E80)
+         length++;
     }
-    return len;
+    return length;
 }
 
 export function format(indent: string, text: string, settings: Settings): string {

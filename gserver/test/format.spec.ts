@@ -18,10 +18,15 @@ const ruleSettings = {
     cucumberautocomplete: {}
 }
 
+const unicodeSettings = {
+   cucumberautocomplete: {}
+}
+
 describe('format', () => {
     [
         {name: 'general', settings: generalSettings},
-        {name: 'rule', settings: ruleSettings}
+        {name: 'rule', settings: ruleSettings},
+        {name: 'unicode', settings: unicodeSettings}
     ].forEach(feature => {
         describe(`for ${feature.name} syntax`, () => {
             const before = getFileContent(`${__dirname}/data/features/before/${feature.name}.feature`);
