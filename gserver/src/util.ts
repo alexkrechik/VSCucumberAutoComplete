@@ -13,6 +13,18 @@ export function getOSPath(path: string): string {
     }
 }
 
+function requireUncached(module) {
+    delete require.cache[require.resolve(module)];
+    return require(module);
+}
+
+export function getUncachedFileModule(filePath: string) {
+    try {
+      return requireUncached(filePath).default;
+    } catch (err) {
+    }
+}
+
 export function getFileContent(filePath: string): string {
     try {
         return fs.readFileSync(filePath, 'utf8');

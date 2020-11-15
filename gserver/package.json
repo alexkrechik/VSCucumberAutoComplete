@@ -7,17 +7,18 @@
     "node": "*"
   },
   "dependencies": {
+    "doctrine": "^2.1.0",
     "glob": "^7.1.1",
     "md5": "^2.2.1",
     "strip-comments": "^0.4.4",
-    "vscode-languageserver": "^3.5.0",
-    "doctrine": "^2.1.0"
+    "vscode-languageserver": "^3.5.0"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.39",
     "@types/node": "^6.0.52",
     "chai": "^3.5.0",
+    "cucumber-expressions": "^8.3.0",
     "mocha": "^3.2.0",
     "ts-node": "^2.0.0",
     "tslint": "^4.2.0",

@@ -23,10 +23,11 @@ interface Settings {
         smartSnippets?: boolean,
         stepsInvariants?: boolean,
         customParameters?: CustomParameter[],
+        parameterTypeRegistryPath?: string,
         skipDocStringsFormat?: boolean,
         formatConfOverride?: FormatConf[],
         onTypeFormat?: boolean,
         gherkinDefinitionPart?: string,
-        stepRegExSymbol?: string
+        stepRegExSymbol?: string,
     }
 }
