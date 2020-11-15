@@ -128,6 +128,12 @@
                     "required": false,
                     "default": []
                 },
+                "cucumberautocomplete.parameterTypeRegistryPath": {
+                    "description": "Path to a ParameterTypeRegistry of custom parameters created from the cucumber-expressions library",
+                    "type": "string",
+                    "required": false,
+                    "default": null
+                },
                 "cucumberautocomplete.skipDocStringsFormat": {
                     "description": "Skip format of strings, that placed between ''' or \"\"\" strings",
                     "type": "boolean",
@@ -163,7 +169,7 @@
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
+        "compile": "npx tsc -watch -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "publish": "vsce publish"

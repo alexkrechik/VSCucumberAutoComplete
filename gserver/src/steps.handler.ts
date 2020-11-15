@@ -52,7 +52,7 @@ interface JSDocComments {
 
 interface ParameterType<T> {
     name: string,
-    regexpStrings: RegExp[] | string[] | RegExp | string,
+    regexpStrings: RegExp[] | string[],
     transform: (...match: string[]) => T,
     useForSnippets: boolean,
     preferForRegexpMatch: boolean

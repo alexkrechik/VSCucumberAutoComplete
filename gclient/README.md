@@ -75,6 +75,31 @@ For ex. to get step from the py expression `@given(u'I do something')` we could 
 ```
 After this, the current expression will be handled as `@given('I do something')`, so the extension would be able to get `'I do something'` step. 
 
+**`cucumberautocomplete.parameterTypeRegistryPath`** - Set a path to an exported parameterTypeRegistry from cucumber-expressions.
+Example registry 
+```
+const { ParameterTypeRegistry, ParameterType } = require('cucumber-expressions');
+
+class Color {
+  constructor(name) {
+    this.name = `${name} color`;
+  }
+}
+
+const registry = new ParameterTypeRegistry();
+
+registry.defineParameterType(
+  new ParameterType(
+    'color', // name
+    /red|blue|yellow/, // regexp
+    Color, // type
+    name => new Color(name) // transformer function
+  )
+);
+
+module.exports = registry;
+```
+
 **`cucumberautocomplete.pages`** - Object, which consists of 'page name' => 'page object file path' pairs
 It is allowing to handle some very specific case of page objects usage in the gherkin steps.
 
@@ -150,6 +175,7 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
             "value":"a"
         },
     ],
+    "cucumberautocomplete.parameterTypeRegistryPath": "test/features/support/parameterTypeRegistry.js"
     "cucumberautocomplete.pages": {
         "users": "test/features/page_objects/users.storage.js",
         "pathes": "test/features/page_objects/pathes.storage.js",
