@@ -1,6 +1,7 @@
 ## 2.15.1
 * Fixed autoformat with unicode characters
 * Fixed issue of steps highlighting, that ends with 'JSON' keyword
+* Fixed indentation of the DOC strings
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
 
 ## 2.15.0
