@@ -5,7 +5,8 @@ import {
     getMD5Id,
     escapeRegExp,
     getTextRange,
-    getSortPrefix
+    getSortPrefix,
+    getUncachedFileModule
 } from './util';
 
 import {
@@ -49,6 +50,19 @@ interface JSDocComments {
     [key: number]: string
 }
 
+interface ParameterType<T> {
+    name: string,
+    regexpStrings: RegExp[] | string[],
+    transform: (...match: string[]) => T,
+    useForSnippets: boolean,
+    preferForRegexpMatch: boolean
+}
+
+
+interface ParameterTypeRegistry {
+    parameterTypeByName: Map<string, ParameterType<any>>,
+}
+
 const commentParser = require('doctrine');
 
 export default class StepsHandler {
@@ -61,6 +75,8 @@ export default class StepsHandler {
 
     settings: Settings;
 
+    parameterTypeRegistry: ParameterTypeRegistry;
+
     constructor(root: string, settings: Settings) {
         const { steps, syncfeatures } = settings.cucumberautocomplete;
         this.settings = settings;
@@ -69,6 +85,12 @@ export default class StepsHandler {
             this.setElementsHash(`${root}/**/*.feature`);
         } else if (typeof syncfeatures === 'string') {
             this.setElementsHash(`${root}/${syncfeatures}`);
+        }
+    }
+
+    setParameterTypeRegistry() {
+        if (this.settings.cucumberautocomplete.parameterTypeRegistryPath) {
+            this.parameterTypeRegistry = getUncachedFileModule(this.settings.cucumberautocomplete.parameterTypeRegistryPath)
         }
     }
 
@@ -188,10 +210,18 @@ export default class StepsHandler {
 
     handleCustomParameters(step: string): string {
         if (!step) return '';
+
+        if (this.parameterTypeRegistry && this.parameterTypeRegistry.parameterTypeByName) {
+            // Remove default cucumber-expression types
+            Array.from(this.parameterTypeRegistry.parameterTypeByName).slice(4).forEach(([key, _]) => {
+                step = step.split(`{${key}}`).join(`(${this.parameterTypeRegistry.parameterTypeByName.get(key).regexpStrings.join('|')})`);
+            })     
+        }
         this.settings.cucumberautocomplete.customParameters.forEach((p: CustomParameter) => {
             const { parameter, value } = p;
             step = step.split(parameter).join(value);
         });
+        
         return step;
     }
 
@@ -474,6 +504,7 @@ export default class StepsHandler {
 
     populate(root: string, stepsPathes: StepSettings): void {
         this.elementsHash = {};
+        this.setParameterTypeRegistry();
         this.elements = stepsPathes
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
             .reduce((elements, f) => elements.concat(

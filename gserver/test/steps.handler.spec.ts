@@ -19,7 +19,8 @@ const settings = {
                 parameter: /\{a.*\}/,
                 value: 'aa'
             }
-        ]
+        ],
+        parameterTypeRegistryPath: ''
     }
 };
 
@@ -131,8 +132,21 @@ describe('handleCustomParameters', () => {
             ['I use ${dictionaryObject} and ${dictionaryObject}',
             'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")'],
             ['I use {aTest} parameter', 'I use aa parameter'],
-            ['I use {bTest} parameter', 'I use {bTest} parameter'],
-        ];
+            ['I use {bTest} parameter', 'I use {bTest} parameter'],        ];
+        data.forEach(d => {
+            expect(s.handleCustomParameters(d[0])).to.be.equal(d[1]);
+        });
+    });
+});
+
+describe('handleCustomParametersFromRegistry', () => {
+    it('should correctly change cucumber parameters from a provided registry', () => {
+        settings.cucumberautocomplete.parameterTypeRegistryPath = `${__dirname}/data/parameterRegistry/parameterRegistry`
+        const data = [
+            ['I use ${dictionaryObject} and ${dictionaryObject}',
+            'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")'],
+            ['I use {aTest} parameter', 'I use aa parameter'],
+            ['I use {bTest} parameter', 'I use {bTest} parameter'],        ];
         data.forEach(d => {
             expect(s.handleCustomParameters(d[0])).to.be.equal(d[1]);
         });
@@ -438,3 +452,4 @@ describe('gherkin regex step start', () => {
         expect(elements[0].text).to.be.eq('I test quotes step');
     });
 });
+
