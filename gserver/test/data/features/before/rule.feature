@@ -27,7 +27,11 @@ This text is
 at the rule background level
 
 Given I have overdue tasks
+"""
+Task details
+"""
 
+@tag
 Example: First use of the day
 
 This text is

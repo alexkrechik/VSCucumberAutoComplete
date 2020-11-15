@@ -102,6 +102,8 @@ export function correctIndents(text, indent, settings: Settings) {
                 } else {
                     indentCount = defaultIndentation;
                 }
+
+                indentCount += (insideRule ? ruleIndentation : 0);
             }
             return line.replace(/^\s*/, indent.repeat(indentCount));
         })
