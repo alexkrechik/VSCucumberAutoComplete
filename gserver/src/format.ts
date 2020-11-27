@@ -128,16 +128,16 @@ function formatTables(text) {
                 res.push({
                     line: i,
                     block: blockNum,
-                    data: l.split(/\s*\|\s*/).reduceRight((accumulator, current, index, arr) => {
-                        if (index > 0 && index < arr.length - 1) {
-                            if (current.endsWith('\\')) {
-                                accumulator[0] = current + '|' + accumulator[0];
-                            } else {
-                                accumulator.unshift(current);
-                            }
-                        }
-                        return accumulator;
-                    }, [])
+                    data: l
+                        .split('|')
+                        .slice(1, -1)
+                        .reduce((acc, curr) =>
+                            (prev =>
+                                prev && prev.endsWith('\\')
+                                    ? [...acc.slice(0, acc.length - 1), prev + '|' + curr]
+                                    : [...acc, curr]
+                            )(acc.slice(-1)[0]), [])
+                        .map(cell => cell.trim())
                 });
             } else {
                 if (!~l.search(/^\s*#/)) {
