@@ -47,10 +47,10 @@ Feature: Formatting feature
 	@Other
 	Scenario: Some other scenario
 
-		When I do something
-		And do another thing
-		Then I should have a valid result
-			But not an invalid result
+			When I do something
+			And do another thing
+			Then I should have a valid result
+				But not an invalid result
 
 
 	Scenario: Should properly format star gherkin word
@@ -61,9 +61,10 @@ Feature: Formatting feature
 Scenario Outline: feeding a suckler cow
 
 		Given the cow weighs <weight> kg
-		When we calculate the feeding requirements
-		Then the energy should be <energy> MJ
-		And the protein should be <protein> kg
+		And the rabbit weighs <protein> kg
+			When we calculate the feeding requirements
+			Then the energy should be <energy> MJ
+			And the protein should be <protein> kg
 
 		Examples:
 			| weight | energy        | protein |

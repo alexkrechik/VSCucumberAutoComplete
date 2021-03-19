@@ -95,10 +95,10 @@ export function correctIndents(text, indent, settings: Settings) {
             } else {
                 // Actually we could use 'relative' type of formatting for both - relative and unknown strings
                 // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => typeof findIndentation(l, settings) === 'number');
-                if (nextLine) {
-                    const nextLineIndentation = findIndentation(nextLine, settings);
-                    indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
+                const previousLine = textArr.slice(i - 1).find(l => typeof findIndentation(l, settings) === 'number');
+                if (previousLine) {
+                    const previousLineIndentation = findIndentation(previousLine, settings);
+                    indentCount = previousLineIndentation === null ? defaultIndentation : previousLineIndentation;
                 } else {
                     indentCount = defaultIndentation;
                 }

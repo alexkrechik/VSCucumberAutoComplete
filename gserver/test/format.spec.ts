@@ -6,8 +6,10 @@ const generalSettings = {
     cucumberautocomplete: {
         skipDocStringsFormat: true,
         formatConfOverride: {
-            'But': 3,
-            'And': 'asdasd',
+            'When': 3,
+            'Then': 3,
+            'But': 4,
+            'And': 'relative',
             'SomeTestKey': 12,
             'Scenario Outline': 0,
         }

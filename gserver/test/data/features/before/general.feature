@@ -53,6 +53,7 @@ Scenario: Should properly format star gherkin word
 Scenario Outline: feeding a suckler cow
 
 Given the cow weighs <weight> kg
+And the rabbit weighs <protein> kg
 When we calculate the feeding requirements
 Then the energy should be <energy> MJ
 And the protein should be <protein> kg
