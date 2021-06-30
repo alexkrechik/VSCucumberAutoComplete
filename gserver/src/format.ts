@@ -172,8 +172,8 @@ function formatTables(text) {
 
 
 function formatJson(textBody: string, indent: string) {
-    let rxTextBlock = /^\s*"""([\s\S.]*?)"""/gm;
-    let rxQuoteBegin = /"""/g;
+    let rxTextBlock = /^\s*""".*$([\s\S.]*?)"""/gm;
+    let rxQuoteBegin = /""".*$/gm;
 
     let textArr = textBody.match(rxTextBlock);
 
@@ -182,6 +182,7 @@ function formatJson(textBody: string, indent: string) {
     }
 
     for (let txt of textArr) {
+        let header = txt.match(rxQuoteBegin)[0]
         let preJson = txt.replace(rxQuoteBegin, '');
         let taggedMap = {};
         let taggedTexts;
@@ -199,10 +200,10 @@ function formatJson(textBody: string, indent: string) {
 
         let rxIndentTotal = /^([\s\S]*?)"""/;
         let textIndentTotal = txt.match(rxIndentTotal);
-        let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '');
+        let textIndent = textIndentTotal[0].replace(rxQuoteBegin, '').replace(/\n/g, '');
 
         let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
-        jsonTxt = '\n"""\n' + jsonTxt + '\n"""';
+        jsonTxt = '\n' + header + '\n' + jsonTxt + '\n"""';
         jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json

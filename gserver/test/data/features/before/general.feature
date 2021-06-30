@@ -35,6 +35,11 @@ And here is the tagged json
 [{"<json>":<text>}]
 """
 
+And here is a docstring with explicit content type
+"""json
+[{"json":"text"}]
+"""
+
 
 @Other
 Scenario: Some other scenario

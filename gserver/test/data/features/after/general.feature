@@ -43,6 +43,15 @@ Feature: Formatting feature
 			]
 			"""
 
+			And here is a docstring with explicit content type
+			"""json
+			[
+				{
+					"json": "text"
+				}
+			]
+
+
 
 	@Other
 	Scenario: Some other scenario
