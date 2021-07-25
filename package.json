@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "install": "cd gserver && yarn && cd ../gclient && yarn",
+    "patch": "cd gserver && npm version patch --no-git-version && cd ../gclient && npm version patch --no-git-version",
+    "minor": "cd gserver && npm version minor --no-git-version && cd ../gclient && npm version minor --no-git-version",
+    "server": "cd gserver && yarn watch"
+  }
+}
