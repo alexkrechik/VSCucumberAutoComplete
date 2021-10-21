@@ -169,7 +169,7 @@
         "publish": "vsce publish"
     },
     "devDependencies": {
-        "@types/node": "^6.0.52",
+        "@types/node": "7.0.7",
         "typescript": "~2.3.0",
         "vsce": "^1.77.0",
         "vscode": "^1.1.10"
