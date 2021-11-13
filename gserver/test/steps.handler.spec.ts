@@ -183,7 +183,7 @@ describe('getPartialRegParts', () => {
 });
 
 describe('constructor', () => {
-    const e = s.getElements();    
+    const e = s.getElements();
     it('should fill all the elements', () => {
         expect(e).to.have.length(stepsDefinitionNum);
     });
