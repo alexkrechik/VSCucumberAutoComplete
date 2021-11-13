@@ -149,11 +149,11 @@ describe('getRegTextForStep', () => {
         const data = [
             ['I use {float}', 'I use -?\\d*\\.?\\d+'],
             ['I use {int}', 'I use -?\\d+'],
-            ['I use {stringInDoubleQuotes}', 'I use "[^"]+"'],
-            ['I use {string}', 'I use "[^"]+"'],
+            ['I use {string}', 'I use [\"|\'].*[\"|\']'],
             ['I use {}', 'I use .*'],
             ['I have 1 cucumber(s) in my belly', 'I have 1 cucumber(s)? in my belly'],
-            ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)']
+            ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)'],
+            ['I use {word}', 'I use [A-Za-z]+']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
@@ -183,7 +183,7 @@ describe('getPartialRegParts', () => {
 });
 
 describe('constructor', () => {
-    const e = s.getElements();
+    const e = s.getElements();    
     it('should fill all the elements', () => {
         expect(e).to.have.length(stepsDefinitionNum);
     });

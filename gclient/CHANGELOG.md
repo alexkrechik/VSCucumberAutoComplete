@@ -1,3 +1,6 @@
+## 2.XX.X
+* Enhanced support for [cucumber expressions](https://github.com/cucumber/cucumber-expressions)
+
 ## 2.15.1
 * Fixed autoformat with unicode characters
 * Fixed issue of steps highlighting, that ends with 'JSON' keyword
