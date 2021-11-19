@@ -88,9 +88,9 @@ export default class StepsHandler {
             text.split(/\r?\n/g).forEach(line => {
                 const match = this.getGherkinMatch(line, text);
                 if (match) {
-                    const step = this.getStepByText(match[4]);
-                    if (step) {
-                        this.incrementElementCount(step.id);
+                    const steps = this.getStepByText(match[4]);
+                    if (steps) {
+                        this.incrementElementCount(steps[0].id);
                     }
                 }
             });
@@ -478,18 +478,17 @@ export default class StepsHandler {
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
             .reduce((elements, f) => elements.concat(
                 this.getFileSteps(f).reduce((steps, step) => {
-                    if (!this.elementsHash[step.id]) {
-                        steps.push(step);
-                        this.elementsHash[step.id] = true;
-                    }
+                    steps.push(step);
                     return steps;
                 }, [])
             ), []);
     }
 
-    getStepByText(text: string, gherkin?: GherkinType): Step {
-        return this.elements
-            .find(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
+    getStepByText(text: string, gherkin?: GherkinType): Step[] | undefined {
+        const filteredElements = this.elements
+            .filter(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
+
+        return filteredElements.length > 0 ? filteredElements : undefined;
     }
 
     validate(line: string, lineNum: number, text: string): Diagnostic | null {
@@ -501,11 +500,11 @@ export default class StepsHandler {
         }
         const beforeGherkin = match[1];
         const gherkinPart = match[2];
-        const step = this.getStepByText(match[4], this.settings.cucumberautocomplete.strictGherkinValidation
+        const steps = this.getStepByText(match[4], this.settings.cucumberautocomplete.strictGherkinValidation
             ? this.getStrictGherkinType(gherkinPart, lineNum, text)
             : undefined
         );
-        if (step) {
+        if (steps) {
             return null;
         } else {
             return {
@@ -520,13 +519,24 @@ export default class StepsHandler {
         }
     }
 
-    getDefinition(line: string, text: string): Definition | null {
+    getDefinition(line: string, text: string): Location[] | null {
         const match = this.getGherkinMatch(line, text);
         if (!match) {
             return null;
         }
-        const step = this.getStepByText(match[4]);
-        return step ? step.def : null;
+
+        let locations: Location[] = [];
+
+        let steps : any = this.getStepByText(match[4]);
+
+        if (!steps)
+            return null;
+
+        for (let step of steps) {
+            locations.push(Location.create(step.def.uri, step.def.range));
+        }
+        
+        return locations.length > 0 ? locations : null;
     }
 
     getStrictGherkinType(gherkinPart: string, lineNumber: number, text: string) {
