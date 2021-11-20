@@ -23,7 +23,7 @@ const settings = {
     }
 };
 
-const stepsDefinitionNum = 8;
+const stepsDefinitionNum = 7;
 
 const s = new StepsHandler(__dirname, settings);
 
@@ -191,7 +191,7 @@ describe('constructor', () => {
         expect(e[0]).to.have.property('count', 2);
         expect(e[1]).to.have.property('count', 1);
         expect(e[2]).to.have.property('count', 2);
-        expect(e[3]).to.have.property('count', 2);
+        expect(e[3]).to.have.property('count', 1);
     });
     it('should correcly fill all the step element fields', () => {
         const firstElement = e[0];
@@ -205,8 +205,8 @@ describe('constructor', () => {
         expect(firstElement.def['uri']).to.have.string('test.steps.js');
     });
     it('should set correct names to the invariants steps', () => {
-        expect(e[3]).to.have.property('text', 'I say a');
-        expect(e[4]).to.have.property('text', 'I say b');
+        expect(e[2]).to.have.property('text', 'I say a');
+        expect(e[3]).to.have.property('text', 'I say b');
     });
 });
 

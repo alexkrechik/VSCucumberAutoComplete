@@ -90,7 +90,7 @@ export default class StepsHandler {
                 if (match) {
                     const steps = this.getStepByText(match[4]);
                     if (steps) {
-                        this.incrementElementCount(steps[0].id);
+                        this.incrementElementCount(Array.isArray(steps) ? steps[0].id : steps.id);
                     }
                 }
             });
@@ -478,17 +478,24 @@ export default class StepsHandler {
             .reduce((files, path) => files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })), [])
             .reduce((elements, f) => elements.concat(
                 this.getFileSteps(f).reduce((steps, step) => {
-                    steps.push(step);
+                    if (!this.elementsHash[step.id]) {
+                        steps.push(step);
+                        this.elementsHash[step.id] = !this.settings.cucumberautocomplete.allowDuplicates;
+                    }
                     return steps;
                 }, [])
             ), []);
     }
 
-    getStepByText(text: string, gherkin?: GherkinType): Step[] | undefined {
+    getStepByText(text: string, gherkin?: GherkinType): Step[] | Step | undefined {
         const filteredElements = this.elements
             .filter(s => (gherkin !== undefined ? s.gherkin === gherkin : true) && s.reg.test(text));
 
-        return filteredElements.length > 0 ? filteredElements : undefined;
+        if (this.settings.cucumberautocomplete.allowDuplicates) {
+            return filteredElements.length > 0 ? filteredElements : undefined;
+        }
+
+        return filteredElements.length > 0 ? filteredElements[0] : undefined;
     }
 
     validate(line: string, lineNum: number, text: string): Diagnostic | null {
@@ -519,18 +526,22 @@ export default class StepsHandler {
         }
     }
 
-    getDefinition(line: string, text: string): Location[] | null {
+    getDefinition(line: string, text: string): Definition | Location[] | null {
         const match = this.getGherkinMatch(line, text);
         if (!match) {
             return null;
         }
 
-        let locations: Location[] = [];
-
         let steps : any = this.getStepByText(match[4]);
 
         if (!steps)
             return null;
+
+        if (!Array.isArray(steps)) {
+            return steps.def;
+        }
+
+        let locations: Location[] = [];
 
         for (let step of steps) {
             locations.push(Location.create(step.def.uri, step.def.range));
