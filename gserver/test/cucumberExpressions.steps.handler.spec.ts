@@ -35,7 +35,7 @@ describe('getElements', () => {
         expect(e[2]).to.have.property("count", 5);
 
         expect(e[3]).to.have.property("text", "I have a {string} in my belly");
-        expect(e[3]).to.have.property("count", 4);
+        expect(e[3]).to.have.property("count", 6);
     
         expect(e[4]).to.have.property("text", "I have a wildcard {} in my belly");
         expect(e[4]).to.have.property("count", 2);

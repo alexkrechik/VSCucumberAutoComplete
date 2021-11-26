@@ -33,6 +33,10 @@ Feature: Test Feature
     When I have a 'Some string' in my belly
     When I have a "" in my belly
     When I have a '' in my belly
+    When I have a '" in my belly
+    When I have a "' in my belly
+    When I have a "This is a 'quoted' word" in my belly
+    When I have a 'This is a "quoted" word' in my belly
 
    Scenario: Test Scenario for wildcard
     When I have a wildcard anything and or somevalue without qoutes in my belly
