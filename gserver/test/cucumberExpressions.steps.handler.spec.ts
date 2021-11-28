@@ -20,7 +20,6 @@ const s = new StepsHandler(__dirname, settings);
 
 describe('getElements', () => {
     const e = s.getElements();
-    console.log(e[0]);
     it('should correctly fill used steps counts', () => {
 
         expect(e).to.have.length(stepsDefinitionNum)

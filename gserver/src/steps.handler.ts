@@ -206,6 +206,7 @@ export default class StepsHandler {
         //https://docs.cucumber.io/cucumber/cucumber-expressions/
         step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
         step = step.replace(/{int}/g, '-?\\d+');
+        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
         step = step.replace(/{word}/g, '[A-Za-z]+');
         step = step.replace(/{string}/g, '(\"|\')[^\\1]*\\1');
         step = step.replace(/{}/g, '.*');
