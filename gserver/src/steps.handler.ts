@@ -211,7 +211,7 @@ export default class StepsHandler {
         step = step.replace(/{}/g, '.*');
 
         //Optional Text
-        step = step.replace(/\(([a-z]+)\)/g, '($1)?');
+        step = step.replace(/\(([a-z ]+)\)/g, '($1)?');
 
         //Alternative text a/b/c === (a|b|c)
         step = step.replace(/([a-zA-Z]+)(?:\/([a-zA-Z]+))+/g, match => `(${match.replace(/\//g, '|')})`);
