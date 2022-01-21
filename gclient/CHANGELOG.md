@@ -1,3 +1,7 @@
+## 2.16.1
+* Fixed app compiling issues..
+* Did some extension development updates.
+
 ## 2.15.1
 * Fixed autoformat with unicode characters
 * Fixed issue of steps highlighting, that ends with 'JSON' keyword
