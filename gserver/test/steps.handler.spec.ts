@@ -150,10 +150,11 @@ describe('getRegTextForStep', () => {
             ['I use {float}', 'I use -?\\d*\\.?\\d+'],
             ['I use {int}', 'I use -?\\d+'],
             ['I use {stringInDoubleQuotes}', 'I use "[^"]+"'],
-            ['I use {string}', 'I use "[^"]+"'],
+            ['I use {string}', 'I use (\"|\')[^\\1]*\\1'],
             ['I use {}', 'I use .*'],
             ['I have 1 cucumber(s) in my belly', 'I have 1 cucumber(s)? in my belly'],
-            ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)']
+            ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)'],
+            ['I use {word}', 'I use [A-Za-z]+']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
