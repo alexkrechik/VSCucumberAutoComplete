@@ -1,6 +1,6 @@
 {
     "name": "cucumberautocomplete",
-    "version": "2.15.1",
+    "version": "2.15.2",
     "publisher": "alexkrechik",
     "engines": {
         "vscode": "^1.18.0"
@@ -171,7 +171,7 @@
     "devDependencies": {
         "@types/node": "7.0.7",
         "typescript": "~2.3.0",
-        "vsce": "^1.77.0",
+        "vsce": "^2.7.0",
         "vscode": "^1.1.10"
     },
     "dependencies": {

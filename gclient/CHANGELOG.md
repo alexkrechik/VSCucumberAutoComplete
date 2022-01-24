@@ -1,4 +1,4 @@
-## 2.16.1
+## 2.15.2
 * Fixed app compiling issues..
 * Did some extension development updates.
 * Fixed 'word' and 'string' cucumber expressions
