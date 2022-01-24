@@ -1,6 +1,7 @@
 ## 2.16.1
 * Fixed app compiling issues..
 * Did some extension development updates.
+* Fixed 'word' and 'string' cucumber expressions
 
 ## 2.15.1
 * Fixed autoformat with unicode characters
