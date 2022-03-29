@@ -70,14 +70,15 @@ describe('geStepDefinitionMatch', () => {
     describe('non-standard strings', () => {
         const nonStandardStrings = [
             [`Given(/I do "aa" something/);`, `I do "aa" something`],
-            [`When('I do \' something');`, `I do \' something`],
-            [`    When('I do something');`, `I do something`],
-            [`"Given(/^Me and "([^"]*)"$/, function ()"`, `^Me and "([^"]*)"$`]
+            [String.raw`When('I do \' something');`, String.raw`I do \' something`], //String.raw needed to ensure escaped values can be read.
+            [`"Given(/^Me and "([^"]*)"$/, function ()"`, `^Me and "([^"]*)"$`],
+            [`Given('the test cookie is set', () => cy.setCookie('TEST_COOKIE', 'true'));`, `the test cookie is set`]
         ];
         nonStandardStrings.forEach(str => {
             it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
                 const match = s.geStepDefinitionMatch(str[0]);
-                expect(match).to.not.be.null;
+                expect(match).to.not.be.null;         
+                expect(match[4]).to.be.toString();   
                 expect(match[4]).to.be.equals(str[1]);
             });
         });
