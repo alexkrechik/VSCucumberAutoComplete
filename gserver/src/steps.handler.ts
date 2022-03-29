@@ -127,7 +127,8 @@ export default class StepsHandler {
         //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
         const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(\/|'|"|\`)`;
         //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        const stepBody = stepRegExSymbol ? `([^${stepRegExSymbol}]+)` : '([^\\3]*?)';
+        //ref to RegEx Example: https://regex101.com/r/mS1zJ8/1
+        const stepBody = stepRegExSymbol ? `([^${stepRegExSymbol}]+)` : `((?:(?=(?:\\\\)*)\\\\.|.)*?)`;
         //Step should be ended with same symbol it begins
         const stepEnd = stepRegExSymbol ? stepRegExSymbol : '\\3';
 
