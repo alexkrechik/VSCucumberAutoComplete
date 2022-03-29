@@ -2,13 +2,6 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "Language Server",
-      "port": 9229,
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "type": "pwa-node"
-    },
-    {
       "name": "Launch Extension",
       "type": "extensionHost",
       "request": "launch",
@@ -18,6 +11,29 @@
       "sourceMaps": true,
       "outFiles": ["${workspaceRoot}/gclient/out/src/**/*.js"],
       "preLaunchTask": "npm"
+    },
+    {
+      "name": "Language Server",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha Tests",
+      "cwd": "${workspaceRoot}/gserver",
+      "runtimeExecutable": "${workspaceRoot}/gserver/node_modules/.bin/mocha",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/gserver/node_modules/.bin/mocha.cmd"
+      },
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register",
+        "${workspaceRoot}/gserver/test/**/*.spec.ts"
+      ],
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }
