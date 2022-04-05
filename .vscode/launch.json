@@ -20,20 +20,17 @@
       "type": "node"
     },
     {
-      "type": "node",
-      "request": "launch",
       "name": "Debug Server Tests",
-      "cwd": "${workspaceRoot}/gserver",
-      "runtimeExecutable": "${workspaceRoot}/gserver/node_modules/.bin/mocha",
-      "windows": {
-        "runtimeExecutable": "${workspaceRoot}/gserver/node_modules/.bin/mocha.cmd"
-      },
+      "request": "launch",
       "runtimeArgs": [
-        "-r",
-        "ts-node/register",
-        "${workspaceRoot}/gserver/test/**/*.spec.ts"
+        "run-script",
+        "test"
       ],
-      "internalConsoleOptions": "openOnSessionStart"
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
     }
   ]
 }
