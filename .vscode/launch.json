@@ -2,7 +2,7 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "Launch Extension",
+      "name": "Launch Extension + VSCode",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -13,7 +13,7 @@
       "preLaunchTask": "npm"
     },
     {
-      "name": "Language Server",
+      "name": "Attach to Language Server",
       "port": 9229,
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
@@ -22,7 +22,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha Tests",
+      "name": "Debug Server Tests",
       "cwd": "${workspaceRoot}/gserver",
       "runtimeExecutable": "${workspaceRoot}/gserver/node_modules/.bin/mocha",
       "windows": {
