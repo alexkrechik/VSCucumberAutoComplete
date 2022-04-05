@@ -71,6 +71,7 @@ describe('geStepDefinitionMatch', () => {
         const nonStandardStrings = [
             [`Given(/I do "aa" something/);`, `I do "aa" something`],
             [String.raw`When('I do \' something');`, String.raw`I do \' something`], //String.raw needed to ensure escaped values can be read.
+            [`  When('I do something');`, `I do something`],
             [`"Given(/^Me and "([^"]*)"$/, function ()"`, `^Me and "([^"]*)"$`],
             [`Given('the test cookie is set', () => cy.setCookie('TEST_COOKIE', 'true'));`, `the test cookie is set`]
         ];
