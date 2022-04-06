@@ -128,7 +128,7 @@ export default class StepsHandler {
         const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(\/|'|"|\`)`;
         // ref to RegEx Example: https://regex101.com/r/mS1zJ8/1
         // Use a RegEx that peeks ahead to ensure escape character can still work, like `\'`.
-        const stepBody = stepRegExSymbol ? `([^${stepRegExSymbol}]+)` : `((?:(?=(?:\\\\)*)\\\\.|.)*?)`;
+        const stepBody = `((?:(?=(?:\\\\)*)\\\\.|.)*?)`;
         //Step should be ended with same symbol it begins
         const stepEnd = stepRegExSymbol ? stepRegExSymbol : '\\3';
 

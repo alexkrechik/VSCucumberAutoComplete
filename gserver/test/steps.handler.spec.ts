@@ -436,8 +436,30 @@ describe('gherkin regex step start', () => {
     const customStepsHandler = new StepsHandler(__dirname, customSettings);
     const elements = customStepsHandler.getElements();
 
-    it('should correctly parse steps differs from stepRegExSymbol var', () => {
-        expect(elements.length).to.be.eq(1);
+    it('should correctly parse the default case', () => {
+        expect(elements.length).to.be.gte(1);
         expect(elements[0].text).to.be.eq('I test quotes step');
     });
+
+    it('should correctly parse non-standard string with ""', () => {
+        expect(elements.length).to.be.gte(2);
+        expect(elements[1].text).to.be.eq('I do "aa" something');
+    });
+    it('should correctly parse non-standard string an escape char', () => {
+        expect(elements.length).to.be.gte(3);
+        expect(elements[2].text).to.be.eq('I do \' something');
+    });
+    it('should correctly parse non-standard string a tab and escape char', () => {
+        expect(elements.length).to.be.gte(4);
+        expect(elements[3].text).to.be.eq('I do \' something different');
+    });
+    it('should correctly parse non-standard string a complex string', () => {
+        expect(elements.length).to.be.gte(5);
+        expect(elements[4].text).to.be.eq('/^Me and "([^"]*)"$/');
+    });
+    it('should correctly parse non-standard string with an arrow function', () => {
+        expect(elements.length).to.be.gte(6);
+        expect(elements[5].text).to.be.eq('the test cookie is set');
+    });
+    
 });
