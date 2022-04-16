@@ -5,6 +5,7 @@
     "minor": "cd gserver && npm version minor --no-git-version && cd ../gclient && npm version minor --no-git-version",
     "server": "cd gserver && npm run watch",
     "compile": "cd gserver && npm run compile",
-    "publish": "cd gserver && npm run compile && npm run test && cd ../gclient && npm run publish"
+    "publish": "cd gserver && npm run compile && npm run test && cd ../gclient && npm run publish",
+    "test": "cd gserver && npm run test"
   }
 }

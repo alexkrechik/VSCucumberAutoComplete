@@ -1,16 +1,36 @@
 {
-	"version": "0.1.0",
-	"configurations": [
-		{
-			"name": "Launch Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}/gclient" ],
-			"stopOnEntry": false,
-			"sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/gclient/out/src/**/*.js" ],
-			"preLaunchTask": "npm"
-		}
-	]
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "Launch Extension + VSCode",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceRoot}/gclient"],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/gclient/out/src/**/*.js"],
+      "preLaunchTask": "npm"
+    },
+    {
+      "name": "Attach to Language Server",
+      "port": 9229,
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
+      "name": "Debug Server Tests",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "test"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    }
+  ]
 }
