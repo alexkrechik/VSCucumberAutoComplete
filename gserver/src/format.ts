@@ -1,6 +1,6 @@
 import { escapeRegExp } from './util';
 
-type FormatConfVal = number | 'relative' | 'relativeUp' | 'relativeDown';
+type FormatConfVal = number | 'relative' | 'relativeUp';
 
 interface FormatConf {
     [key: string]: FormatConfVal
