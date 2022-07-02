@@ -153,8 +153,14 @@
                     "default": false
                 },
                 "cucumberautocomplete.stepRegExSymbol": {
-                    "descrioption": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
+                    "description": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
                     "type": "string",
+                    "required": false,
+                    "default": false
+                },
+                "cucumberautocomplete.allowDuplicates": {
+                    "description": "Allow duplicate step definitions for multiple context in same feature.",
+                    "type": "boolean",
                     "required": false,
                     "default": false
                 }
