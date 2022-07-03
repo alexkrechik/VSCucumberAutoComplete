@@ -175,47 +175,49 @@ function formatTables(text) {
 }
 
 
-function formatJson(textBody: string, indent: string) {
-    let rxTextBlock = /^\s*"""([\s\S.]*?)"""/gm;
-    let rxQuoteBegin = /"""/g;
+function formatJson(textBody: string, indent: string, settings: Settings) {
+    if (!settings.cucumberautocomplete.skipDocStringsFormat) {
+        let rxTextBlock = /^\s*"""([\s\S.]*?)"""/gm;
+        let rxQuoteBegin = /"""/g;
 
-    let textArr = textBody.match(rxTextBlock);
+        let textArr = textBody.match(rxTextBlock);
 
-    if (textArr === null) {
-        return textBody;
-    }
-
-    for (let txt of textArr) {
-        let preJson = txt.replace(rxQuoteBegin, '');
-        let taggedMap = {};
-        let taggedTexts;
-        while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
-            taggedTexts.forEach(function (tag, index) {
-                let uuid = createUUID();
-
-                taggedMap[uuid] = tag;
-                preJson = preJson.replace(tag, uuid);
-            });
-        }
-        if (!isJson(preJson)) {
-            continue;
+        if (textArr === null) {
+            return textBody;
         }
 
-        let rxIndentTotal = /^([\s\S]*?)"""/;
-        let textIndentTotal = txt.match(rxIndentTotal);
-        let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '');
+        for (let txt of textArr) {
+            let preJson = txt.replace(rxQuoteBegin, '');
+            let taggedMap = {};
+            let taggedTexts;
+            while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
+                taggedTexts.forEach(function (tag, index) {
+                    let uuid = createUUID();
 
-        let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
-        jsonTxt = '\n"""\n' + jsonTxt + '\n"""';
-        jsonTxt = jsonTxt.replace(/^/gm, textIndent);
-
-        // Restore tagged json
-        for (let uuid in taggedMap) {
-            if (taggedMap.hasOwnProperty(uuid)) {
-                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
+                    taggedMap[uuid] = tag;
+                    preJson = preJson.replace(tag, uuid);
+                });
             }
+            if (!isJson(preJson)) {
+                continue;
+            }
+
+            let rxIndentTotal = /^([\s\S]*?)"""/;
+            let textIndentTotal = txt.match(rxIndentTotal);
+            let textIndent = textIndentTotal[0].replace('"""', '').replace(/\n/g, '');
+
+            let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
+            jsonTxt = '\n"""\n' + jsonTxt + '\n"""';
+            jsonTxt = jsonTxt.replace(/^/gm, textIndent);
+
+            // Restore tagged json
+            for (let uuid in taggedMap) {
+                if (taggedMap.hasOwnProperty(uuid)) {
+                    jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
+                }
+            }
+            textBody = textBody.replace(txt, jsonTxt);
         }
-        textBody = textBody.replace(txt, jsonTxt);
     }
     return textBody;
 }
@@ -247,7 +249,7 @@ export function format(indent: string, text: string, settings: Settings): string
     text = formatTables(text);
 
     // JSON beautifier
-    text = formatJson(text, indent);
+    text = formatJson(text, indent, settings);
 
     return text;
 
