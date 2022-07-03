@@ -124,7 +124,7 @@ function formatTables(text) {
     //Get blocks with data in cucumber tables
     const blocks: Block[] = textArr
         .reduce((res, l, i, arr) => {
-            if (~l.search(/^\s*\|/)) {
+            if (~l.search(/^\s*\|.*\|/)) {
                 res.push({
                     line: i,
                     block: blockNum,

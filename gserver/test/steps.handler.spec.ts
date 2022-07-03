@@ -464,7 +464,7 @@ describe('gherkin regex step start', () => {
     
 });
 
-describe.only('step as a pure text test', () => {
+describe('step as a pure text test', () => {
     const customSettings = {
         cucumberautocomplete: {
             ...settings.cucumberautocomplete,

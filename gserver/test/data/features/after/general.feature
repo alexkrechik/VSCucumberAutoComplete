@@ -12,6 +12,13 @@ Feature: Formatting feature
 			| Julien | julien@cucumber.io | @jbpros         | Yoo 你好 世界       |
 			| Matt   | matt@cucumber.io   | @mattwynne      | Yoo こんにちは 世界 |
 
+		When I also test just a pipes
+			"""
+			| this
+			| is
+			| a
+			| pipe
+			"""
 
 	#This comment is related to this Scenario:
 	Scenario: Some scenario
