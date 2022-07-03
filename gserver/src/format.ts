@@ -93,12 +93,16 @@ export function correctIndents(text, indent, settings: Settings) {
             else if (format && typeof format.value === 'number') {
                 indentCount = format.value + (insideRule && format.symbol !== 'Rule:' ? ruleIndentation : 0);
             } else {
-                const lookup = (format && format.value === 'relativeUp') ? textArr.slice(0, i).reverse() : textArr.slice(i + 1);
-                const relativeLine = lookup.find((l) => typeof findIndentation(l, settings) === 'number');
-                if (relativeLine) {
-                    if (format && format.symbol !== 'Rule:' && findFormat(relativeLine, settings).symbol === 'Rule:') { insideRule = false; }
-                    const relativeLineIndentation = findIndentation(relativeLine, settings);
-                    indentCount = relativeLineIndentation === null ? defaultIndentation : relativeLineIndentation;
+                // In case of 'relativeUp' format option - look for the nearest previous strig with some numeric indentation
+                // In case of 'relative' or unknown option - look for the nearest next string with some numeric indentation
+                const nextOrPrevLines = format && format.value === 'relativeUp'
+                    ? textArr.slice(0, i).reverse()
+                    : textArr.slice(i + 1)
+                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number')
+                
+                if (nextOrPrevLine) {
+                    const nextLineIndentation = findIndentation(nextOrPrevLine, settings);
+                    indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
                 } else {
                     indentCount = defaultIndentation;
                 }

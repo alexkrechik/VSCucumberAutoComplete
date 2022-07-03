@@ -7,9 +7,10 @@ const generalSettings = {
         skipDocStringsFormat: true,
         formatConfOverride: {
             'But': 3,
-            'And': 'asdasd',
+            'And': 'relativeUp',
             'SomeTestKey': 12,
             'Scenario Outline': 0,
+            '#': 'asdasd',
         }
     }
 };

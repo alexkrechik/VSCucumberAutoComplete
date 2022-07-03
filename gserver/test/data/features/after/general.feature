@@ -58,6 +58,7 @@ Feature: Formatting feature
 		And do another thing
 		Then I should have a valid result
 			But not an invalid result
+			And of course not an invalid result
 
 
 	Scenario: Should properly format star gherkin word
