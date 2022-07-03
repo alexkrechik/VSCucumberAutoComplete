@@ -463,3 +463,30 @@ describe('gherkin regex step start', () => {
     });
     
 });
+
+describe.only('step as a pure text test', () => {
+    const customSettings = {
+        cucumberautocomplete: {
+            ...settings.cucumberautocomplete,
+            steps: ['/data/steps/pureTextSteps.steps.js'],
+            pureTextSteps: true
+        }
+    };
+    const customStepsHandler = new StepsHandler(__dirname, customSettings);
+    const elements = customStepsHandler.getElements();
+
+    it('should properly handle steps', () => {
+        expect(elements.length).to.be.eq(1);
+        expect(elements[0].text).to.be.eq('I give 3/4 and 5$');
+    });
+
+    it('should return proper completion', () => {
+        const completion = customStepsHandler.getCompletion('When I', 1, '');
+        expect(completion[0].insertText).to.be.eq('I give 3/4 and 5$');
+    })
+
+    it('should return proper partial completion', () => {
+        const completion = customStepsHandler.getCompletion('When I give 3', 1, '');
+        expect(completion[0].insertText).to.be.eq('3/4 and 5$');
+    })
+})

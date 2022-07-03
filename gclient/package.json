@@ -153,8 +153,14 @@
                     "default": false
                 },
                 "cucumberautocomplete.stepRegExSymbol": {
-                    "descrioption": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
+                    "description": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
                     "type": "string",
+                    "required": false,
+                    "default": false
+                },
+                "cucumberautocomplete.pureTextSteps": {
+                    "description": "Using steps definitions as a text strings with custom cucumber expressions support",
+                    "type": "boolean",
                     "required": false,
                     "default": false
                 }

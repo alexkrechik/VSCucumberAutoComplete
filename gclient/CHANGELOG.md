@@ -1,3 +1,9 @@
+## 2.15.3
+* Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
+* Did some tables formatting fixes
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
+
+
 ## 2.15.2
 * Fixed app compiling issues..
 * Did some extension development updates.
@@ -7,14 +13,13 @@
 * Fixed autoformat with unicode characters
 * Fixed issue of steps highlighting, that ends with 'JSON' keyword
 * Fixed indentation of the DOC strings
-* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.15.0)
 
 ## 2.15.0
 * Added support for Gherkin 6 syntax (Rule and Example keywords)
 * Added all the steps description into the Readme file
 * Corrected JSON-related parts formatting
 * Fixed some issues related to non-English languages
-* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.15.0)
 
 ## 2.14.0
 * Added stepRegExSymbol extension option

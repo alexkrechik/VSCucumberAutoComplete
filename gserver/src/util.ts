@@ -48,7 +48,13 @@ export function getMD5Id(str: string): string {
 }
 
 export function escapeRegExp(str: string): string {
+    // 'Escape' symbols would be ignored by `new RegExp`, but will allow to skip errors 
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
+}
+
+export function escapeRegExpToGetTextSymbols(str: string): string {
+    // Proper, double regExp to use special RegExp symbols as a text
+    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
 
 export function getTextRange(filePath: string, text: string): Range {
