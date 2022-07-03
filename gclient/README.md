@@ -80,7 +80,7 @@ It is allowing to handle some very specific case of page objects usage in the gh
 
 **`cucumberautocomplete.skipDocStringsFormat`** - Skip format of strings, that placed between ''' or \"\"\".
 
-**`cucumberautocomplete.formatConfOverride`** - Override some formatting via format conf strings = {[key: String]: num | 'relative'}, where key - beggining of the string, num - numeric value of indents or 'relative' (same to the previous line).
+**`cucumberautocomplete.formatConfOverride`** - Override some formatting via format conf strings = {[key: String]: num | 'relative' | 'relativeUp' }, where key - beggining of the string, num - numeric value of indents, 'relative' (same indent value as the next line), or 'relativeUp' (same as the previous line).
 Example:
 ```
 "cucumberautocomplete.formatConfOverride": {
