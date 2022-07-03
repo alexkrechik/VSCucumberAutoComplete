@@ -4,6 +4,7 @@ import {
     clearComments,
     getMD5Id,
     escapeRegExp,
+    escapeRegExpToGetTextSymbols,
     getTextRange,
     getSortPrefix
 } from './util';
@@ -388,7 +389,10 @@ export default class StepsHandler {
                 }
             })
             .map((step) => {
-                const reg = new RegExp(this.getRegTextForStep(step));
+                const regText = this.settings.cucumberautocomplete.pureTextSteps
+                    ? '^' + escapeRegExpToGetTextSymbols(this.getRegTextForStep(step)) + '$'
+                    : this.getRegTextForStep(step);
+                const reg = new RegExp(regText);
                 let partialReg;
                 // Use long regular expression in case of error
                 try {
@@ -398,7 +402,7 @@ export default class StepsHandler {
                     partialReg = reg;
                 }
                 //Todo we should store full value here
-                const text = this.getTextForStep(step);
+                const text = this.settings.cucumberautocomplete.pureTextSteps ? step : this.getTextForStep(step);
                 const id = 'step' + getMD5Id(text);
                 const count = this.getElementCount(id);
                 return { id, reg, partialReg, text, desc, def, count, gherkin, documentation };

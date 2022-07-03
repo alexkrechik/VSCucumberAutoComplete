@@ -28,5 +28,6 @@ interface Settings {
         onTypeFormat?: boolean,
         gherkinDefinitionPart?: string,
         stepRegExSymbol?: string
+        pureTextSteps?: boolean
     }
 }
