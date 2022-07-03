@@ -1,6 +1,6 @@
 import { escapeRegExp } from './util';
 
-type FormatConfVal = number | 'relative';
+type FormatConfVal = number | 'relative' | 'relativeUp';
 
 interface FormatConf {
     [key: string]: FormatConfVal
@@ -93,11 +93,15 @@ export function correctIndents(text, indent, settings: Settings) {
             else if (format && typeof format.value === 'number') {
                 indentCount = format.value + (insideRule && format.symbol !== 'Rule:' ? ruleIndentation : 0);
             } else {
-                // Actually we could use 'relative' type of formatting for both - relative and unknown strings
-                // In future this behaviour could be reviewed
-                const nextLine = textArr.slice(i + 1).find(l => typeof findIndentation(l, settings) === 'number');
-                if (nextLine) {
-                    const nextLineIndentation = findIndentation(nextLine, settings);
+                // In case of 'relativeUp' format option - look for the nearest previous strig with some numeric indentation
+                // In case of 'relative' or unknown option - look for the nearest next string with some numeric indentation
+                const nextOrPrevLines = format && format.value === 'relativeUp'
+                    ? textArr.slice(0, i).reverse()
+                    : textArr.slice(i + 1)
+                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number')
+                
+                if (nextOrPrevLine) {
+                    const nextLineIndentation = findIndentation(nextOrPrevLine, settings);
                     indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
                 } else {
                     indentCount = defaultIndentation;
