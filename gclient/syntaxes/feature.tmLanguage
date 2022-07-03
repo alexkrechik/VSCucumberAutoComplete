@@ -187,7 +187,7 @@
     <key>strings_triple_quote</key>
     <dict>
       <key>begin</key>
-      <string>"""</string>
+      <string>""".*</string>
       <key>end</key>
       <string>"""</string>
       <key>name</key>
