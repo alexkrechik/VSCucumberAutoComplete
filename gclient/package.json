@@ -1,20 +1,20 @@
 {
-    "name": "cucumberautocomplete",
-    "version": "2.15.2",
-    "publisher": "alexkrechik",
+    "name": "bettercucumberautocomplete",
+    "version": "2.15.3",
+    "publisher": "Lasse Faurby Klausen",
     "engines": {
         "vscode": "^1.18.0"
     },
     "license": "MIT",
-    "displayName": "Cucumber (Gherkin) Full Support",
+    "displayName": "Better Cucumber (Gherkin) Full Support",
     "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
-    "homepage": "https://github.com/alexkrechik/VSCucumberAutoComplete",
+    "homepage": "https://github.com/lfk-cbrain/VSCucumberAutoComplete",
     "repository": {
         "type": "git",
-        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
+        "url": "https://github.com/lfk-cbrain/VSCucumberAutoComplete"
     },
     "bugs": {
-        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete/issues"
+        "url": "https://github.com/lfk-cbrain/VSCucumberAutoComplete/issues"
     },
     "categories": [
         "Programming Languages"
@@ -31,7 +31,7 @@
         "onLanguage:testcase",
         "workspaceContains:.vscode/settings.json"
     ],
-    "author": "Alexander Krechik",
+    "author": "Lasse Faurby Klausen",
     "icon": "img/icon.png",
     "contributes": {
         "languages": [
