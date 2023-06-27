@@ -1,6 +1,6 @@
 {
     "name": "bettercucumberautocomplete",
-    "version": "2.15.3",
+    "version": "1.0.0",
     "publisher": "Lasse Faurby Klausen",
     "engines": {
         "vscode": "^1.18.0"
@@ -102,7 +102,7 @@
                     "description": "Strict comparing of declaration func and gherkin word (ex. show only steps, declared via 'When()' func for the 'When ' string",
                     "type": "boolean",
                     "required": false,
-                    "default": false
+                    "default": true
                 },
                 "cucumberautocomplete.strictGherkinValidation": {
                     "description": "Compare step body and gherkin word during steps validation",
