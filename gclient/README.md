@@ -1,7 +1,11 @@
-# Cucumber Full Language Support
-VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomplete
+# Better Cucumber Full Language Support
+
+**Better** VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomplete
+
+This extension is a fork of [Alex's extension](https://github.com/alexkrechik/VSCucumberAutoComplete), which seems to be unsupported as my PR has not been merged in (as of June 2023). Therefore this fork has some fixes I missed in the old (hence the title "**Better**"). `Readme.md` and `package.json` has been updated to reflect this.
 
 ## This extension adds rich language support for the Cucumber (Gherkin) language to VS Code, including:
+
 * Syntax highlight
 * Basic Snippets support
 * Auto-parsing of feature steps from paths, provided in settings.json
@@ -14,23 +18,24 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 * Multiple programming languages, JS, TS, Ruby, Kotlin etc.
 
 ## Important extension goals are improving of steps suggestions list and minimization of user edits after step inserting:
+
 * Sort steps suggestions by their using count
 * Option to filter steps completions depending on words used for their defining
 * Option to automatically change all the steps parts, that require some user action, by snippets
 * Option to show several different completion variants for steps with 'or' RegEx parts (like `(a|b)`)
 
-![](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
-## How to use:
-1. Open your app in VS Code
-2. Install `cucumberautocomplete` extension
-3. In the opened app root create (if absent) .vscode folder with settings.json file or just run ```mkdir .vscode && touch .vscode/settings.json```
-4. Add all the needed settings to the settings.json file
-5. Reload app to apply all the extension changes
-6. To get autocomplete working, `strings` var of `editor.quickSuggestions` setting should be set to true (because by default `string` suggestions will not appear)
+![picture](https://raw.githubusercontent.com/alexkrechik/VSCucumberAutoComplete/master/gclient/img/vscode.gif)
 
-## Settings:
+## How to use
 
-### Basic settings example:
+1. Clone this repo down.
+2. Run `code --install-extension .\bettercucumberautocomplete-1.0.0.vsix -` while in the `gclient` directory.
+3. To get autocomplete working, `strings` var of `editor.quickSuggestions` setting should be set to true (because by default `string` suggestions will not appear)
+
+## Settings
+
+### Basic settings example
+
 ```javascript
 {
     "cucumberautocomplete.steps": [
@@ -42,6 +47,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 ```
 
 ### All the settings description:
+
 **`cucumberautocomplete.steps`** - Glob-style path or array of glob-style paths to the gherkin steps files.
 All the files, that match path provided, will be handled by the extension. So, ideally, this path should be as strict as possible (ex. `test/features/step_definitions/*.steps.js` is better then `test/**/*.steps.js` and much better then `**/*.steps.js`)
 The Node will watch steps files for change and will automatically update steps in them.
@@ -65,7 +71,8 @@ This option could speed up new steps adding up to several times. Try it ;)
 **`cucumberautocomplete.customParameters`** - Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs. Parameter could be string or RegEx object.
 This setting will be applied before the steps getting.
 For ex. to get step from the py expression `@given(u'I do something')` we could use the next parameters:
-```
+
+```json
 "cucumberautocomplete.customParameters": [
         {
             "parameter":"(u'",
@@ -73,7 +80,8 @@ For ex. to get step from the py expression `@given(u'I do something')` we could 
         }
     ],
 ```
-After this, the current expression will be handled as `@given('I do something')`, so the extension would be able to get `'I do something'` step. 
+
+After this, the current expression will be handled as `@given('I do something')`, so the extension would be able to get `'I do something'` step.
 
 **`cucumberautocomplete.pages`** - Object, which consists of 'page name' => 'page object file path' pairs
 It is allowing to handle some very specific case of page objects usage in the gherkin steps.
@@ -82,21 +90,26 @@ It is allowing to handle some very specific case of page objects usage in the gh
 
 **`cucumberautocomplete.formatConfOverride`** - Override some formatting via format conf strings = {[key: String]: num | 'relative' | 'relativeUp' }, where key - beggining of the string, num - numeric value of indents, 'relative' (same indent value as the next line), or 'relativeUp' (same as the previous line).
 Example:
-```
+
+```json
 "cucumberautocomplete.formatConfOverride": {
         "And": 3,
         "But": "relative",
     },
 ```
+
 Also, some new words (in the case of non-English languages using) could be added. Example:
-```
+
+```json
 "cucumberautocomplete.formatConfOverride": {
         "Característica": 3,
         "Cuando": "relative",
     },
 ```
+
 Default format conf is:
-```
+
+```conf
 {
     'Ability': 0,
     'Business Need': 0,
@@ -118,7 +131,6 @@ Default format conf is:
 };
 ```
 
-
 **`cucumberautocomplete.onTypeFormat`** - Enable ontype formattings (activating after pressing on space, @ and : keys)"
 
 **`cucumberautocomplete.gherkinDefinitionPart`** - Provide step definition name part of regex(ex. '@(given|when|then|step)\\(' in case of python-like steps.
@@ -130,7 +142,8 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
 **`cucumberautocomplete.pureTextSteps`** - Some frameworks using gherkin steps as a text with just support for the cucumber expression instead of RegExp. This differs from the default extension behaviour, example:
 `When('I give 5$ and * items')` step would be handled as `/I give 5$ and * items/` RegExp without this option enabled and as `/^I give 5\$ and \* items$/` RegExp with it (`^` and `$` symbols were added to the reg ex and also all the special regex symbols were handled as regular text symbols).
 
-### Using all the setting available example:
+### Using all the setting available example
+
 ```javascript
 {
     "cucumberautocomplete.steps": [
@@ -173,8 +186,7 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
     "cucumberautocomplete.pureTextSteps": true
 }
 ```
-#### Issues
-Feel free to create app issues on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete/issues)
 
-#### Thank you
-If this plugin was helpful for you, you could give it a ★ Star on [GitHub](https://github.com/alexkrechik/VSCucumberAutoComplete)
+#### Issues
+
+Feel free to create app issues on [GitHub](https://github.com/lfk-cbrain/VSCucumberAutoComplete)
