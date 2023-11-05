@@ -469,15 +469,17 @@ describe('step as a pure text test', () => {
         cucumberautocomplete: {
             ...settings.cucumberautocomplete,
             steps: ['/data/steps/pureTextSteps.steps.js'],
-            pureTextSteps: true
+            pureTextSteps: true,
+            favoriteQuoteChar: "\""
         }
     };
     const customStepsHandler = new StepsHandler(__dirname, customSettings);
     const elements = customStepsHandler.getElements();
 
     it('should properly handle steps', () => {
-        expect(elements.length).to.be.eq(1);
+        expect(elements.length).to.be.eq(2);
         expect(elements[0].text).to.be.eq('I give 3/4 and 5$');
+        expect(elements[1].text).to.be.eq('I receive ^{string}$');
     });
 
     it('should return proper completion', () => {
@@ -488,5 +490,10 @@ describe('step as a pure text test', () => {
     it('should return proper partial completion', () => {
         const completion = customStepsHandler.getCompletion('When I give 3', 1, '');
         expect(completion[0].insertText).to.be.eq('3/4 and 5$');
+    })
+
+    it('should return proper partial completion with favorite quote char " for string', () => {
+        const completion = customStepsHandler.getCompletion('Then I r', 1, '');
+        expect(completion[0].insertText).to.be.eq('receive ^"${1:}"$');
     })
 })

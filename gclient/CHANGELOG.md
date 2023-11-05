@@ -1,6 +1,7 @@
 ## 2.15.3
 * Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
 * Did some tables formatting fixes
+* Added favorite quote char for {string} snippet
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
 
 
