@@ -130,6 +130,8 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
 **`cucumberautocomplete.pureTextSteps`** - Some frameworks using gherkin steps as a text with just support for the cucumber expression instead of RegExp. This differs from the default extension behaviour, example:
 `When('I give 5$ and * items')` step would be handled as `/I give 5$ and * items/` RegExp without this option enabled and as `/^I give 5\$ and \* items$/` RegExp with it (`^` and `$` symbols were added to the reg ex and also all the special regex symbols were handled as regular text symbols).
 
+**`favoriteQuoteChar`** - could be `'` or `"`. Quote char used during auto-completion of `{string}` parameters. It provides a better typing experience with smartSnippets.
+
 ### Using all the setting available example:
 ```javascript
 {
@@ -170,7 +172,8 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
     },
     "cucumberautocomplete.gherkinDefinitionPart": "(Given|When|Then)\\(",
     "cucumberautocomplete.stepRegExSymbol": "'",
-    "cucumberautocomplete.pureTextSteps": true
+    "cucumberautocomplete.pureTextSteps": true,
+    "cucumberautocomplete.favoriteQuoteChar": "\""
 }
 ```
 #### Issues
