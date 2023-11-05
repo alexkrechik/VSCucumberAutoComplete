@@ -4,7 +4,6 @@ import {
     clearComments,
     getMD5Id,
     escapeRegExp,
-    escapeRegExpToGetTextSymbols,
     getTextRange,
     getSortPrefix
 } from './util';
@@ -396,7 +395,7 @@ export default class StepsHandler {
             })
             .map((step) => {
                 const regText = this.settings.cucumberautocomplete.pureTextSteps
-                    ? '^' + escapeRegExpToGetTextSymbols(this.getRegTextForStep(step)) + '$'
+                    ? '^' + this.getRegTextForStep(step) + '$'
                     : this.getRegTextForStep(step);
                 const reg = new RegExp(regText);
                 let partialReg;

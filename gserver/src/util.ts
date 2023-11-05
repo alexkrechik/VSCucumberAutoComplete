@@ -52,11 +52,6 @@ export function escapeRegExp(str: string): string {
     return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
 }
 
-export function escapeRegExpToGetTextSymbols(str: string): string {
-    // Proper, double regExp to use special RegExp symbols as a text
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-}
-
 export function getTextRange(filePath: string, text: string): Range {
     const fileContent = this.getFileContent(filePath);
     const contentArr = fileContent.split(/\r?\n/g);
