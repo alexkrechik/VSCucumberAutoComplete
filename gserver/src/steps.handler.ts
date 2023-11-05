@@ -354,17 +354,16 @@ export default class StepsHandler {
                     res = res.replace(match[i], () => '${' + num + ':}');
                 }
             }
-
-            const favQuote = this.settings.cucumberautocomplete.favoriteQuoteChar;
-            if (favQuote){
-                res = res.replace("(\"|')", favQuote);
-                res = res.replace("\\1", favQuote);
-            }
         } else {
             //We can replace some outputs, ex. strings in brackets to make insert strings more neat
             res = res.replace(/\"\[\^\"\]\+\"/g, '""');
         }
-
+        
+        const favQuote = this.settings.cucumberautocomplete.favoriteQuoteChar;
+        if (favQuote){
+            res = res.replace(/\(\"\|\'\)/g, favQuote);
+            res = res.replace(/\\1/g, favQuote);
+        }
         return res;
     }
 
