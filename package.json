@@ -7,5 +7,8 @@
     "compile": "cd gserver && npm run compile",
     "publish": "cd gserver && npm run compile && npm run test && cd ../gclient && npm run publish",
     "test": "cd gserver && npm run test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.3"
   }
 }

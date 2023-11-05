@@ -57,7 +57,7 @@ Feature: Formatting feature
 					"json": "text"
 				}
 			]
-
+			"""
 
 
 	@Other
