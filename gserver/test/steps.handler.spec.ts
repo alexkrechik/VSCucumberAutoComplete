@@ -156,7 +156,7 @@ describe('getRegTextForStep', () => {
             ['I use {}', 'I use .*'],
             ['I have 1 cucumber(s) in my belly', 'I have 1 cucumber(s)? in my belly'],
             ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)'],
-            ['I use {word}', 'I use [A-Za-z]+']
+            ['I use {word}', 'I use [^\\s]+']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
