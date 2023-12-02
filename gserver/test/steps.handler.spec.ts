@@ -476,13 +476,20 @@ describe('step as a pure text test', () => {
     const elements = customStepsHandler.getElements();
 
     it('should properly handle steps', () => {
-        expect(elements.length).to.be.eq(1);
+        expect(elements.length).to.be.eq(2);
         expect(elements[0].text).to.be.eq('I give 3/4 and 5$');
+        expect(elements[1].text).to.be.eq('I ask {string} and {string} to {word}');
+        console.log(elements)
     });
 
     it('should return proper completion', () => {
-        const completion = customStepsHandler.getCompletion('When I', 1, '');
-        expect(completion[0].insertText).to.be.eq('I give 3/4 and 5$');
+        const completion = customStepsHandler.getCompletion('When I g', 1, '');
+        expect(completion[0].insertText).to.be.eq('give 3/4 and 5$');
+    })
+
+    it('should return proper completion for string snippet', () => {
+        const completion = customStepsHandler.getCompletion('When I ask ', 1, '');
+        expect(completion[0].insertText).to.be.eq('"${1:}" and "${2:}" to ${3:}');
     })
 
     it('should return proper partial completion', () => {
