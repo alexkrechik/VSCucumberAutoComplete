@@ -86,12 +86,12 @@ describe('geStepDefinitionMatch', () => {
     });
 
     describe('invalid lines', () => {
-        const inbvalidStrings = [
+        const invalidStrings = [
             `iGiven('I do something')`,
             `Giveni('I do something')`,
             `console.log("but i do 'Something'");`
         ];
-        inbvalidStrings.forEach(str => {
+        invalidStrings.forEach(str => {
             it(`should not parse "${str}" string`, () => {
                 const match = s.geStepDefinitionMatch(str);
                 expect(match).to.be.null;
@@ -107,7 +107,7 @@ describe('geStepDefinitionMatch', () => {
 });
 
 describe('getStepInvariants', () => {
-    it('should correctly handle or experssions', () => {
+    it('should correctly handle or expressions', () => {
         const str = 'I do (a|b) and then I do (c|d|(?:e|f))';
         const res = [
             'I do a and then I do c',
@@ -156,7 +156,7 @@ describe('getRegTextForStep', () => {
             ['I use {}', 'I use .*'],
             ['I have 1 cucumber(s) in my belly', 'I have 1 cucumber(s)? in my belly'],
             ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)'],
-            ['I use {word}', 'I use [A-Za-z]+']
+            ['I use {word}', 'I use [^\\s]+']
         ];
         data.forEach(d => {
             expect(s.getRegTextForStep(d[0])).to.be.equal(d[1]);
@@ -275,22 +275,22 @@ describe('validate', () => {
     it('should not check non-Gherkin steps', () => {
         expect(s.validate('Non_gherkin_word do something else', 1, '')).to.be.null;
     });
-    it('should return an diagnostic for lines beggining with Given', () => {
+    it('should return an diagnostic for lines beginning with Given', () => {
         expect(s.validate('Given I do something else', 1, '')).to.not.be.null;
     });
-    it('should return an diagnostic for lines beggining with When', () => {
+    it('should return an diagnostic for lines beginning with When', () => {
         expect(s.validate('When I do something else', 1, '')).to.not.be.null;
     });
-    it('should return an diagnostic for lines beggining with Then', () => {
+    it('should return an diagnostic for lines beginning with Then', () => {
         expect(s.validate('Then I do something else', 1, '')).to.not.be.null;
     });
-    it('should return an diagnostic for lines beggining with And', () => {
+    it('should return an diagnostic for lines beginning with And', () => {
         expect(s.validate('And I do something else', 1, '')).to.not.be.null;
     });
-    it('should return an diagnostic for lines beggining with But', () => {
+    it('should return an diagnostic for lines beginning with But', () => {
         expect(s.validate('But I do something else', 1, '')).to.not.be.null;
     });
-    it('should return an diagnostic for lines beggining with *', () => {
+    it('should return an diagnostic for lines beginning with *', () => {
         expect(s.validate('* I do something else', 1, '')).to.not.be.null;
     });
     it('should correctly handle outline steps', () => {
@@ -476,13 +476,19 @@ describe('step as a pure text test', () => {
     const elements = customStepsHandler.getElements();
 
     it('should properly handle steps', () => {
-        expect(elements.length).to.be.eq(1);
+        expect(elements.length).to.be.eq(2);
         expect(elements[0].text).to.be.eq('I give 3/4 and 5$');
+        expect(elements[1].text).to.be.eq('I ask {string} and {string} to {word}');
     });
 
     it('should return proper completion', () => {
-        const completion = customStepsHandler.getCompletion('When I', 1, '');
-        expect(completion[0].insertText).to.be.eq('I give 3/4 and 5$');
+        const completion = customStepsHandler.getCompletion('When I g', 1, '');
+        expect(completion[0].insertText).to.be.eq('give 3/4 and 5$');
+    })
+
+    it('should return proper completion for string snippet', () => {
+        const completion = customStepsHandler.getCompletion('When I ask ', 1, '');
+        expect(completion[0].insertText).to.be.eq('"${1:}" and "${2:}" to ${3:}');
     })
 
     it('should return proper partial completion', () => {
