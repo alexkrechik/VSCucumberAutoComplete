@@ -479,7 +479,6 @@ describe('step as a pure text test', () => {
         expect(elements.length).to.be.eq(2);
         expect(elements[0].text).to.be.eq('I give 3/4 and 5$');
         expect(elements[1].text).to.be.eq('I ask {string} and {string} to {word}');
-        console.log(elements)
     });
 
     it('should return proper completion', () => {

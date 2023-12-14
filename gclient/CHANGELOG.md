@@ -1,12 +1,10 @@
 ## unreleased
 * [#470](https://github.com/alexkrechik/VSCucumberAutoComplete/issues/470) Fix autocompletion for string cucumber parameter
 
-
 ## 2.15.3
 * Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
 * Did some tables formatting fixes
 * Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
-
 
 ## 2.15.2
 * Fixed app compiling issues..
