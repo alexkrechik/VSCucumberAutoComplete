@@ -42,7 +42,11 @@
           ".feature",
           ".testcase"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration.json",
+        "icon": {
+            "light": "./img/cucumber.png",
+            "dark": "./img/cucumber.png"
+        }
       }
     ],
     "grammars": [
