@@ -97,8 +97,8 @@ export function correctIndents(text, indent, settings: Settings) {
                 // In case of 'relative' or unknown option - look for the nearest next string with some numeric indentation
                 const nextOrPrevLines = format && format.value === 'relativeUp'
                     ? textArr.slice(0, i).reverse()
-                    : textArr.slice(i + 1)
-                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number')
+                    : textArr.slice(i + 1);
+                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number');
                 
                 if (nextOrPrevLine) {
                     const nextLineIndentation = findIndentation(nextOrPrevLine, settings);
@@ -123,7 +123,7 @@ interface Block {
 function formatTables(text) {
 
     let blockNum = 0;
-    let textArr = text.split(/\r?\n/g);
+    const textArr = text.split(/\r?\n/g);
 
     //Get blocks with data in cucumber tables
     const blocks: Block[] = textArr
@@ -176,23 +176,23 @@ function formatTables(text) {
 
 
 function formatJson(textBody: string, indent: string) {
-    let rxTextBlock = /^\s*""".*$([\s\S.]*?)"""/gm;
-    let rxQuoteBegin = /""".*$/gm;
+    const rxTextBlock = /^\s*""".*$([\s\S.]*?)"""/gm;
+    const rxQuoteBegin = /""".*$/gm;
 
-    let textArr = textBody.match(rxTextBlock);
+    const textArr = textBody.match(rxTextBlock);
 
     if (textArr === null) {
         return textBody;
     }
 
-    for (let txt of textArr) {
-        let header = txt.match(rxQuoteBegin)[0]
+    for (const txt of textArr) {
+        const header = txt.match(rxQuoteBegin)[0];
         let preJson = txt.replace(rxQuoteBegin, '');
-        let taggedMap = {};
+        const taggedMap = {};
         let taggedTexts;
         while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
             taggedTexts.forEach(function (tag, index) {
-                let uuid = createUUID();
+                const uuid = createUUID();
 
                 taggedMap[uuid] = tag;
                 preJson = preJson.replace(tag, uuid);
@@ -202,17 +202,17 @@ function formatJson(textBody: string, indent: string) {
             continue;
         }
 
-        let rxIndentTotal = /^([\s\S]*?)"""/;
-        let textIndentTotal = txt.match(rxIndentTotal);
-        let textIndent = textIndentTotal[0].replace(rxQuoteBegin, '').replace(/\n/g, '');
+        const rxIndentTotal = /^([\s\S]*?)"""/;
+        const textIndentTotal = txt.match(rxIndentTotal);
+        const textIndent = textIndentTotal[0].replace(rxQuoteBegin, '').replace(/\n/g, '');
 
         let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
         jsonTxt = '\n' + header + '\n' + jsonTxt + '\n"""';
         jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json
-        for (let uuid in taggedMap) {
-            if (taggedMap.hasOwnProperty(uuid)) {
+        for (const uuid in taggedMap) {
+            if (Object.hasOwnProperty.call(taggedMap, uuid)) {
                 jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
             }
         }

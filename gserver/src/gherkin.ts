@@ -30,19 +30,19 @@ export enum GherkinType {
 }
 
 export const getGherkinType = (word: string): GherkinType => {
-    if (!!~givenWordsArr.indexOf(word)) {
+    if (~givenWordsArr.indexOf(word)) {
         return GherkinType.Given;
     }
-    if (!!~whenWordsArr.indexOf(word)) {
+    if (~whenWordsArr.indexOf(word)) {
         return GherkinType.When;
     }
-    if (!!~thenWordsArr.indexOf(word)) {
+    if (~thenWordsArr.indexOf(word)) {
         return GherkinType.Then;
     }
-    if (!!~andWordsArr.indexOf(word)) {
+    if (~andWordsArr.indexOf(word)) {
         return GherkinType.And;
     }
-    if (!!~butWordsArr.indexOf(word)) {
+    if (~butWordsArr.indexOf(word)) {
         return GherkinType.But;
     }
     return GherkinType.Other;
@@ -50,19 +50,19 @@ export const getGherkinType = (word: string): GherkinType => {
 
 export const getGherkinTypeLower = (word: string): GherkinType => {
     const lowerWord = word.toLowerCase();
-    if (!!~givenWordsArrLower.indexOf(lowerWord)) {
+    if (~givenWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.Given;
     }
-    if (!!~whenWordsArrLower.indexOf(lowerWord)) {
+    if (~whenWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.When;
     }
-    if (!!~thenWordsArrLower.indexOf(lowerWord)) {
+    if (~thenWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.Then;
     }
-    if (!!~andWordsArrLower.indexOf(lowerWord)) {
+    if (~andWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.And;
     }
-    if (!!~butWordsArrLower.indexOf(lowerWord)) {
+    if (~butWordsArrLower.indexOf(lowerWord)) {
         return GherkinType.But;
     }
     return GherkinType.Other;

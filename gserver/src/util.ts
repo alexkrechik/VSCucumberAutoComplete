@@ -1,12 +1,13 @@
 import * as fs from 'fs';
 import * as strip from 'strip-comments';
-import { Range } from 'vscode-languageserver';
 import * as md5 from 'md5';
+import * as process from 'process';
+import { Range } from 'vscode-languageserver';
 
 export function getOSPath(path: string): string {
     /* Add suffics for the provided path
      * 'file://' for the non-windows OS's or file:/// for Windows */
-    if (/^win/.test(require('process').platform)) {
+    if (/^win/.test(process.platform)) {
         return 'file:///' + path;
     } else {
         return 'file:' + path;
@@ -22,7 +23,7 @@ export function getFileContent(filePath: string): string {
 }
 
 export function clearComments(text: string): string {
-    return strip(text, { silent: true, preserveNewlines: true });
+    return strip(text, { preserveNewlines: true });
 }
 
 export function clearGherkinComments(text: string): string {
@@ -40,7 +41,7 @@ export function clearGherkinComments(text: string): string {
         })
         .join('\r\n');
     //Clear all the other comments
-    return strip(text, { silent: true, preserveNewlines: true });
+    return strip(text, { preserveNewlines: true });
 }
 
 export function getMD5Id(str: string): string {
@@ -49,12 +50,13 @@ export function getMD5Id(str: string): string {
 
 export function escapeRegExp(str: string): string {
     // 'Escape' symbols would be ignored by `new RegExp`, but will allow to skip errors 
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\$&');
+    // TODO - check if works, remove \\ at '\\$&' if not
+    return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 }
 
 export function escapeRegExpToGetTextSymbols(str: string): string {
     // Proper, double regExp to use special RegExp symbols as a text
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+    return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 }
 
 export function getTextRange(filePath: string, text: string): Range {

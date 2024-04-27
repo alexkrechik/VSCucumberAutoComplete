@@ -167,6 +167,7 @@
     "compile": "tsc -b",
     "watch": "tsc -b -w",
     "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
+    "lint:fix": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx --fix",
     "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",
     "publish": "vsce publish"
   },

@@ -146,7 +146,7 @@ connection.onDidChangeConfiguration((change) => {
 
   // Set empty array as steps if they were not provided
   if (!settings.cucumberautocomplete.steps) {
-    settings.cucumberautocomplete.steps = []
+    settings.cucumberautocomplete.steps = [];
   } else {
     //We should get array from step string if provided
     settings.cucumberautocomplete.steps = Array.isArray(
