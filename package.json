@@ -27,11 +27,6 @@
     "autocomplete"
   ],
   "main": "./gclient/out/extension",
-  "activationEvents": [
-    "onLanguage:feature",
-    "onLanguage:testcase",
-    "workspaceContains:.vscode/settings.json"
-  ],
   "icon": "img/icon.png",
   "contributes": {
     "languages": [
@@ -171,8 +166,8 @@
     "vscode:prepublish": "npm run compile && vsce package",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
-    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+    "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
+    "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",
     "publish": "vsce publish"
   },
   "devDependencies": {
@@ -183,6 +178,6 @@
     "eslint": "^8.57.0",
     "mocha": "^10.3.0",
     "typescript": "^5.3.3",
-    "vsce": "^2.26.0"
+    "@vscode/vsce": "^2.26.0"
   }
 }
