@@ -12,15 +12,16 @@
     "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
   },
   "dependencies": {
+    "doctrine": "^2.1.0",
     "glob": "^7.1.1",
     "md5": "^2.2.1",
     "strip-comments": "^0.4.4",
-		"vscode-languageserver": "^9.0.1",
-		"vscode-languageserver-textdocument": "^1.0.11",
-    "doctrine": "^2.1.0"
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
+    "@types/glob": "^8.1.0",
     "@types/mocha": "^2.2.48",
     "@types/node": "7.0.7",
     "chai": "^3.5.0",
