@@ -1,16 +1,22 @@
 {
   "name": "cucumberautocomplete-server",
-  "description": "Server part of VsCucumberAutoComplete extension",
+  "description": "Node.JS server part of VsCucumberAutoComplete extension",
   "version": "2.15.2",
   "author": "Alexander Krechik",
+  "license": "MIT",
   "engines": {
     "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
   },
   "dependencies": {
     "glob": "^7.1.1",
     "md5": "^2.2.1",
     "strip-comments": "^0.4.4",
-    "vscode-languageserver": "^3.5.0",
+		"vscode-languageserver": "^9.0.1",
+		"vscode-languageserver-textdocument": "^1.0.11",
     "doctrine": "^2.1.0"
   },
   "devDependencies": {
@@ -25,9 +31,6 @@
     "vscode": "^1.1.10"
   },
   "scripts": {
-    "compile": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc --watch -p .",
-    "test": "./node_modules/.bin/mocha -r ts-node/register test/**/*.spec.ts",
-    "lint": "./node_modules/.bin/tslint 'src/**/*.ts'"
+    "test": "./node_modules/.bin/mocha -r ts-node/register test/**/*.spec.ts"
   }
 }
