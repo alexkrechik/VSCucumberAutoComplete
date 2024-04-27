@@ -1,14 +1,14 @@
 {
 	"compilerOptions": {
-		"target": "es6",
+		"target": "es2020",
+		"lib": ["es2020"],
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"sourceMap": true,
-		"lib" : [ "es2016" ],
-		"outDir": "../gclient/server"
+		"strict": true,
+		"outDir": "out",
+		"rootDir": "src"
 	},
-	"exclude": [
-		"node_modules",
-		"test"
-	]
+	"include": ["src"],
+	"exclude": ["node_modules", ".vscode-test", "test"]
 }
