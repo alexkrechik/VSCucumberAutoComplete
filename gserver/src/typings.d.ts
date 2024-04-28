@@ -13,21 +13,36 @@ type FormatConf = {
     [key: string]: number | 'relative'
 };
 
+interface BaseSettings {
+    steps?: StepSettings,
+    pages?: PagesSettings,
+    syncfeatures?: boolean | string,
+    strictGherkinCompletion?: boolean,
+    strictGherkinValidation?: boolean,
+    smartSnippets?: boolean,
+    stepsInvariants?: boolean,
+    customParameters?: CustomParameter[],
+    skipDocStringsFormat?: boolean,
+    formatConfOverride?: FormatConf[],
+    onTypeFormat?: boolean,
+    gherkinDefinitionPart?: string,
+    stepRegExSymbol?: string
+    pureTextSteps?: boolean
+}
+
 interface Settings {
-    cucumberautocomplete: {
-        steps?: StepSettings,
-        pages?: PagesSettings,
-        syncfeatures?: boolean | string,
-        strictGherkinCompletion?: boolean,
-        strictGherkinValidation?: boolean,
-        smartSnippets?: boolean,
-        stepsInvariants?: boolean,
-        customParameters?: CustomParameter[],
-        skipDocStringsFormat?: boolean,
-        formatConfOverride?: FormatConf[],
-        onTypeFormat?: boolean,
-        gherkinDefinitionPart?: string,
-        stepRegExSymbol?: string
-        pureTextSteps?: boolean
-    }
+    steps: StepSettings,
+    pages: PagesSettings,
+    syncfeatures?: boolean | string,
+    strictGherkinCompletion?: boolean,
+    strictGherkinValidation?: boolean,
+    smartSnippets?: boolean,
+    stepsInvariants?: boolean,
+    customParameters?: CustomParameter[],
+    skipDocStringsFormat?: boolean,
+    formatConfOverride?: FormatConf[],
+    onTypeFormat?: boolean,
+    gherkinDefinitionPart?: string,
+    stepRegExSymbol?: string
+    pureTextSteps?: boolean
 }

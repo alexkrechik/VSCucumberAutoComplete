@@ -38,7 +38,7 @@ export default class PagesHandler {
   elements: Page[] = [];
 
   constructor(root: string, settings: Settings) {
-    this.populate(root, settings.cucumberautocomplete.pages || {});
+    this.populate(root, settings.pages);
   }
 
   getPageElement(page: string) {

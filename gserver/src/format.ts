@@ -42,7 +42,7 @@ function findIndentation(line: string, settings: Settings) {
 }
 
 function findFormat(line: string, settings: Settings) {
-    const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
+    const settingsFormatConf = settings.formatConfOverride || {};
     const fnFormatFinder = (conf: FormatConf) => {
         const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
         return symbol ? { symbol, value: conf[symbol] } : null;
@@ -76,7 +76,7 @@ export function correctIndents(text: string, indent: string, settings: Settings)
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
             //Lines, that placed between comments, should not be formatted
-            if (settings.cucumberautocomplete.skipDocStringsFormat) {
+            if (settings.skipDocStringsFormat) {
                 if (~line.search(/^\s*'''\s*/) || ~line.search(/^\s*"""\s*/)) {
                     commentsMode = !commentsMode;
                 } else {

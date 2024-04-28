@@ -60,8 +60,8 @@ export default class StepsHandler {
 
   settings: Settings;
 
-  constructor(root: string, settings: Settings, steps: string[]) {
-    const { syncfeatures } = settings.cucumberautocomplete;
+  constructor(root: string, settings: Settings) {
+    const { syncfeatures, steps } = settings;
     this.settings = settings;
     this.populate(root, steps);
     if (syncfeatures === true) {
@@ -116,14 +116,14 @@ export default class StepsHandler {
 
     //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
     const gherkinPart =
-      this.settings.cucumberautocomplete.gherkinDefinitionPart ||
+      this.settings.gherkinDefinitionPart ||
       `(${allGherkinWords}|defineStep|Step|StepDefinition)`;
 
     //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
     const nonStepStartSymbols = `[^/'"\`\\w]*?`;
 
     // Step part getting
-    const { stepRegExSymbol } = this.settings.cucumberautocomplete;
+    const { stepRegExSymbol } = this.settings;
     // Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
     const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(/|'|"|\`)`;
     // ref to RegEx Example: https://regex101.com/r/mS1zJ8/1
@@ -199,7 +199,7 @@ export default class StepsHandler {
   }
 
   handleCustomParameters(step: string): string {
-    const { customParameters } = this.settings.cucumberautocomplete;
+    const { customParameters } = this.settings;
     if (!customParameters) {
       return step;
     }
@@ -358,7 +358,7 @@ export default class StepsHandler {
       }
     }
 
-    if (this.settings.cucumberautocomplete.smartSnippets) {
+    if (this.settings.smartSnippets) {
       /*
                 Now we should change all the 'user input' items to some snippets
                 Create our regexp for this:
@@ -407,7 +407,7 @@ export default class StepsHandler {
     gherkin: GherkinType,
     comments: JSDocComments
   ): Step[] {
-    const stepsVariants = this.settings.cucumberautocomplete.stepsInvariants
+    const stepsVariants = this.settings.stepsInvariants
       ? this.getStepTextInvariants(stepPart)
       : [stepPart];
     const desc = this.getDescForStep(fullStepLine);
@@ -427,7 +427,7 @@ export default class StepsHandler {
         }
       })
       .map((step) => {
-        const regText = this.settings.cucumberautocomplete.pureTextSteps
+        const regText = this.settings.pureTextSteps
           ? "^" +
             escapeRegExpToGetTextSymbols(this.getRegTextForStep(step)) +
             "$"
@@ -442,7 +442,7 @@ export default class StepsHandler {
           partialReg = reg;
         }
         //Todo we should store full value here
-        const text = this.settings.cucumberautocomplete.pureTextSteps
+        const text = this.settings.pureTextSteps
           ? step
           : this.getTextForStep(step);
         const id = "step" + getMD5Id(text);
@@ -593,7 +593,7 @@ export default class StepsHandler {
     const gherkinPart = match[2];
     const step = this.getStepByText(
       match[4],
-      this.settings.cucumberautocomplete.strictGherkinValidation
+      this.settings.strictGherkinValidation
         ? this.getStrictGherkinType(gherkinPart, lineNum, text)
         : undefined
     );
@@ -668,7 +668,7 @@ export default class StepsHandler {
     const res = this.elements
       //Filter via gherkin words comparing if strictGherkinCompletion option provided
       .filter((step) => {
-        if (this.settings.cucumberautocomplete.strictGherkinCompletion) {
+        if (this.settings.strictGherkinCompletion) {
           const strictGherkinPart = this.getStrictGherkinType(
             gherkinPart,
             lineNumber,

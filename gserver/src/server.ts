@@ -102,19 +102,19 @@ connection.onInitialized(() => {
 	}
 });
 
-function handleSteps(): boolean {
-  const s = settings.cucumberautocomplete.steps;
+function shouldHandleSteps(): boolean {
+  const s = settings.steps;
   return s && s.length ? true : false;
 }
 
-function handlePages(): boolean {
-  const p = settings.cucumberautocomplete.pages;
+function shouldHandlePages(): boolean {
+  const p = settings.pages;
   return p && Object.keys(p).length ? true : false;
 }
 
 function pagesPosition(line: string, char: number): boolean {
   if (
-    handlePages() &&
+    shouldHandlePages() &&
     pagesHandler &&
     pagesHandler.getFeaturePosition(line, char)
   ) {
@@ -141,25 +141,33 @@ function watchFiles(stepsPathes: string[]): void {
   });
 }
 
-function getStepsArray(settings: Settings): string[] {
+function getStepsArray(steps: BaseSettings['steps']): string[] {
   // Set empty array as steps if they were not provided
-  if (!settings.cucumberautocomplete.steps) {
+  if (!steps) {
     return [];
   } 
-  if (Array.isArray(settings.cucumberautocomplete.steps)) {
-    return settings.cucumberautocomplete.steps;
+  if (Array.isArray(steps)) {
+    return steps;
   }
-  return [settings.cucumberautocomplete.steps];
+  return [steps];
+}
+
+function getSettingsFromBase(baseSettings: BaseSettings) {
+  const settings: Settings = {
+    ...baseSettings,
+    steps: getStepsArray(baseSettings.steps),
+    pages: baseSettings.pages || {},
+  };
+  return settings;
 }
 
 connection.onDidChangeConfiguration((change) => {
-  settings = <Settings>change.settings;
+  settings = getSettingsFromBase(change.settings);
+  const { pages, steps } = settings;
 
-  const steps = getStepsArray(settings);
-
-  if (handleSteps()) {
+  if (shouldHandleSteps()) {
     watchFiles(steps);
-    stepsHandler = new StepsHandler(workspaceRoot, settings, steps);
+    stepsHandler = new StepsHandler(workspaceRoot, settings);
     const sFile = ".vscode/settings.json";
     const diagnostics = stepsHandler.validateConfiguration(
       sFile,
@@ -171,8 +179,7 @@ connection.onDidChangeConfiguration((change) => {
       diagnostics,
     });
   }
-  if (handlePages()) {
-    const { pages } = settings.cucumberautocomplete;
+  if (shouldHandlePages()) {
     if (pages) {
       watchFiles(Object.keys(pages).map((key) => pages[key]));
     }
@@ -181,16 +188,15 @@ connection.onDidChangeConfiguration((change) => {
 });
 
 function populateHandlers() {
-  const steps = getStepsArray(settings);
-  handleSteps() &&
+  shouldHandleSteps() &&
     stepsHandler &&
-    stepsHandler.populate(workspaceRoot, steps);
-  handlePages() &&
+    stepsHandler.populate(workspaceRoot, settings.steps);
+  shouldHandlePages() &&
     pagesHandler &&
-    pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages || {});
+    pagesHandler.populate(workspaceRoot, settings.pages);
 }
 
-documents.onDidOpen(() => {
+documents.onDidOpen(async (props) => {
   populateHandlers();
 });
 
@@ -203,7 +209,7 @@ connection.onCompletion(
     if (pagesPosition(line, char) && pagesHandler) {
       return pagesHandler.getCompletion(line, position.position);
     }
-    if (handleSteps() && stepsHandler) {
+    if (shouldHandleSteps() && stepsHandler) {
       return stepsHandler.getCompletion(line, position.position.line, text);
     }
   }
@@ -223,12 +229,12 @@ function validate(text: string) {
   return text.split(/\r?\n/g).reduce((res, line, i) => {
     let diagnostic;
     if (
-      handleSteps() &&
+      shouldHandleSteps() &&
       stepsHandler &&
       (diagnostic = stepsHandler.validate(line, i, text))
     ) {
       res.push(diagnostic);
-    } else if (handlePages() && pagesHandler) {
+    } else if (shouldHandlePages() && pagesHandler) {
       const pagesDiagnosticArr = pagesHandler.validate(line, i);
       res = res.concat(pagesDiagnosticArr);
     }
@@ -253,7 +259,7 @@ connection.onDefinition((position: TextDocumentPositionParams) => {
   if (pagesPosition(line, char) && pagesHandler) {
     return pagesHandler.getDefinition(line, char);
   }
-  if (handleSteps() && stepsHandler) {
+  if (shouldHandleSteps() && stepsHandler) {
     return stepsHandler.getDefinition(line, text);
   }
   return Location.create(uri, Range.create(pos, pos));
@@ -305,7 +311,7 @@ connection.onDocumentRangeFormatting(
 
 connection.onDocumentOnTypeFormatting(
   (params: DocumentFormattingParams) => {
-    if (settings.cucumberautocomplete.onTypeFormat === true) {
+    if (settings.onTypeFormat === true) {
       const textDocument = documents.get(params.textDocument.uri);
       const text = textDocument?.getText() || '';
       const textArr = text.split(/\r?\n/g);
