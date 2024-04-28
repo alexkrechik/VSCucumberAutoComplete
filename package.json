@@ -49,7 +49,7 @@
       {
         "language": "feature",
         "scopeName": "text.gherkin.feature",
-        "path": "./syntaxes/feature.tmLanguage"
+        "path": "./syntaxes/feature.tmLanguage.json"
       },
       {
         "injectTo": [
@@ -65,7 +65,7 @@
     "snippets": [
       {
         "language": "feature",
-        "path": "snippets.json"
+        "path": "./snippets.json"
       }
     ],
     "configuration": {
