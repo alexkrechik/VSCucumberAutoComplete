@@ -31,43 +31,40 @@ export type PageObject = {
 
 type FeaturePosition =
   | { page: string; object: string }
-  | { page: string }
+  | { page: string; object: null }
   | null;
 
 export default class PagesHandler {
-  elements: Page[];
+  elements: Page[] = [];
 
   constructor(root: string, settings: Settings) {
-    this.populate(root, settings.cucumberautocomplete.pages);
+    this.populate(root, settings.cucumberautocomplete.pages || {});
   }
 
-  getElements(
-    page?: string,
-    pageObject?: string
-  ): Page[] | Page | PageObject | null {
-    if (page !== undefined) {
-      const pageElement = this.elements.find((e) => e.text === page);
-      if (!pageElement) {
-        return null;
-      }
-      if (pageObject !== undefined) {
-        const pageObjectElement = pageElement.objects.find(
-          (e) => e.text === pageObject
-        );
-        return pageObjectElement || null;
-      } else {
-        return pageElement;
-      }
-    } else {
-      return this.elements;
+  getPageElement(page: string) {
+    const pageElement = this.elements.find((e) => e.text === page);
+    if (!pageElement) {
+      return null;
     }
+    return pageElement;
   }
 
-  getPoMatch(line: string): RegExpMatchArray {
+  getPageObjectElement(page: string, pageObject: string) {
+    const pageElement = this.getPageElement(page);
+    if (!pageElement) {
+      return null;
+    }
+    const pageObjectElement = pageElement.objects.find(
+      (e) => e.text === pageObject
+    );
+    return pageObjectElement || null;
+  }
+
+  getPoMatch(line: string) {
     return line.match(/^(?:(?:.*?[\s.])|.{0})([a-zA-z][^\s.]*)\s*[:=(]/);
   }
 
-  getPageObjects(text: string, path: string): PageObject[] {
+  getPageObjects(text: string, path: string) {
     const textArr = text.split(/\r?\n/g);
     return textArr.reduce((res, line, i) => {
       const poMatch = this.getPoMatch(line);
@@ -84,10 +81,10 @@ export default class PagesHandler {
         }
       }
       return res;
-    }, []);
+    }, new Array<PageObject>());
   }
 
-  getPage(name: string, path: string): Page {
+  getPage(name: string, path: string) {
     const files = glob.sync(path);
     if (files.length) {
       const file = files[0];
@@ -104,15 +101,15 @@ export default class PagesHandler {
     return null;
   }
 
-  populate(root: string, settings: PagesSettings): void {
+  populate(root: string, settings: PagesSettings) {
     this.elements = Object.keys(settings).reduce((res, p) => {
       const page = this.getPage(p, root + "/" + settings[p]);
       page && res.push(page);
       return res;
-    }, []);
+    }, new Array<Page>());
   }
 
-  validate(line: string, lineNum: number): Diagnostic[] {
+  validate(line: string, lineNum: number) {
     if (~line.search(/"[^"]*"."[^"]*"/)) {
       return line.split('"').reduce((res, l, i, lineArr) => {
         if (l === ".") {
@@ -121,7 +118,7 @@ export default class PagesHandler {
             .reduce((a, b, j) => a + b.length + 1, 0);
           const page = lineArr[i - 1];
           const pageObject = lineArr[i + 1];
-          if (!this.getElements(page)) {
+          if (!this.getPageElement(page)) {
             res.push({
               severity: DiagnosticSeverity.Warning,
               range: {
@@ -131,7 +128,7 @@ export default class PagesHandler {
               message: `Was unable to find page "${page}"`,
               source: "cucumberautocomplete",
             });
-          } else if (!this.getElements(page, pageObject)) {
+          } else if (!this.getPageObjectElement(page, pageObject)) {
             res.push({
               severity: DiagnosticSeverity.Warning,
               range: {
@@ -147,7 +144,7 @@ export default class PagesHandler {
           }
         }
         return res;
-      }, []);
+      }, new Array<Diagnostic>());
     } else {
       return [];
     }
@@ -158,17 +155,19 @@ export default class PagesHandler {
     const endLine = line.slice(char).replace(/".*/, "");
     const match = startLine.match(/"/g);
     if (match && match.length % 2) {
-      const [, page, object] = startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/);
+      const [, page, object] =
+        startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/) || [];
+      if (!object) return null;
       if (page) {
         return {
           page: page,
           object: object + endLine,
         };
-      } else {
-        return {
-          page: object + endLine,
-        };
       }
+      return {
+        page: object + endLine,
+        object: null,
+      };
     } else {
       return null;
     }
@@ -177,12 +176,15 @@ export default class PagesHandler {
   getDefinition(line: string, char: number): Definition | null {
     const position = this.getFeaturePosition(line, char);
     if (position) {
-      if (position["object"]) {
-        const el = this.getElements(position["page"], position["object"]);
-        return el ? el["def"] : null;
+      if (position.object) {
+        const el = this.getPageObjectElement(
+          position["page"],
+          position["object"]
+        );
+        return el ? el.def : null;
       } else {
-        const el = this.getElements(position["page"]);
-        return el ? el["def"] : null;
+        const el = this.getPageElement(position["page"]);
+        return el ? el.def : null;
       }
     } else {
       return null;
@@ -239,19 +241,19 @@ export default class PagesHandler {
 
   getCompletion(line: string, position: Position): CompletionItem[] | null {
     const fPosition = this.getFeaturePosition(line, position.character);
-    const page = fPosition["page"];
-    const object = fPosition["object"];
+    const page = fPosition?.page;
+    const object = fPosition?.object;
     if (object !== undefined && page !== undefined) {
-      const pageElement = this.getElements(page);
+      const pageElement = this.getPageElement(page);
       if (pageElement) {
-        return pageElement["objects"].map(
+        return pageElement.objects.map(
           this.getPageObjectCompletion.bind(null, line, position)
         );
       } else {
         return null;
       }
     } else if (page !== undefined) {
-      return this.getElements()["map"](
+      return this.elements.map(
         this.getPageCompletion.bind(null, line, position)
       );
     } else {

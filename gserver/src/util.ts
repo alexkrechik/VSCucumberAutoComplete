@@ -60,7 +60,7 @@ export function escapeRegExpToGetTextSymbols(str: string): string {
 }
 
 export function getTextRange(filePath: string, text: string): Range {
-    const fileContent = this.getFileContent(filePath);
+    const fileContent = getFileContent(filePath);
     const contentArr = fileContent.split(/\r?\n/g);
     for (let i = 0; i < contentArr.length; i++) {
         const find = contentArr[i].indexOf(text);
@@ -71,6 +71,10 @@ export function getTextRange(filePath: string, text: string): Range {
             };
         }
     }
+    return {
+        start: { line: 0, character: 0 },
+        end: { line: 0, character: 0 }
+    };
 }
 
 export function getSortPrefix(num: number, count: number): string {

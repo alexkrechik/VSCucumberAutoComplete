@@ -31,7 +31,6 @@ import {
   getGherkinTypeLower,
 } from "./gherkin";
 
-
 export type Step = {
   id: string;
   reg: RegExp;
@@ -52,10 +51,8 @@ interface JSDocComments {
   [key: number]: string;
 }
 
-
-
 export default class StepsHandler {
-  elements: Step[];
+  elements: Step[] = [];
 
   elementsHash: { [step: string]: boolean } = {};
 
@@ -63,8 +60,8 @@ export default class StepsHandler {
 
   settings: Settings;
 
-  constructor(root: string, settings: Settings) {
-    const { steps, syncfeatures } = settings.cucumberautocomplete;
+  constructor(root: string, settings: Settings, steps: string[]) {
+    const { syncfeatures } = settings.cucumberautocomplete;
     this.settings = settings;
     this.populate(root, steps);
     if (syncfeatures === true) {
@@ -150,7 +147,7 @@ export default class StepsHandler {
     return r;
   }
 
-  geStepDefinitionMatch(line: string): RegExpMatchArray {
+  geStepDefinitionMatch(line: string) {
     return line.match(this.getStepRegExp());
   }
 
@@ -166,10 +163,10 @@ export default class StepsHandler {
         });
       }
       return res;
-    }, {});
+    }, {} as Record<string, string>);
   }
 
-  getGherkinMatch(line: string, document: string): RegExpMatchArray {
+  getGherkinMatch(line: string, document: string) {
     const outlineMatch = line.match(/<.*?>/g);
     if (outlineMatch) {
       const outlineVars = this.getOutlineVars(document);
@@ -202,13 +199,14 @@ export default class StepsHandler {
   }
 
   handleCustomParameters(step: string): string {
-    if (!step) return "";
-    this.settings.cucumberautocomplete.customParameters.forEach(
-      (p: CustomParameter) => {
-        const { parameter, value } = p;
-        step = step.split(parameter).join(value);
-      }
-    );
+    const { customParameters } = this.settings.cucumberautocomplete;
+    if (!customParameters) {
+      return step;
+    }
+    customParameters.forEach((p: CustomParameter) => {
+      const { parameter, value } = p;
+      step = step.split(parameter).join(value);
+    });
     return step;
   }
 
@@ -254,8 +252,8 @@ export default class StepsHandler {
     text = this.getRegTextForStep(text);
     let currString = "";
     let bracesMode = false;
-    let openingBracesNum;
-    let closingBracesNum;
+    let openingBracesNum = 0;
+    let closingBracesNum = 0;
     const res = [];
     for (let i = 0; i <= text.length; i++) {
       const currSymbol = text[i];
@@ -324,7 +322,7 @@ export default class StepsHandler {
     const bracesRegEx = /(\([^)()]+\|[^()]+\))/;
     if (~step.search(bracesRegEx)) {
       const match = step.match(bracesRegEx);
-      const matchRes = match[1];
+      const matchRes = match![1];
       const variants = matchRes
         .replace(/\(\?:/, "")
         .replace(/^\(|\)$/g, "")
@@ -333,7 +331,7 @@ export default class StepsHandler {
         return varRes.concat(
           this.getStepTextInvariants(step.replace(matchRes, variant))
         );
-      }, []);
+      }, new Array<string>());
     } else {
       return [step];
     }
@@ -343,14 +341,16 @@ export default class StepsHandler {
     // Return only part we need for our step
     let res = step;
     const strArray = this.getPartialRegParts(res);
-    const currArray = [];
+    const currArray = new Array<string>();
     const { length } = strArray;
     for (let i = 0; i < length; i++) {
-      currArray.push(strArray.shift());
+      currArray.push(strArray.shift()!);
       try {
         const r = new RegExp("^" + escapeRegExp(currArray.join(" ")));
         if (!r.test(stepPart)) {
-          res = [].concat(currArray.slice(-1), strArray).join(" ");
+          res = new Array<string>()
+            .concat(currArray.slice(-1), strArray)
+            .join(" ");
           break;
         }
       } catch (err) {
@@ -461,7 +461,7 @@ export default class StepsHandler {
       });
   }
 
-  getMultiLineComments(content: string): JSDocComments {
+  getMultiLineComments(content: string) {
     return content.split(/\r?\n/g).reduce(
       (res, line, i) => {
         if (~line.search(/^\s*\/\*/)) {
@@ -477,14 +477,14 @@ export default class StepsHandler {
         return res;
       },
       {
-        comments: {},
+        comments: {} as JSDocComments,
         current: "",
         commentMode: false,
       }
     ).comments;
   }
 
-  getFileSteps(filePath: string): Step[] {
+  getFileSteps(filePath: string) {
     const fileContent = getFileContent(filePath);
     const fileComments = this.getMultiLineComments(fileContent);
     const definitionFile = clearComments(fileContent);
@@ -493,7 +493,7 @@ export default class StepsHandler {
       .reduce((steps, line, lineIndex, lines) => {
         //TODO optimize
         let match;
-        let finalLine;
+        let finalLine = "";
         const currLine = this.handleCustomParameters(line);
         const currentMatch = this.geStepDefinitionMatch(currLine);
         //Add next line to our string to handle two-lines step definitions
@@ -524,14 +524,14 @@ export default class StepsHandler {
           );
         }
         return steps;
-      }, []);
+      }, new Array<Step>());
   }
 
   validateConfiguration(
     settingsFile: string,
     stepsPathes: StepSettings,
     workSpaceRoot: string
-  ): Diagnostic[] {
+  ) {
     return stepsPathes.reduce((res, path) => {
       const files = glob.sync(path, { ignore: ".gitignore" });
       if (!files.length) {
@@ -548,7 +548,7 @@ export default class StepsHandler {
         });
       }
       return res;
-    }, []);
+    }, new Array<Diagnostic>());
   }
 
   populate(root: string, stepsPathes: StepSettings): void {
@@ -557,7 +557,7 @@ export default class StepsHandler {
       .reduce(
         (files, path) =>
           files.concat(glob.sync(root + "/" + path, { ignore: ".gitignore" })),
-        []
+        new Array<string>()
       )
       .reduce(
         (elements, f) =>
@@ -568,13 +568,13 @@ export default class StepsHandler {
                 this.elementsHash[step.id] = true;
               }
               return steps;
-            }, [])
+            }, new Array<Step>())
           ),
-        []
+        new Array<Step>()
       );
   }
 
-  getStepByText(text: string, gherkin?: GherkinType): Step {
+  getStepByText(text: string, gherkin?: GherkinType) {
     return this.elements.find(
       (s) =>
         (gherkin !== undefined ? s.gherkin === gherkin : true) &&
@@ -582,7 +582,7 @@ export default class StepsHandler {
     );
   }
 
-  validate(line: string, lineNum: number, text: string): Diagnostic | null {
+  validate(line: string, lineNum: number, text: string) {
     line = line.replace(/\s*$/, "");
     const lineForError = line.replace(/^\s*/, "");
     const match = this.getGherkinMatch(line, text);
@@ -608,7 +608,7 @@ export default class StepsHandler {
         },
         message: `Was unable to find step for "${lineForError}"`,
         source: "cucumberautocomplete",
-      };
+      } as Diagnostic;
     }
   }
 
@@ -661,8 +661,9 @@ export default class StepsHandler {
     if (!match) {
       return null;
     }
-    const [, , gherkinPart, , stepPart] = match;
+    const [, , gherkinPart, , stepPartBase] = match;
     //We don't need last word in our step part due to it could be incompleted
+    let stepPart = stepPartBase || "";
     stepPart = stepPart.replace(/[^\s]+$/, "");
     const res = this.elements
       //Filter via gherkin words comparing if strictGherkinCompletion option provided

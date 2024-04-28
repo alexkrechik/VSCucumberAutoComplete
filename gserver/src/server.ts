@@ -141,28 +141,29 @@ function watchFiles(stepsPathes: string[]): void {
   });
 }
 
+function getStepsArray(settings: Settings): string[] {
+  // Set empty array as steps if they were not provided
+  if (!settings.cucumberautocomplete.steps) {
+    return [];
+  } 
+  if (Array.isArray(settings.cucumberautocomplete.steps)) {
+    return settings.cucumberautocomplete.steps;
+  }
+  return [settings.cucumberautocomplete.steps];
+}
+
 connection.onDidChangeConfiguration((change) => {
   settings = <Settings>change.settings;
 
-  // Set empty array as steps if they were not provided
-  if (!settings.cucumberautocomplete.steps) {
-    settings.cucumberautocomplete.steps = [];
-  } else {
-    //We should get array from step string if provided
-    settings.cucumberautocomplete.steps = Array.isArray(
-      settings.cucumberautocomplete.steps
-    )
-      ? settings.cucumberautocomplete.steps
-      : [settings.cucumberautocomplete.steps];
-  }
+  const steps = getStepsArray(settings);
 
   if (handleSteps()) {
-    watchFiles(settings.cucumberautocomplete.steps);
-    stepsHandler = new StepsHandler(workspaceRoot, settings);
+    watchFiles(steps);
+    stepsHandler = new StepsHandler(workspaceRoot, settings, steps);
     const sFile = ".vscode/settings.json";
     const diagnostics = stepsHandler.validateConfiguration(
       sFile,
-      settings.cucumberautocomplete.steps,
+      steps,
       workspaceRoot
     );
     connection.sendDiagnostics({
@@ -180,9 +181,10 @@ connection.onDidChangeConfiguration((change) => {
 });
 
 function populateHandlers() {
+  const steps = getStepsArray(settings);
   handleSteps() &&
     stepsHandler &&
-    stepsHandler.populate(workspaceRoot, settings.cucumberautocomplete.steps as string[]);
+    stepsHandler.populate(workspaceRoot, steps);
   handlePages() &&
     pagesHandler &&
     pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages || {});

@@ -25,7 +25,7 @@
     "@types/glob": "^8.1.0",
     "@types/md5": "^2.3.5",
     "@types/mocha": "^2.2.48",
-    "@types/node": "7.0.7",
+    "@types/node": "^18.14.6",
     "@types/strip-comments": "^2.0.1",
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
