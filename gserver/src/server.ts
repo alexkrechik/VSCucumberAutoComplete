@@ -19,6 +19,8 @@ import {
   InitializeParams,
   DidChangeConfigurationNotification,
   TextDocumentSyncKind,
+  DocumentDiagnosticReportKind,
+  DocumentDiagnosticReport,
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -40,7 +42,7 @@ let hasWorkspaceFolderCapability = false;
 //Path to the root of our workspace
 let workspaceRoot: string;
 // Object, which contains current configuration
-let settings: Settings;
+let globalSettings: Settings | undefined;
 // Elements handlers
 let stepsHandler: StepsHandler;
 let pagesHandler: PagesHandler;
@@ -102,19 +104,29 @@ connection.onInitialized(() => {
 	}
 });
 
-function shouldHandleSteps(): boolean {
+async function getSettings() {
+  if (!globalSettings) {
+    const baseSettings = await connection.workspace.getConfiguration({
+      section: 'cucumberautocomplete'
+    });
+    globalSettings = getSettingsFromBase(baseSettings);
+  }
+  return globalSettings;
+}
+
+function shouldHandleSteps(settings: Settings) {
   const s = settings.steps;
   return s && s.length ? true : false;
 }
 
-function shouldHandlePages(): boolean {
+function shouldHandlePages(settings: Settings) {
   const p = settings.pages;
   return p && Object.keys(p).length ? true : false;
 }
 
-function pagesPosition(line: string, char: number): boolean {
+function pagesPosition(line: string, char: number, settings: Settings) {
   if (
-    shouldHandlePages() &&
+    shouldHandlePages(settings) &&
     pagesHandler &&
     pagesHandler.getFeaturePosition(line, char)
   ) {
@@ -124,16 +136,17 @@ function pagesPosition(line: string, char: number): boolean {
   }
 }
 
-function watchFiles(stepsPathes: string[]): void {
+async function watchFiles(stepsPathes: string[]) {
+  const settings = await getSettings();
   stepsPathes.forEach((path) => {
     glob
       .sync(workspaceRoot + "/" + path, { ignore: ".gitignore" })
       .forEach((f) => {
         fs.watchFile(f, () => {
-          populateHandlers();
+          populateHandlers(settings);
           documents.all().forEach((document) => {
             const text = document.getText();
-            const diagnostics = validate(clearGherkinComments(text));
+            const diagnostics = validate(clearGherkinComments(text), settings);
             connection.sendDiagnostics({ uri: document.uri, diagnostics });
           });
         });
@@ -141,7 +154,7 @@ function watchFiles(stepsPathes: string[]): void {
   });
 }
 
-function getStepsArray(steps: BaseSettings['steps']): string[] {
+function getStepsArray(steps: BaseSettings['steps']) {
   // Set empty array as steps if they were not provided
   if (!steps) {
     return [];
@@ -161,11 +174,9 @@ function getSettingsFromBase(baseSettings: BaseSettings) {
   return settings;
 }
 
-connection.onDidChangeConfiguration((change) => {
-  settings = getSettingsFromBase(change.settings);
+async function handleStepsAndPagesSetup(settings: Settings) {
   const { pages, steps } = settings;
-
-  if (shouldHandleSteps()) {
+  if (shouldHandleSteps(settings)) {
     watchFiles(steps);
     stepsHandler = new StepsHandler(workspaceRoot, settings);
     const sFile = ".vscode/settings.json";
@@ -179,37 +190,46 @@ connection.onDidChangeConfiguration((change) => {
       diagnostics,
     });
   }
-  if (shouldHandlePages()) {
+  if (shouldHandlePages(settings)) {
     if (pages) {
       watchFiles(Object.keys(pages).map((key) => pages[key]));
     }
     pagesHandler = new PagesHandler(workspaceRoot, settings);
   }
+}
+
+connection.onDidChangeConfiguration((change) => {
+  globalSettings = getSettingsFromBase(change.settings);
+  const settings = globalSettings;
+  handleStepsAndPagesSetup(settings);
 });
 
-function populateHandlers() {
-  shouldHandleSteps() &&
+function populateHandlers(settings: Settings) {
+  shouldHandleSteps(settings) &&
     stepsHandler &&
     stepsHandler.populate(workspaceRoot, settings.steps);
-  shouldHandlePages() &&
+  shouldHandlePages(settings) &&
     pagesHandler &&
     pagesHandler.populate(workspaceRoot, settings.pages);
 }
 
-documents.onDidOpen(async (props) => {
-  populateHandlers();
+documents.onDidOpen(async () => {
+  const settings = await getSettings();
+  handleStepsAndPagesSetup(settings);
+  populateHandlers(settings);
 });
 
 connection.onCompletion(
-  (position: TextDocumentPositionParams) => {
+  async (position: TextDocumentPositionParams) => {
+    const settings = await getSettings();
     const textDocument = documents.get(position.textDocument.uri);
     const text = textDocument?.getText() || '';
     const line = text.split(/\r?\n/g)[position.position.line];
     const char = position.position.character;
-    if (pagesPosition(line, char) && pagesHandler) {
+    if (pagesPosition(line, char, settings) && pagesHandler) {
       return pagesHandler.getCompletion(line, position.position);
     }
-    if (shouldHandleSteps() && stepsHandler) {
+    if (shouldHandleSteps(settings) && stepsHandler) {
       return stepsHandler.getCompletion(line, position.position.line, text);
     }
   }
@@ -225,16 +245,16 @@ connection.onCompletionResolve((item: CompletionItem) => {
   return item;
 });
 
-function validate(text: string) {
+function validate(text: string, settings: Settings) {
   return text.split(/\r?\n/g).reduce((res, line, i) => {
     let diagnostic;
     if (
-      shouldHandleSteps() &&
+      shouldHandleSteps(settings) &&
       stepsHandler &&
       (diagnostic = stepsHandler.validate(line, i, text))
     ) {
       res.push(diagnostic);
-    } else if (shouldHandlePages() && pagesHandler) {
+    } else if (shouldHandlePages(settings) && pagesHandler) {
       const pagesDiagnosticArr = pagesHandler.validate(line, i);
       res = res.concat(pagesDiagnosticArr);
     }
@@ -242,24 +262,38 @@ function validate(text: string) {
   }, [] as Diagnostic[]);
 }
 
-documents.onDidChangeContent((change) => {
-  const changeText = change.document.getText();
-  //Validate document
-  const diagnostics = validate(clearGherkinComments(changeText));
-  connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
+connection.languages.diagnostics.on(async (params) => {
+	const document = documents.get(params.textDocument.uri);
+	if (document !== undefined) {
+    const settings = await getSettings();
+    const text = document.getText();
+    const diagnostics = validate(clearGherkinComments(text), settings);
+		return {
+			kind: DocumentDiagnosticReportKind.Full,
+			items: diagnostics,
+		} satisfies DocumentDiagnosticReport;
+	} else {
+		// We don't know the document. We can either try to read it from disk
+		// or we don't report problems for it.
+		return {
+			kind: DocumentDiagnosticReportKind.Full,
+			items: []
+		} satisfies DocumentDiagnosticReport;
+	}
 });
 
-connection.onDefinition((position: TextDocumentPositionParams) => {
+connection.onDefinition(async (position: TextDocumentPositionParams) => {
+  const settings = await getSettings();
   const textDocument = documents.get(position.textDocument.uri);
   const text = textDocument?.getText() || '';
   const line = text.split(/\r?\n/g)[position.position.line];
   const char = position.position.character;
   const pos = position.position;
   const { uri } = position.textDocument;
-  if (pagesPosition(line, char) && pagesHandler) {
+  if (pagesPosition(line, char, settings) && pagesHandler) {
     return pagesHandler.getDefinition(line, char);
   }
-  if (shouldHandleSteps() && stepsHandler) {
+  if (shouldHandleSteps(settings) && stepsHandler) {
     return stepsHandler.getDefinition(line, text);
   }
   return Location.create(uri, Range.create(pos, pos));
@@ -271,7 +305,8 @@ function getIndent(options: FormattingOptions) {
 }
 
 connection.onDocumentFormatting(
-  (params: DocumentFormattingParams) => {
+  async (params: DocumentFormattingParams) => {
+    const settings = await getSettings();
     const textDocument = documents.get(params.textDocument.uri);
     const text = textDocument?.getText() || '';
     const textArr = text.split(/\r?\n/g);
@@ -287,7 +322,8 @@ connection.onDocumentFormatting(
 );
 
 connection.onDocumentRangeFormatting(
-  (params: DocumentRangeFormattingParams) => {
+  async (params: DocumentRangeFormattingParams) => {
+    const settings = await getSettings();
     const textDocument = documents.get(params.textDocument.uri);
     const text = textDocument?.getText() || '';
     const textArr = text.split(/\r?\n/g);
@@ -310,7 +346,8 @@ connection.onDocumentRangeFormatting(
 );
 
 connection.onDocumentOnTypeFormatting(
-  (params: DocumentFormattingParams) => {
+  async (params: DocumentFormattingParams) => {
+    const settings = await getSettings();
     if (settings.onTypeFormat === true) {
       const textDocument = documents.get(params.textDocument.uri);
       const text = textDocument?.getText() || '';
