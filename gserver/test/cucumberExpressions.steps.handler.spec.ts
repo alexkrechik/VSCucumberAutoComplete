@@ -22,7 +22,7 @@ describe('getElements', () => {
     const e = s.getElements();
     it('should correctly fill used steps counts', () => {
 
-        expect(e).to.have.length(stepsDefinitionNum)
+        expect(e).to.have.length(stepsDefinitionNum);
 
         expect(e[0]).to.have.property("text", "I have a {int} in my belly");
         expect(e[0]).to.have.property("count", 6);
@@ -45,7 +45,7 @@ describe('getElements', () => {
         expect(e[6]).to.have.property("text", "I have a gherkin(s) in my belly");
         expect(e[6]).to.have.property("count", 2);
 
-        expect(e[7]).to.have.property("text", "I have a cucumber\(s\) in my belly");
+        expect(e[7]).to.have.property("text", "I have a cucumber(s) in my belly");
         expect(e[7]).to.have.property("count", 1);
     });
 });

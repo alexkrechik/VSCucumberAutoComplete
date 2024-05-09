@@ -43,18 +43,12 @@ export default class PagesHandler {
 
   getPageElement(page: string) {
     const pageElement = this.elements.find((e) => e.text === page);
-    if (!pageElement) {
-      return null;
-    }
-    return pageElement;
+    return pageElement || null;
   }
 
   getPageObjectElement(page: string, pageObject: string) {
     const pageElement = this.getPageElement(page);
-    if (!pageElement) {
-      return null;
-    }
-    const pageObjectElement = pageElement.objects.find(
+    const pageObjectElement = pageElement?.objects.find(
       (e) => e.text === pageObject
     );
     return pageObjectElement || null;

@@ -17,7 +17,7 @@ const generalSettings = {
 
 const ruleSettings = {
     cucumberautocomplete: {}
-}
+};
 
 describe('format', () => {
     [

@@ -25,7 +25,7 @@ describe('getPoMatch', () => {
             it(`should get "a" page object from "${l}" line`, () => {
                 const match = pagesHandler.getPoMatch(l);
                 expect(match).to.not.be.null;
-                expect(match[1]).to.be.equals('a');
+                expect(match![1]).to.be.equals('a');
             });
         });
     });
@@ -46,32 +46,34 @@ describe('getPoMatch', () => {
 
 describe('getElements', () => {
     it('should return all the elements if no parameters provided', () => {
-        const res = pagesHandler.getElements();
+        const res = pagesHandler.elements;
         expect(res).to.have.length(2);
         expect(res[0].text === 'page');
     });
     it('should return page if provided', () => {
-        const res = pagesHandler.getElements('page');
-        expect(res['id']).to.contains('page');
-        expect(res['text']).to.be.equals('page');
-        expect(res['objects']).to.have.length(2);
+        const res = pagesHandler.getPageElement('page');
+        expect(res).to.not.be.null;
+        expect(res!['id']).to.contains('page');
+        expect(res!['text']).to.be.equals('page');
+        expect(res!['objects']).to.have.length(2);
     });
     it('should return page object if provided', () => {
-        const res = pagesHandler.getElements('page', 'a');
-        expect(res['id']).to.contains('pageObject');
-        expect(res['text']).to.be.equals('a');
+        const res = pagesHandler.getPageObjectElement('page', 'a');
+        expect(res).to.not.be.null;
+        expect(res!['id']).to.contains('pageObject');
+        expect(res!['text']).to.be.equals('a');
     });
     it('should return null if wrong page/page object provided', () => {
-        expect(pagesHandler.getElements('page55')).to.be.null;
-        expect(pagesHandler.getElements('page', 'x')).to.be.null;
-        expect(pagesHandler.getElements('page2', 'a')).to.be.null;
+        expect(pagesHandler.getPageElement('page55')).to.be.null;
+        expect(pagesHandler.getPageObjectElement('page', 'x')).to.be.null;
+        expect(pagesHandler.getPageObjectElement('page2', 'a')).to.be.null;
     });
 });
 
 
 describe('populate', () => {
     it('should populate the elements after constructor call', () => {
-        const elements = pagesHandler.getElements();
+        const elements = pagesHandler.elements;
         expect(elements).to.have.length(2);
         expect(elements[0].objects).to.have.length(2);
         expect(elements[1].objects).to.have.length(1);
@@ -79,14 +81,14 @@ describe('populate', () => {
 
     it('should not concat elements after repopulating', () => {
         pagesHandler.populate(__dirname, settings.cucumberautocomplete.pages);
-        const elements = pagesHandler.getElements();
+        const elements = pagesHandler.elements;
         expect(elements).to.have.length(2);
         expect(elements[0].objects).to.have.length(2);
         expect(elements[1].objects).to.have.length(1);
     });
 
     it('should correctly populate the page from file', () => {
-        const page = pagesHandler.getElements()[0];
+        const page = pagesHandler.elements[0];
         expect(page.id).to.contains('page');
         expect(page.text).to.be.equals('page');
         expect(page.desc).to.contains('var a = 1');
@@ -94,9 +96,9 @@ describe('populate', () => {
     });
 
     it('should correctly populate the page Objects from file', () => {
-        const pageObject1 = pagesHandler.getElements()[0].objects[0];
-        const pageObject2 = pagesHandler.getElements()[0].objects[1];
-        const pageObject3 = pagesHandler.getElements()[1].objects[0];
+        const pageObject1 = pagesHandler.elements[0].objects[0];
+        const pageObject2 = pagesHandler.elements[0].objects[1];
+        const pageObject3 = pagesHandler.elements[1].objects[0];
         expect(pageObject1.id).to.contains('pageObject');
         expect(pageObject1.id).to.not.be.equals(pageObject2.id);
         expect(pageObject1.text).to.be.equals('a');
@@ -191,13 +193,15 @@ describe('getFeaturePosition', () => {
 describe('getDefinition', () => {
     it('should correctly get page definition', () => {
         const line = 'When I use "page"."a"';
-        const page = pagesHandler.getElements('page');
-        expect(pagesHandler.getDefinition(line, 13)).to.be.deep.equals(page['def']);
+        const page = pagesHandler.getPageElement('page');
+        expect(page).not.to.be.null;
+        expect(pagesHandler.getDefinition(line, 13)).to.be.deep.equals(page!['def']);
     });
     it('should correctly get page object definition', () => {
         const line = 'When I use "page"."a"';
-        const pageObject = pagesHandler.getElements('page', 'a');
-        expect(pagesHandler.getDefinition(line, 20)).to.be.deep.equals(pageObject['def']);
+        const pageObject = pagesHandler.getPageObjectElement('page', 'a');
+        expect(pageObject).not.to.be.null;
+        expect(pagesHandler.getDefinition(line, 20)).to.be.deep.equals(pageObject!['def']);
     });
     it('should not return definition for wrong cases', () => {
         expect(pagesHandler.getDefinition('When I use "page"."a"', 2)).to.be.null;
@@ -220,18 +224,18 @@ describe('getCompletion', () => {
     });
     it('should return usual string for stab=ndard page', () => {
        const line = 'When I use "".""';
-       const pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})[0];
+       const pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})![0];
        expect(pageCompletion).to.not.have.property('insertText');
     });
     it('should return smart page if string ends with "', () => {
        const line = 'When I use ""';
-       const pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})[0];
+       const pageCompletion = pagesHandler.getCompletion(line, {character: 12, line: 2})![0];
        expect(pageCompletion).to.have.property('insertText').that.is.equals('page".');
        expect(pageCompletion).to.have.property('command');
     });
     it('should return correct insertText for pageObject differs from string', () => {
-        const poCompletion1 = pagesHandler.getCompletion('When I use "page"."', {character: 19, line: 2})[0];
-        const poCompletion2 = pagesHandler.getCompletion('When I use "page".""', {character: 19, line: 2})[0];
+        const poCompletion1 = pagesHandler.getCompletion('When I use "page"."', {character: 19, line: 2})![0];
+        const poCompletion2 = pagesHandler.getCompletion('When I use "page".""', {character: 19, line: 2})![0];
         expect(poCompletion1).to.have.property('insertText').that.is.equals('a" ');
         expect(poCompletion2).to.have.property('insertText').that.is.equals('a');
     });

@@ -41,7 +41,7 @@ describe('geStepDefinitionMatch', () => {
             it(`should parse "${str}" step string`, () => {
                 const match = s.geStepDefinitionMatch(str);
                 expect(match).to.not.be.null;
-                expect(match[4]).to.be.equal('I do something');
+                expect(match![4]).to.be.equal('I do something');
             });
         });
     });
@@ -62,7 +62,7 @@ describe('geStepDefinitionMatch', () => {
             it(`should parse "${g}(/I do something/" string with ${g} gherkin word`, () => {
                 const match = s.geStepDefinitionMatch(`${g}(/I do something/, function(){);`);
                 expect(match).to.not.be.null;
-                expect(match[4]).to.be.equal('I do something');
+                expect(match![4]).to.be.equal('I do something');
             });
         });
     });
@@ -79,8 +79,8 @@ describe('geStepDefinitionMatch', () => {
             it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
                 const match = s.geStepDefinitionMatch(str[0]);
                 expect(match).to.not.be.null;         
-                expect(match[4]).to.be.toString();   
-                expect(match[4]).to.be.equals(str[1]);
+                expect(match![4]).to.be.toString();   
+                expect(match![4]).to.be.equals(str[1]);
             });
         });
     });
@@ -102,7 +102,7 @@ describe('geStepDefinitionMatch', () => {
     describe('gherkin words in the middle of lines', () => {
         const line = 'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
         const match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
-        expect(s.geStepDefinitionMatch(line)[4]).to.be.equals(match);
+        expect(s.geStepDefinitionMatch(line)![4]).to.be.equals(match);
     });
 });
 
@@ -152,7 +152,7 @@ describe('getRegTextForStep', () => {
             ['I use {float}', 'I use -?\\d*\\.?\\d+'],
             ['I use {int}', 'I use -?\\d+'],
             ['I use {stringInDoubleQuotes}', 'I use "[^"]+"'],
-            ['I use {string}', 'I use (\"|\')[^\\1]*\\1'],
+            ['I use {string}', 'I use ("|\')[^\\1]*\\1'],
             ['I use {}', 'I use .*'],
             ['I have 1 cucumber(s) in my belly', 'I have 1 cucumber(s)? in my belly'],
             ['I have cucumbers in my belly/stomach', 'I have cucumbers in my (belly|stomach)'],
@@ -342,8 +342,8 @@ describe('getCompletion', () => {
     it('should correctly filter completion', () => {
         const completion = s.getCompletion(' When I do another th', 1, '');
         expect(completion).to.have.length(1);
-        expect(completion[0].label).to.be.equal('I do another thing');
-        expect(completion[0].insertText).to.be.equal('thing');
+        expect(completion![0].label).to.be.equal('I do another thing');
+        expect(completion![0].insertText).to.be.equal('thing');
     });
     it('should not return completion for non-gherkin lines', () => {
         const completion = s.getCompletion('I do another th', 1, '');
@@ -355,8 +355,8 @@ describe('getCompletion', () => {
     });
     it('should return proper sortText', () => {
         const completion = s.getCompletion(' When I do', 1, '');
-        expect(completion[0].sortText).to.be.equals('ZZZZX_I do something');
-        expect(completion[1].sortText).to.be.equals('ZZZZY_I do another thing');
+        expect(completion![0].sortText).to.be.equals('ZZZZX_I do something');
+        expect(completion![1].sortText).to.be.equals('ZZZZY_I do another thing');
     });
     it ('should return proper text in case of strict gherkin option', () => {
         const strictGherkinFeature = getFileContent(__dirname + '/data/features/strict.gherkin.feature');
@@ -482,11 +482,11 @@ describe('step as a pure text test', () => {
 
     it('should return proper completion', () => {
         const completion = customStepsHandler.getCompletion('When I', 1, '');
-        expect(completion[0].insertText).to.be.eq('I give 3/4 and 5$');
-    })
+        expect(completion![0].insertText).to.be.eq('I give 3/4 and 5$');
+    });
 
     it('should return proper partial completion', () => {
         const completion = customStepsHandler.getCompletion('When I give 3', 1, '');
-        expect(completion[0].insertText).to.be.eq('3/4 and 5$');
-    })
-})
+        expect(completion![0].insertText).to.be.eq('3/4 and 5$');
+    });
+});
