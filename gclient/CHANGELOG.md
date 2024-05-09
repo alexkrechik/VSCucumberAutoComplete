@@ -1,3 +1,15 @@
+## 3.0.0
+* Updated to the latest versions of vscode, typescript and some other libs. Extension become faster, secure, and better typed.
+* BREAKING CHANGES:
+* `*` and `|` keys for the `formatConfOverride` settings options should not be escaped, so write
+```
+    "cucumberautocomplete.formatConfOverride": { "*": 3 },
+```
+instead of
+```
+    "cucumberautocomplete.formatConfOverride": { "\\*": 3 },
+```
+
 ## 2.15.3
 * Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
 * Did some tables formatting fixes

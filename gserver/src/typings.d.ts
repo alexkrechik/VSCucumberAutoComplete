@@ -23,7 +23,7 @@ interface BaseSettings {
     stepsInvariants?: boolean,
     customParameters?: CustomParameter[],
     skipDocStringsFormat?: boolean,
-    formatConfOverride?: FormatConf[],
+    formatConfOverride?: FormatConf,
     onTypeFormat?: boolean,
     gherkinDefinitionPart?: string,
     stepRegExSymbol?: string
@@ -40,7 +40,7 @@ interface Settings {
     stepsInvariants?: boolean,
     customParameters?: CustomParameter[],
     skipDocStringsFormat?: boolean,
-    formatConfOverride?: FormatConf[],
+    formatConfOverride?: FormatConf,
     onTypeFormat?: boolean,
     gherkinDefinitionPart?: string,
     stepRegExSymbol?: string

@@ -26,8 +26,8 @@ const FORMAT_CONF: FormatConf = {
     'Then': 2,
     'And': 2,
     'But': 2,
-    '\\*': 2,
-    '\\|': 3,
+    '*': 2,
+    '|': 3,
     '"""': 3,
     '#': 'relative',
     '@': 'relative',
@@ -43,13 +43,17 @@ function findIndentation(line: string, settings: Settings) {
 
 function findFormat(line: string, settings: Settings) {
     const settingsFormatConf = settings.formatConfOverride || {};
-    const fnFormatFinder = (conf: FormatConf) => {
-        const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return symbol ? { symbol, value: conf[symbol] } : null;
-    };
-    const settingsFormat = fnFormatFinder(settingsFormatConf);
-    const presetFormat = fnFormatFinder(FORMAT_CONF);
-    return (settingsFormat === null) ? presetFormat : settingsFormat;
+    const mergedConfig = Object
+        .keys(FORMAT_CONF)
+        .reduce((acc, key) => {
+            acc[key] = settingsFormatConf[key] || FORMAT_CONF[key];
+            return acc;
+        }, {} as FormatConf);
+    const clearLine = line.trim();
+    const symbol = Object
+        .keys(mergedConfig)
+        .find((symbol) => clearLine.startsWith(symbol));
+    return symbol ? { symbol, value: mergedConfig[symbol] } : null;
 }
 
 export function clearText(text: string) {
