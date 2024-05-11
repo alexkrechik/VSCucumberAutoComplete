@@ -1,14 +1,14 @@
 ## 3.0.0
-* Updated to the latest versions of vscode, typescript and some other libs. Extension become faster, secure, and better typed.
+* Extension updates:
+* Development updates:
+1. Moved to the latest version of all the vscode libraries - improved extension speed, security and develop/debug experience.
+2. Moved to the latest version of typescript. Now application is more error resistant due to error typings.
+3. Moved to the Jest from Chai+Mocka, improved monorepo-like extension usage, some other smaller updates.
 * BREAKING CHANGES:
-* `*` and `|` keys for the `formatConfOverride` settings options should not be escaped, so write
-```
-    "cucumberautocomplete.formatConfOverride": { "*": 3 },
-```
-instead of
-```
-    "cucumberautocomplete.formatConfOverride": { "\\*": 3 },
-```
+1. `*` and `|` keys for the `formatConfOverride` settings options should not be escaped now, so write `{ "*": 3 }` instead of `{ "\\*": 3 }` for the `cucumberautocomplete.formatConfOverride` option.
+* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.0.0)
+
+
 
 ## 2.15.3
 * Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
