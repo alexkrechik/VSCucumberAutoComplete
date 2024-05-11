@@ -146,14 +146,13 @@ export default class PagesHandler {
         }
     }
 
-    getFeaturePosition(line: string, char: number): FeaturePosition {
+    getFeaturePosition(line: string, char: number) {
         const startLine = line.slice(0, char);
         const endLine = line.slice(char).replace(/".*/, '');
         const match = startLine.match(/"/g);
         if (match && match.length % 2) {
             const [, page, object] =
         startLine.match(/"(?:([^"]*)"\.")?([^"]*)$/) || [];
-            if (!object) return null;
             if (page) {
                 return {
                     page: page,
@@ -162,7 +161,6 @@ export default class PagesHandler {
             }
             return {
                 page: object + endLine,
-                object: null,
             };
         } else {
             return null;

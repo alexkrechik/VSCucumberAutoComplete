@@ -23,7 +23,7 @@ describe('getPoMatch', () => {
       it(`should get "a" page object from "${l}" line`, () => {
         const match = pagesHandler.getPoMatch(l);
         expect(match).not.toBeNull();
-        expect(match![1]).toBe('a');
+        expect(match![1]).toStrictEqual('a');
       });
     });
   });
@@ -48,14 +48,14 @@ describe('getElements', () => {
     const res = pagesHandler.getPageElement('page');
     expect(res).not.toBeNull();
     expect(res!['id']).toContain('page');
-    expect(res!['text']).toBe('page');
+    expect(res!['text']).toStrictEqual('page');
     expect(res!['objects']).toHaveLength(2);
   });
   it('should return page object if provided', () => {
     const res = pagesHandler.getPageObjectElement('page', 'a');
     expect(res).not.toBeNull();
     expect(res!['id']).toContain('pageObject');
-    expect(res!['text']).toBe('a');
+    expect(res!['text']).toStrictEqual('a');
   });
   it('should return null if wrong page/page object provided', () => {
     expect(pagesHandler.getPageElement('page55')).toBeNull();
@@ -83,7 +83,7 @@ describe('populate', () => {
   it('should correctly populate the page from file', () => {
     const page = pagesHandler.elements[0];
     expect(page.id).toContain('page');
-    expect(page.text).toBe('page');
+    expect(page.text).toStrictEqual('page');
     expect(page.desc).toContain('var a = 1');
     expect(page.def['uri']).toContain('page.objects.js');
   });
@@ -93,18 +93,18 @@ describe('populate', () => {
     const pageObject2 = pagesHandler.elements[0].objects[1];
     const pageObject3 = pagesHandler.elements[1].objects[0];
     expect(pageObject1.id).toContain('pageObject');
-    expect(pageObject1.id).not.toBe(pageObject2.id);
-    expect(pageObject1.text).toBe('a');
+    expect(pageObject1.id).not.toStrictEqual(pageObject2.id);
+    expect(pageObject1.text).toStrictEqual('a');
     expect(pageObject1.def['uri']).toContain('page.objects.js');
-    expect(pageObject1.def['range'].start.line).toBe(5);
+    expect(pageObject1.def['range'].start.line).toStrictEqual(5);
     expect(pageObject2.id).toContain('pageObject');
-    expect(pageObject2.text).toBe('b');
+    expect(pageObject2.text).toStrictEqual('b');
     expect(pageObject2.def['uri']).toContain('page.objects.js');
-    expect(pageObject2.def['range'].start.line).toBe(6);
+    expect(pageObject2.def['range'].start.line).toStrictEqual(6);
     expect(pageObject3.id).toContain('pageObject');
-    expect(pageObject3.text).toBe('variable');
+    expect(pageObject3.text).toStrictEqual('variable');
     expect(pageObject3.def['uri']).toContain('page.objects.java');
-    expect(pageObject3.def['range'].start.line).toBe(1);
+    expect(pageObject3.def['range'].start.line).toStrictEqual(1);
   });
 });
 
@@ -117,7 +117,7 @@ describe('validate', () => {
   it('should return correct Diagnostic for non-existent page', () => {
     const d = pagesHandler.validate('I use "pag"."a"', 2);
     expect(d).toHaveLength(1);
-    expect(d[0]).toBe({
+    expect(d[0]).toStrictEqual({
       severity: 2,
       range: {
         start: { line: 2, character: 7 },
@@ -130,7 +130,7 @@ describe('validate', () => {
   it('should return corrext Diagnostic for non-existent page object', () => {
     const d = pagesHandler.validate('I use "page"."c"', 2);
     expect(d).toHaveLength(1);
-    expect(d[0]).toBe({
+    expect(d[0]).toStrictEqual({
       severity: 2,
       range: {
         start: { line: 2, character: 14 },
@@ -143,10 +143,10 @@ describe('validate', () => {
   it('it should return diagnostic for several same non-existent pages', () => {
     const d = pagesHandler.validate('I use "pag"."a" and "pag"."a"', 2);
     expect(d).toHaveLength(2);
-    expect(d[0].range.start.character).toBe(7);
-    expect(d[0].range.end.character).toBe(10);
-    expect(d[1].range.start.character).toBe(21);
-    expect(d[1].range.end.character).toBe(24);
+    expect(d[0].range.start.character).toStrictEqual(7);
+    expect(d[0].range.end.character).toStrictEqual(10);
+    expect(d[1].range.start.character).toStrictEqual(21);
+    expect(d[1].range.end.character).toStrictEqual(24);
   });
   const invalidLines = [
     'When I click "page"." a"',
@@ -165,18 +165,18 @@ describe('getFeaturePosition', () => {
   it('should correctly determine feature line position', () => {
     const line = '  When I use use "page1"."object1" and "page2"."object2"';
     expect(pagesHandler.getFeaturePosition(line, 5)).toBeNull();
-    expect(pagesHandler.getFeaturePosition(line, 18)).toBe({
+    expect(pagesHandler.getFeaturePosition(line, 18)).toStrictEqual({
       page: 'page1',
     });
-    expect(pagesHandler.getFeaturePosition(line, 26)).toBe({
+    expect(pagesHandler.getFeaturePosition(line, 26)).toStrictEqual({
       page: 'page1',
       object: 'object1',
     });
     expect(pagesHandler.getFeaturePosition(line, 36)).toBeNull();
-    expect(pagesHandler.getFeaturePosition(line, 41)).toBe({
+    expect(pagesHandler.getFeaturePosition(line, 41)).toStrictEqual({
       page: 'page2',
     });
-    expect(pagesHandler.getFeaturePosition(line, 49)).toBe({
+    expect(pagesHandler.getFeaturePosition(line, 49)).toStrictEqual({
       page: 'page2',
       object: 'object2',
     });
@@ -188,13 +188,13 @@ describe('getDefinition', () => {
     const line = 'When I use "page"."a"';
     const page = pagesHandler.getPageElement('page');
     expect(page).not.toBeNull();
-    expect(pagesHandler.getDefinition(line, 13)).toBe(page!['def']);
+    expect(pagesHandler.getDefinition(line, 13)).toStrictEqual(page!['def']);
   });
   it('should correctly get page object definition', () => {
     const line = 'When I use "page"."a"';
     const pageObject = pagesHandler.getPageObjectElement('page', 'a');
     expect(pageObject).not.toBeNull();
-    expect(pagesHandler.getDefinition(line, 20)).toBe(pageObject!['def']);
+    expect(pagesHandler.getDefinition(line, 20)).toStrictEqual(pageObject!['def']);
   });
   it('should not return definition for wrong cases', () => {
     expect(pagesHandler.getDefinition('When I use "page"."a"', 2)).toBeNull();

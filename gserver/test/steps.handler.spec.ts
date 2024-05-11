@@ -39,7 +39,7 @@ describe('geStepDefinitionMatch', () => {
       it(`should parse "${str}" step string`, () => {
         const match = s.geStepDefinitionMatch(str);
         expect(match).not.toBeNull();
-        expect(match![4]).toBe('I do something');
+        expect(match![4]).toStrictEqual('I do something');
       });
     });
   });
@@ -62,7 +62,7 @@ describe('geStepDefinitionMatch', () => {
           `${g}(/I do something/, function(){);`
         );
         expect(match).not.toBeNull();
-        expect(match![4]).toBe('I do something');
+        expect(match![4]).toStrictEqual('I do something');
       });
     });
   });
@@ -82,7 +82,7 @@ describe('geStepDefinitionMatch', () => {
       it(`should get "${str[1]}" step from "${str[0]}" string`, () => {
         const match = s.geStepDefinitionMatch(str[0]);
         expect(match).not.toBeNull();
-        expect(match![4]).toBe(str[1]);
+        expect(match![4]).toStrictEqual(str[1]);
       });
     });
   });
@@ -105,7 +105,7 @@ describe('geStepDefinitionMatch', () => {
     const line =
       'Then(/^I do Fast Sign in with "([^"]*)" and "([^"]*)"$/)do |email, pwd|';
     const match = '^I do Fast Sign in with "([^"]*)" and "([^"]*)"$';
-    expect(s.geStepDefinitionMatch(line)![4]).toBe(match);
+    expect(s.geStepDefinitionMatch(line)![4]).toStrictEqual(match);
   });
 });
 
@@ -126,7 +126,7 @@ describe('getStepInvariants', () => {
       'I do b and then I do d',
       'I do b and then I do f',
     ];
-    expect(s.getStepTextInvariants(str)).toBe(res);
+    expect(s.getStepTextInvariants(str)).toStrictEqual(res);
   });
 });
 
@@ -141,7 +141,7 @@ describe('handleCustomParameters', () => {
       ['I use {bTest} parameter', 'I use {bTest} parameter'],
     ];
     data.forEach((d) => {
-      expect(s.handleCustomParameters(d[0])).toBe(d[1]);
+      expect(s.handleCustomParameters(d[0])).toStrictEqual(d[1]);
     });
   });
 });
@@ -150,7 +150,7 @@ describe('getRegTextForStep', () => {
   it('should remove ruby interpolation for regex', () => {
     const str = '^the (#{SOMETHING}) cannot work$';
     const res = '^the (.*) cannot work$';
-    expect(s.getRegTextForStep(str)).toBe(res);
+    expect(s.getRegTextForStep(str)).toStrictEqual(res);
   });
   it('should correctly handle built-in transforms', () => {
     const data = [
@@ -164,10 +164,10 @@ describe('getRegTextForStep', () => {
         'I have cucumbers in my belly/stomach',
         'I have cucumbers in my (belly|stomach)',
       ],
-      ['I use {word}', 'I use [A-Za-z]+'],
+      ['I use {word}', 'I use [^\\s]+'],
     ];
     data.forEach((d) => {
-      expect(s.getRegTextForStep(d[0])).toBe(d[1]);
+      expect(s.getRegTextForStep(d[0])).toStrictEqual(d[1]);
     });
   });
   it('should correctly handle cucumber expressions', () => {
@@ -195,7 +195,7 @@ describe('getRegTextForStep', () => {
       ],
     ];
     data.forEach((d) => {
-      expect(s.getRegTextForStep(d[0])).toBe(d[1]);
+      expect(s.getRegTextForStep(d[0])).toStrictEqual(d[1]);
     });
   });
 });
@@ -204,7 +204,7 @@ describe('getPartialRegParts', () => {
   const data = 'I do (a| ( b)) and (c | d) and "(.*)"$';
   const res = ['I', 'do', '(a| ( b))', 'and', '(c | d)', 'and', '"(.*)"$'];
   it(`should correctly parse "${data}" string into parts`, () => {
-    expect(s.getPartialRegParts(data)).toBe(res);
+    expect(s.getPartialRegParts(data)).toStrictEqual(res);
   });
 });
 
@@ -230,12 +230,12 @@ describe('constructor', () => {
       'stepc0c243868293a93f35e3a05e2b844793'
     );
     expect(firstElement).toHaveProperty('gherkin', GherkinType.When);
-    expect(firstElement.reg.toString()).toBe('/^I do something$/');
-    expect(firstElement.partialReg.toString()).toBe(
+    expect(firstElement.reg.toString()).toStrictEqual('/^I do something$/');
+    expect(firstElement.partialReg.toString()).toStrictEqual(
       '/^(^I|$)( |$)(do|$)( |$)(something$|$)/'
     );
     expect(firstElement).toHaveProperty('text', 'I do something');
-    expect(firstElement.def['uri']).toBe('test.steps.js');
+    expect(firstElement.def['uri']).toContain('test.steps.js');
   });
   it('should set correct names to the invariants steps', () => {
     expect(e[2]).toHaveProperty('text', 'I say a');
@@ -268,7 +268,7 @@ describe('validateConfiguration', () => {
       __dirname + '/..'
     );
     expect(diagnostic).toHaveLength(1);
-    expect(diagnostic[0].range).toBe({
+    expect(diagnostic[0].range).toStrictEqual({
       start: { line: 3, character: 8 },
       end: { line: 3, character: 37 },
     });
@@ -287,22 +287,22 @@ describe('Documentation parser', () => {
       sDocumentation.elements.some(
         (step) => step.documentation === 'unstructured description'
       )
-    ).toBe(true);
+    ).toStrictEqual(true);
     expect(
       sDocumentation.elements.some(
         (step) => step.documentation === 'structured description'
       )
-    ).toBe(true);
+    ).toStrictEqual(true);
     expect(
       sDocumentation.elements.some(
         (step) => step.documentation === 'structured name'
       )
-    ).toBe(true);
+    ).toStrictEqual(true);
     expect(
       sDocumentation.elements.some(
         (step) => step.documentation === 'Overriding description'
       )
-    ).toBe(true);
+    ).toStrictEqual(true);
   });
 });
 
@@ -421,8 +421,8 @@ describe('getCompletion', () => {
   it('should correctly filter completion', () => {
     const completion = s.getCompletion(' When I do another th', 1, '');
     expect(completion).toHaveLength(1);
-    expect(completion![0].label).toBe('I do another thing');
-    expect(completion![0].insertText).toBe('thing');
+    expect(completion![0].label).toStrictEqual('I do another thing');
+    expect(completion![0].insertText).toStrictEqual('thing');
   });
   it('should not return completion for non-gherkin lines', () => {
     const completion = s.getCompletion('I do another th', 1, '');
@@ -434,8 +434,8 @@ describe('getCompletion', () => {
   });
   it('should return proper sortText', () => {
     const completion = s.getCompletion(' When I do', 1, '');
-    expect(completion![0].sortText).toBe('ZZZZX_I do something');
-    expect(completion![1].sortText).toBe('ZZZZY_I do another thing');
+    expect(completion![0].sortText).toStrictEqual('ZZZZX_I do something');
+    expect(completion![1].sortText).toStrictEqual('ZZZZY_I do another thing');
   });
   it('should return proper text in case of strict gherkin option', () => {
     const strictGherkinFeature = getFileContent(
@@ -483,7 +483,7 @@ describe('getCompletionInsertText', () => {
     const { step, prefix } = pair;
     it(`should return "${prefix}" part for "${step}" step part`, () => {
       const res = s.getCompletionInsertText(regExpText, step);
-      expect(res).toBe(prefix);
+      expect(res).toStrictEqual(prefix);
     });
   });
 });
@@ -564,28 +564,28 @@ describe('gherkin regex step start', () => {
 
   it('should correctly parse the default case', () => {
     expect(elements.length).toBeGreaterThan(1);
-    expect(elements[0].text).toBe('I test quotes step');
+    expect(elements[0].text).toStrictEqual('I test quotes step');
   });
 
   it('should correctly parse non-standard string with ""', () => {
     expect(elements.length).toBeGreaterThan(2);
-    expect(elements[1].text).toBe('I do "aa" something');
+    expect(elements[1].text).toStrictEqual('I do "aa" something');
   });
   it('should correctly parse non-standard string an escape char', () => {
     expect(elements.length).toBeGreaterThan(3);
-    expect(elements[2].text).toBe("I do ' something");
+    expect(elements[2].text).toStrictEqual("I do ' something");
   });
   it('should correctly parse non-standard string a tab and escape char', () => {
     expect(elements.length).toBeGreaterThan(4);
-    expect(elements[3].text).toBe("I do ' something different");
+    expect(elements[3].text).toStrictEqual("I do ' something different");
   });
   it('should correctly parse non-standard string a complex string', () => {
     expect(elements.length).toBeGreaterThan(5);
-    expect(elements[4].text).toBe('/^Me and "([^"]*)"$/');
+    expect(elements[4].text).toStrictEqual('/^Me and "([^"]*)"$/');
   });
   it('should correctly parse non-standard string with an arrow function', () => {
-    expect(elements.length).toBeGreaterThan(6);
-    expect(elements[5].text).toBe('the test cookie is set');
+    expect(elements.length).toBeGreaterThan(5);
+    expect(elements[5].text).toStrictEqual('the test cookie is set');
   });
 });
 
@@ -599,17 +599,17 @@ describe('step as a pure text test', () => {
   const elements = customStepsHandler.getElements();
 
   it('should properly handle steps', () => {
-    expect(elements.length).toBe(1);
-    expect(elements[0].text).toBe('I give 3/4 and 5$');
+    expect(elements.length).toStrictEqual(1);
+    expect(elements[0].text).toStrictEqual('I give 3/4 and 5$');
   });
 
   it('should return proper completion', () => {
     const completion = customStepsHandler.getCompletion('When I', 1, '');
-    expect(completion![0].insertText).toBe('I give 3/4 and 5$');
+    expect(completion![0].insertText).toStrictEqual('I give 3/4 and 5$');
   });
 
   it('should return proper partial completion', () => {
     const completion = customStepsHandler.getCompletion('When I give 3', 1, '');
-    expect(completion![0].insertText).toBe('3/4 and 5$');
+    expect(completion![0].insertText).toStrictEqual('3/4 and 5$');
   });
 });

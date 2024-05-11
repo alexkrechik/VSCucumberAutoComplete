@@ -11,7 +11,7 @@ describe('getSortPrefix', () => {
   ];
   data.forEach((d) => {
     it(`should get "${d.res}" prefix from "${d.num}" string`, () => {
-      expect(getSortPrefix(d.num, 5)).toBe(d.res);
+      expect(getSortPrefix(d.num, 5)).toStrictEqual(d.res);
     });
   });
 });

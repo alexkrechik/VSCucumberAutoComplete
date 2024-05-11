@@ -35,7 +35,7 @@ function findFormat(line: string, settings: Settings) {
     const mergedConfig = Object
         .keys(FORMAT_CONF)
         .reduce((acc, key) => {
-            acc[key] = settingsFormatConf[key] || FORMAT_CONF[key];
+            acc[key] = settingsFormatConf[key] !== undefined ? settingsFormatConf[key] : FORMAT_CONF[key];
             return acc;
         }, {} as FormatConf);
     const clearLine = line.trim();
