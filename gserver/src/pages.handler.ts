@@ -1,4 +1,4 @@
-import { getOSPath, getFileContent, clearComments, getMD5Id } from "./util";
+import { getOSPath, getFileContent, clearComments, getMD5Id } from './util';
 
 import {
   Definition,
@@ -10,9 +10,11 @@ import {
   DiagnosticSeverity,
   CompletionItemKind,
   TextEdit,
-} from "vscode-languageserver";
+} from 'vscode-languageserver';
 
-import * as glob from "glob";
+import * as glob from 'glob';
+
+import { Settings, PagesSettings } from './types';
 
 export type Page = {
   id: string;
@@ -67,7 +69,7 @@ export default class PagesHandler {
         const text = poMatch[1];
         if (!res.find((v) => v.text === text)) {
           res.push({
-            id: "pageObject" + getMD5Id(text),
+            id: 'pageObject' + getMD5Id(text),
             text: text,
             desc: line,
             def: Location.create(getOSPath(path), Range.create(pos, pos)),
@@ -85,9 +87,9 @@ export default class PagesHandler {
       const text = clearComments(getFileContent(files[0]));
       const zeroPos = Position.create(0, 0);
       return {
-        id: "page" + getMD5Id(name),
+        id: 'page' + getMD5Id(name),
         text: name,
-        desc: text.split(/\r?\n/g).slice(0, 10).join("\r\n"),
+        desc: text.split(/\r?\n/g).slice(0, 10).join('\r\n'),
         def: Location.create(getOSPath(file), Range.create(zeroPos, zeroPos)),
         objects: this.getPageObjects(text, file),
       };
@@ -97,7 +99,7 @@ export default class PagesHandler {
 
   populate(root: string, settings: PagesSettings) {
     this.elements = Object.keys(settings).reduce((res, p) => {
-      const page = this.getPage(p, root + "/" + settings[p]);
+      const page = this.getPage(p, root + '/' + settings[p]);
       page && res.push(page);
       return res;
     }, new Array<Page>());
@@ -106,7 +108,7 @@ export default class PagesHandler {
   validate(line: string, lineNum: number) {
     if (~line.search(/"[^"]*"."[^"]*"/)) {
       return line.split('"').reduce((res, l, i, lineArr) => {
-        if (l === ".") {
+        if (l === '.') {
           const curr = lineArr
             .slice(0, i)
             .reduce((a, b, j) => a + b.length + 1, 0);
@@ -120,7 +122,7 @@ export default class PagesHandler {
                 end: { line: lineNum, character: curr - 1 },
               },
               message: `Was unable to find page "${page}"`,
-              source: "cucumberautocomplete",
+              source: 'cucumberautocomplete',
             });
           } else if (!this.getPageObjectElement(page, pageObject)) {
             res.push({
@@ -133,7 +135,7 @@ export default class PagesHandler {
                 },
               },
               message: `Was unable to find page object "${pageObject}" for page "${page}"`,
-              source: "cucumberautocomplete",
+              source: 'cucumberautocomplete',
             });
           }
         }
@@ -146,7 +148,7 @@ export default class PagesHandler {
 
   getFeaturePosition(line: string, char: number): FeaturePosition {
     const startLine = line.slice(0, char);
-    const endLine = line.slice(char).replace(/".*/, "");
+    const endLine = line.slice(char).replace(/".*/, '');
     const match = startLine.match(/"/g);
     if (match && match.length % 2) {
       const [, page, object] =
@@ -172,12 +174,12 @@ export default class PagesHandler {
     if (position) {
       if (position.object) {
         const el = this.getPageObjectElement(
-          position["page"],
-          position["object"]
+          position['page'],
+          position['object']
         );
         return el ? el.def : null;
       } else {
-        const el = this.getPageElement(position["page"]);
+        const el = this.getPageElement(position['page']);
         return el ? el.def : null;
       }
     } else {
@@ -200,10 +202,10 @@ export default class PagesHandler {
         kind: CompletionItemKind.Function,
         data: page.id,
         command: {
-          title: "cursorMove",
-          command: "cursorMove",
+          title: 'cursorMove',
+          command: 'cursorMove',
           arguments: [
-            { to: "right", by: "wrappedLine", select: false, value: 1 },
+            { to: 'right', by: 'wrappedLine', select: false, value: 1 },
           ],
         },
         insertText: page.text + '".',
@@ -222,7 +224,7 @@ export default class PagesHandler {
     position: Position,
     pageObject: PageObject
   ): CompletionItem {
-    const insertText = line.length === position.character ? '" ' : "";
+    const insertText = line.length === position.character ? '" ' : '';
     return {
       label: pageObject.text,
       kind: CompletionItemKind.Function,

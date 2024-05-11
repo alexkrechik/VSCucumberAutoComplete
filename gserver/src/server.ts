@@ -1,5 +1,5 @@
-import * as glob from "glob";
-import * as fs from "fs";
+import * as glob from 'glob';
+import * as fs from 'fs';
 
 import {
   createConnection,
@@ -21,13 +21,14 @@ import {
   TextDocumentSyncKind,
   DocumentDiagnosticReportKind,
   DocumentDiagnosticReport,
-} from "vscode-languageserver/node";
+} from 'vscode-languageserver/node';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { format, clearText } from "./format";
-import StepsHandler from "./steps.handler";
-import PagesHandler from "./pages.handler";
-import { getOSPath, clearGherkinComments } from "./util";
+import { format, clearText } from './format';
+import StepsHandler from './steps.handler';
+import PagesHandler from './pages.handler';
+import { getOSPath, clearGherkinComments } from './util';
+import { Settings, BaseSettings } from './types';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -77,8 +78,8 @@ connection.onInitialize((params: InitializeParams) => {
       documentFormattingProvider: true,
       documentRangeFormattingProvider: true,
       documentOnTypeFormattingProvider: {
-        firstTriggerCharacter: " ",
-        moreTriggerCharacter: ["@", "#", ":"],
+        firstTriggerCharacter: ' ',
+        moreTriggerCharacter: ['@', '#', ':'],
       },
     },
   };
@@ -140,7 +141,7 @@ async function watchFiles(stepsPathes: string[]) {
   const settings = await getSettings();
   stepsPathes.forEach((path) => {
     glob
-      .sync(workspaceRoot + "/" + path, { ignore: ".gitignore" })
+      .sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
       .forEach((f) => {
         fs.watchFile(f, () => {
           populateHandlers(settings);
@@ -179,14 +180,14 @@ async function handleStepsAndPagesSetup(settings: Settings) {
   if (shouldHandleSteps(settings)) {
     watchFiles(steps);
     stepsHandler = new StepsHandler(workspaceRoot, settings);
-    const sFile = ".vscode/settings.json";
+    const sFile = '.vscode/settings.json';
     const diagnostics = stepsHandler.validateConfiguration(
       sFile,
       steps,
       workspaceRoot
     );
     connection.sendDiagnostics({
-      uri: getOSPath(workspaceRoot + "/" + sFile),
+      uri: getOSPath(workspaceRoot + '/' + sFile),
       diagnostics,
     });
   }
@@ -236,10 +237,10 @@ connection.onCompletion(
 );
 
 connection.onCompletionResolve((item: CompletionItem) => {
-  if (~item.data.indexOf("step")) {
+  if (~item.data.indexOf('step')) {
     return stepsHandler.getCompletionResolve(item);
   }
-  if (~item.data.indexOf("page")) {
+  if (~item.data.indexOf('page')) {
     return pagesHandler.getCompletionResolve(item);
   }
   return item;
@@ -301,7 +302,7 @@ connection.onDefinition(async (position: TextDocumentPositionParams) => {
 
 function getIndent(options: FormattingOptions) {
   const { insertSpaces, tabSize } = options;
-  return insertSpaces ? " ".repeat(tabSize) : "\t";
+  return insertSpaces ? ' '.repeat(tabSize) : '\t';
 }
 
 connection.onDocumentFormatting(
@@ -338,7 +339,7 @@ connection.onDocumentRangeFormatting(
         finalRange.start.line,
         finalRange.end.line - finalRange.start.line + 1
       )
-      .join("\r\n");
+      .join('\r\n');
     const formattedText = format(indent, finalText, settings);
     const clearedText = clearText(formattedText);
     return [TextEdit.replace(finalRange, clearedText)];

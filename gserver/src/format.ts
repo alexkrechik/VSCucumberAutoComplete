@@ -1,15 +1,4 @@
-import { escapeRegExp } from './util';
-
-type FormatConfVal = number | 'relative' | 'relativeUp';
-
-interface FormatConf {
-    [key: string]: FormatConfVal
-}
-
-interface ResolvedFormat {
-    symbol: string;
-    value: FormatConfVal;
-}
+import { Settings, FormatConf  } from './types';
 
 const FORMAT_CONF: FormatConf = {
     'Ability': 0,

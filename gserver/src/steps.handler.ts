@@ -1,5 +1,5 @@
-import * as glob from "glob";
-import * as commentParser from "doctrine";
+import * as glob from 'glob';
+import * as commentParser from 'doctrine';
 
 import {
   Definition,
@@ -11,7 +11,7 @@ import {
   Range,
   CompletionItemKind,
   InsertTextFormat,
-} from "vscode-languageserver";
+} from 'vscode-languageserver';
 
 import {
   getOSPath,
@@ -22,14 +22,16 @@ import {
   escapeRegExpToGetTextSymbols,
   getTextRange,
   getSortPrefix,
-} from "./util";
+} from './util';
 
 import {
   allGherkinWords,
   GherkinType,
   getGherkinType,
   getGherkinTypeLower,
-} from "./gherkin";
+} from './gherkin';
+
+import { Settings, StepSettings, CustomParameter } from './types';
 
 export type Step = {
   id: string;
@@ -66,7 +68,7 @@ export default class StepsHandler {
     this.populate(root, steps);
     if (syncfeatures === true) {
       this.setElementsHash(`${root}/**/*.feature`);
-    } else if (typeof syncfeatures === "string") {
+    } else if (typeof syncfeatures === 'string') {
       this.setElementsHash(`${root}/${syncfeatures}`);
     }
   }
@@ -81,7 +83,7 @@ export default class StepsHandler {
 
   setElementsHash(path: string): void {
     this.elemenstCountHash = {};
-    const files = glob.sync(path, { ignore: ".gitignore" });
+    const files = glob.sync(path, { ignore: '.gitignore' });
     files.forEach((f) => {
       const text = getFileContent(f);
       text.split(/\r?\n/g).forEach((line) => {
@@ -120,17 +122,17 @@ export default class StepsHandler {
       `(${allGherkinWords}|defineStep|Step|StepDefinition)`;
 
     //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-    const nonStepStartSymbols = `[^/'"\`\\w]*?`;
+    const nonStepStartSymbols = '[^/\'"`\\w]*?';
 
     // Step part getting
     const { stepRegExSymbol } = this.settings;
     // Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-    const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : `(/|'|"|\`)`;
+    const stepStart = stepRegExSymbol ? `(${stepRegExSymbol})` : '(/|\'|"|`)';
     // ref to RegEx Example: https://regex101.com/r/mS1zJ8/1
     // Use a RegEx that peeks ahead to ensure escape character can still work, like `\'`.
-    const stepBody = `((?:(?=(?:\\\\)*)\\\\.|.)*?)`;
+    const stepBody = '((?:(?=(?:\\\\)*)\\\\.|.)*?)';
     //Step should be ended with same symbol it begins
-    const stepEnd = stepRegExSymbol ? stepRegExSymbol : "\\3";
+    const stepEnd = stepRegExSymbol ? stepRegExSymbol : '\\3';
 
     //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
     const r = new RegExp(
@@ -140,7 +142,7 @@ export default class StepsHandler {
         stepStart +
         stepBody +
         stepEnd,
-      "i"
+      'i'
     );
 
     // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But|defineStep)[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
@@ -172,7 +174,7 @@ export default class StepsHandler {
       const outlineVars = this.getOutlineVars(document);
       //We should support both outlines lines variants - with and without quotes
       const pureLine = outlineMatch
-        .map((s) => s.replace(/<|>/g, ""))
+        .map((s) => s.replace(/<|>/g, ''))
         .reduce((resLine, key) => {
           if (outlineVars[key]) {
             resLine = resLine.replace(`<${key}>`, outlineVars[key]);
@@ -180,7 +182,7 @@ export default class StepsHandler {
           return resLine;
         }, line);
       const quotesLine = outlineMatch
-        .map((s) => s.replace(/<|>/g, ""))
+        .map((s) => s.replace(/<|>/g, ''))
         .reduce((resLine, key) => {
           if (outlineVars[key]) {
             resLine = resLine.replace(`<${key}>`, `"${outlineVars[key]}"`);
@@ -213,32 +215,32 @@ export default class StepsHandler {
   getRegTextForStep(step: string): string {
     //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
     //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
-    step = step.replace(/#{(.*?)}/g, ".*");
+    step = step.replace(/#{(.*?)}/g, '.*');
 
     //Parameter-types
     //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
     //https://docs.cucumber.io/cucumber/cucumber-expressions/
-    step = step.replace(/{float}/g, "-?\\d*\\.?\\d+");
-    step = step.replace(/{int}/g, "-?\\d+");
+    step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
+    step = step.replace(/{int}/g, '-?\\d+');
     step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
-    step = step.replace(/{word}/g, "[^\\s]+");
+    step = step.replace(/{word}/g, '[^\\s]+');
     step = step.replace(/{string}/g, "(\"|')[^\\1]*\\1");
-    step = step.replace(/{}/g, ".*");
+    step = step.replace(/{}/g, '.*');
 
     //Optional Text
-    step = step.replace(/\(([a-z]+)\)/g, "($1)?");
+    step = step.replace(/\(([a-z]+)\)/g, '($1)?');
 
     //Alternative text a/b/c === (a|b|c)
     step = step.replace(
       /([a-zA-Z]+)(?:\/([a-zA-Z]+))+/g,
-      (match) => `(${match.replace(/\//g, "|")})`
+      (match) => `(${match.replace(/\//g, '|')})`
     );
 
     //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
     //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
     //Cucumber Expressions Custom Parameter Type Documentation
     //https://docs.cucumber.io/cucumber-expressions/#custom-parameters
-    step = step.replace(/([^\\]|^){(?![\d,])(.*?)}/g, "$1.*");
+    step = step.replace(/([^\\]|^){(?![\d,])(.*?)}/g, '$1.*');
 
     //Escape all the regex symbols to avoid errors
     step = escapeRegExp(step);
@@ -250,7 +252,7 @@ export default class StepsHandler {
     // We should separate got string into the parts by space symbol
     // But we should not touch /()/ RegEx elements
     text = this.getRegTextForStep(text);
-    let currString = "";
+    let currString = '';
     let bracesMode = false;
     let openingBracesNum = 0;
     let closingBracesNum = 0;
@@ -261,22 +263,22 @@ export default class StepsHandler {
         res.push(currString);
       } else if (bracesMode) {
         //We should do this hard check to avoid circular braces errors
-        if (currSymbol === ")") {
+        if (currSymbol === ')') {
           closingBracesNum++;
           if (openingBracesNum === closingBracesNum) {
             bracesMode = false;
           }
         }
-        if (currSymbol === "(") {
+        if (currSymbol === '(') {
           openingBracesNum++;
         }
         currString += currSymbol;
       } else {
-        if (currSymbol === " ") {
+        if (currSymbol === ' ') {
           res.push(currString);
-          currString = "";
-        } else if (currSymbol === "(") {
-          currString += "(";
+          currString = '';
+        } else if (currSymbol === '(') {
+          currString += '(';
           bracesMode = true;
           openingBracesNum = 1;
           closingBracesNum = 0;
@@ -292,26 +294,26 @@ export default class StepsHandler {
     //Same with main reg, only differ is match any string that same or less that current one
     return this.getPartialRegParts(regText)
       .map((el) => `(${el}|$)`)
-      .join("( |$)")
-      .replace(/^\^|^/, "^");
+      .join('( |$)')
+      .replace(/^\^|^/, '^');
   }
 
   getTextForStep(step: string): string {
     //Remove all the backslashes
-    step = step.replace(/\\/g, "");
+    step = step.replace(/\\/g, '');
 
     //Remove "string start" and "string end" RegEx symbols
-    step = step.replace(/^\^|\$$/g, "");
+    step = step.replace(/^\^|\$$/g, '');
 
     return step;
   }
 
   getDescForStep(step: string): string {
     //Remove 'Function body' part
-    step = step.replace(/\{.*/, "");
+    step = step.replace(/\{.*/, '');
 
     //Remove spaces in the beginning end in the end of string
-    step = step.replace(/^\s*/, "").replace(/\s*$/, "");
+    step = step.replace(/^\s*/, '').replace(/\s*$/, '');
 
     return step;
   }
@@ -324,9 +326,9 @@ export default class StepsHandler {
       const match = step.match(bracesRegEx);
       const matchRes = match![1];
       const variants = matchRes
-        .replace(/\(\?:/, "")
-        .replace(/^\(|\)$/g, "")
-        .split("|");
+        .replace(/\(\?:/, '')
+        .replace(/^\(|\)$/g, '')
+        .split('|');
       return variants.reduce((varRes, variant) => {
         return varRes.concat(
           this.getStepTextInvariants(step.replace(matchRes, variant))
@@ -346,11 +348,11 @@ export default class StepsHandler {
     for (let i = 0; i < length; i++) {
       currArray.push(strArray.shift()!);
       try {
-        const r = new RegExp("^" + escapeRegExp(currArray.join(" ")));
+        const r = new RegExp('^' + escapeRegExp(currArray.join(' ')));
         if (!r.test(stepPart)) {
           res = new Array<string>()
             .concat(currArray.slice(-1), strArray)
-            .join(" ");
+            .join(' ');
           break;
         }
       } catch (err) {
@@ -373,7 +375,7 @@ export default class StepsHandler {
       if (match) {
         for (let i = 0; i < match.length; i++) {
           const num = i + 1;
-          res = res.replace(match[i], () => "${" + num + ":}");
+          res = res.replace(match[i], () => '${' + num + ':}');
         }
       }
     } else {
@@ -392,9 +394,9 @@ export default class StepsHandler {
     });
     return (
       stepParsedComment.description ||
-      (stepParsedComment.tags.find((tag) => tag.title === "description") || {})
+      (stepParsedComment.tags.find((tag) => tag.title === 'description') || {})
         .description ||
-      (stepParsedComment.tags.find((tag) => tag.title === "desc") || {})
+      (stepParsedComment.tags.find((tag) => tag.title === 'desc') || {})
         .description ||
       stepRawComment
     );
@@ -428,9 +430,9 @@ export default class StepsHandler {
       })
       .map((step) => {
         const regText = this.settings.pureTextSteps
-          ? "^" +
+          ? '^' +
             escapeRegExpToGetTextSymbols(this.getRegTextForStep(step)) +
-            "$"
+            '$'
           : this.getRegTextForStep(step);
         const reg = new RegExp(regText);
         let partialReg;
@@ -445,7 +447,7 @@ export default class StepsHandler {
         const text = this.settings.pureTextSteps
           ? step
           : this.getTextForStep(step);
-        const id = "step" + getMD5Id(text);
+        const id = 'step' + getMD5Id(text);
         const count = this.getElementCount(id);
         return {
           id,
@@ -478,7 +480,7 @@ export default class StepsHandler {
       },
       {
         comments: {} as JSDocComments,
-        current: "",
+        current: '',
         commentMode: false,
       }
     ).comments;
@@ -493,11 +495,11 @@ export default class StepsHandler {
       .reduce((steps, line, lineIndex, lines) => {
         //TODO optimize
         let match;
-        let finalLine = "";
+        let finalLine = '';
         const currLine = this.handleCustomParameters(line);
         const currentMatch = this.geStepDefinitionMatch(currLine);
         //Add next line to our string to handle two-lines step definitions
-        const nextLine = this.handleCustomParameters(lines[lineIndex + 1]);
+        const nextLine = this.handleCustomParameters(lines[lineIndex + 1] || '');
         if (currentMatch) {
           match = currentMatch;
           finalLine = currLine;
@@ -533,18 +535,18 @@ export default class StepsHandler {
     workSpaceRoot: string
   ) {
     return stepsPathes.reduce((res, path) => {
-      const files = glob.sync(path, { ignore: ".gitignore" });
+      const files = glob.sync(path, { ignore: '.gitignore' });
       if (!files.length) {
-        const searchTerm = path.replace(workSpaceRoot + "/", "");
+        const searchTerm = path.replace(workSpaceRoot + '/', '');
         const range = getTextRange(
-          workSpaceRoot + "/" + settingsFile,
+          workSpaceRoot + '/' + settingsFile,
           `"${searchTerm}"`
         );
         res.push({
           severity: DiagnosticSeverity.Warning,
           range: range,
-          message: `No steps files found`,
-          source: "cucumberautocomplete",
+          message: 'No steps files found',
+          source: 'cucumberautocomplete',
         });
       }
       return res;
@@ -556,7 +558,7 @@ export default class StepsHandler {
     this.elements = stepsPathes
       .reduce(
         (files, path) =>
-          files.concat(glob.sync(root + "/" + path, { ignore: ".gitignore" })),
+          files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })),
         new Array<string>()
       )
       .reduce(
@@ -583,8 +585,8 @@ export default class StepsHandler {
   }
 
   validate(line: string, lineNum: number, text: string) {
-    line = line.replace(/\s*$/, "");
-    const lineForError = line.replace(/^\s*/, "");
+    line = line.replace(/\s*$/, '');
+    const lineForError = line.replace(/^\s*/, '');
     const match = this.getGherkinMatch(line, text);
     if (!match) {
       return null;
@@ -607,7 +609,7 @@ export default class StepsHandler {
           end: { line: lineNum, character: line.length },
         },
         message: `Was unable to find step for "${lineForError}"`,
-        source: "cucumberautocomplete",
+        source: 'cucumberautocomplete',
       } as Diagnostic;
     }
   }
@@ -663,8 +665,8 @@ export default class StepsHandler {
     }
     const [, , gherkinPart, , stepPartBase] = match;
     //We don't need last word in our step part due to it could be incompleted
-    let stepPart = stepPartBase || "";
-    stepPart = stepPart.replace(/[^\s]+$/, "");
+    let stepPart = stepPartBase || '';
+    stepPart = stepPart.replace(/[^\s]+$/, '');
     const res = this.elements
       //Filter via gherkin words comparing if strictGherkinCompletion option provided
       .filter((step) => {
@@ -688,7 +690,7 @@ export default class StepsHandler {
           kind: CompletionItemKind.Snippet,
           data: step.id,
           documentation: step.documentation,
-          sortText: getSortPrefix(step.count, 5) + "_" + step.text,
+          sortText: getSortPrefix(step.count, 5) + '_' + step.text,
           insertText: this.getCompletionInsertText(step.text, stepPart),
           insertTextFormat: InsertTextFormat.Snippet,
         };

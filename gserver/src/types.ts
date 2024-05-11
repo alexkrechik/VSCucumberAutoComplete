@@ -1,19 +1,21 @@
-type StepSettings = string[];
+export type StepSettings = string[];
 
-type PagesSettings = {
+export type PagesSettings = {
     [page: string]: string
 };
 
-type CustomParameter = {
+export type CustomParameter = {
     parameter: string | RegExp,
     value: string
 };
 
-type FormatConf = {
-    [key: string]: number | 'relative'
-};
+type FormatConfVal = number | 'relative' | 'relativeUp';
 
-interface BaseSettings {
+export interface FormatConf {
+    [key: string]: FormatConfVal
+}
+
+export interface BaseSettings {
     steps?: StepSettings,
     pages?: PagesSettings,
     syncfeatures?: boolean | string,
@@ -30,7 +32,7 @@ interface BaseSettings {
     pureTextSteps?: boolean
 }
 
-interface Settings {
+export interface Settings {
     steps: StepSettings,
     pages: PagesSettings,
     syncfeatures?: boolean | string,
