@@ -1,19 +1,14 @@
 ## 3.0.0
 * Extension updates:
+1. Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
+2. Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.0.0)
 * Development updates:
 1. Moved to the latest version of all the vscode libraries - improved extension speed, security and develop/debug experience.
 2. Moved to the latest version of typescript. Now application is more error resistant due to error typings.
 3. Moved to the Jest from Chai+Mocka, improved monorepo-like extension usage, some other smaller updates.
 * BREAKING CHANGES:
 1. `*` and `|` keys for the `formatConfOverride` settings options should not be escaped now, so write `{ "*": 3 }` instead of `{ "\\*": 3 }` for the `cucumberautocomplete.formatConfOverride` option.
-* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.0.0)
 
-
-
-## 2.15.3
-* Added pureTextSteps option with an ability to use steps as a text (not as a RegExp)
-* Did some tables formatting fixes
-* Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A2.16.0)
 
 
 ## 2.15.2

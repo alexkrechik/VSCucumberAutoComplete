@@ -601,6 +601,7 @@ describe('step as a pure text test', () => {
   it('should properly handle steps', () => {
     expect(elements.length).toStrictEqual(1);
     expect(elements[0].text).toStrictEqual('I give 3/4 and 5$');
+    expect(customStepsHandler.validate('When I give 3/4 and 5$', 1, '')).toBeNull();
   });
 
   it('should return proper completion', () => {

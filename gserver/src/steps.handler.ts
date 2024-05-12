@@ -578,9 +578,11 @@ export default class StepsHandler {
 
     getStepByText(text: string, gherkin?: GherkinType) {
         return this.elements.find(
-            (s) =>
-                (gherkin !== undefined ? s.gherkin === gherkin : true) &&
-        s.reg.test(text)
+            (s) => {
+                const isGherkinOk = gherkin !== undefined ? s.gherkin === gherkin : true;
+                const isStepOk = this.settings.pureTextSteps ? s.text === text : s.reg.test(text);
+                return isGherkinOk && isStepOk;
+            }
         );
     }
 
@@ -593,12 +595,10 @@ export default class StepsHandler {
         }
         const beforeGherkin = match[1];
         const gherkinPart = match[2];
-        const step = this.getStepByText(
-            match[4],
-            this.settings.strictGherkinValidation
-                ? this.getStrictGherkinType(gherkinPart, lineNum, text)
-                : undefined
-        );
+        const gherkinWord = this.settings.strictGherkinValidation
+            ? this.getStrictGherkinType(gherkinPart, lineNum, text)
+            : undefined;
+        const step = this.getStepByText(match[4], gherkinWord);
         if (step) {
             return null;
         } else {
