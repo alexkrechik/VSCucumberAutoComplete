@@ -1,7 +1,7 @@
 {
   "name": "cucumberautocomplete-server",
   "description": "Node.JS server part of VsCucumberAutoComplete extension",
-  "version": "2.15.2",
+  "version": "3.0.0",
   "author": "Alexander Krechik",
   "license": "MIT",
   "engines": {

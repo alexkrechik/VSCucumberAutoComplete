@@ -1,6 +1,6 @@
 {
   "name": "cucumberautocomplete",
-  "version": "2.15.2",
+  "version": "3.0.0",
   "publisher": "alexkrechik",
   "author": "Alexander Krechik",
   "license": "MIT",
@@ -163,9 +163,9 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && vsce package",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
+    "package": "vsce package",
     "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
     "lint:fix": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx --fix",
     "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",

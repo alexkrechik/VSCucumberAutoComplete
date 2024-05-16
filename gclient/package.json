@@ -3,7 +3,7 @@
   "description": "VSCode client part of VsCucumberAutoComplete extension",
   "author": "Alexander Krechik",
   "license": "MIT",
-  "version": "2.15.2",
+  "version": "3.0.0",
   "publisher": "alexkrechik",
   "repository": {
     "type": "git",
