@@ -105,8 +105,8 @@ connection.onInitialized(() => {
     }
 });
 
-async function getSettings() {
-    if (!globalSettings) {
+async function getSettings(forceReset?: boolean) {
+    if (!globalSettings || forceReset) {
         const baseSettings = await connection.workspace.getConfiguration({
             section: 'cucumberautocomplete'
         });
@@ -137,19 +137,26 @@ function pagesPosition(line: string, char: number, settings: Settings) {
     }
 }
 
-async function watchFiles(stepsPathes: string[]) {
+async function revalidateAllDocuments() {
+    connection.languages.diagnostics.refresh();
     const settings = await getSettings();
-    stepsPathes.forEach((path) => {
+    documents.all().forEach((document) => {
+        const text = document.getText();
+        const diagnostics = validate(clearGherkinComments(text), settings);
+        connection.sendDiagnostics({ uri: document.uri, diagnostics });
+    });
+}
+
+function watchStepsFiles(settings: Settings) {    
+    settings.steps.forEach((path) => {
         glob
             .sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
             .forEach((f) => {
-                fs.watchFile(f, () => {
+                fs.unwatchFile(f);
+                fs.watchFile(f, async () => {
+                    const settings = await getSettings();
                     populateHandlers(settings);
-                    documents.all().forEach((document) => {
-                        const text = document.getText();
-                        const diagnostics = validate(clearGherkinComments(text), settings);
-                        connection.sendDiagnostics({ uri: document.uri, diagnostics });
-                    });
+                    revalidateAllDocuments();
                 });
             });
     });
@@ -175,11 +182,16 @@ function getSettingsFromBase(baseSettings: BaseSettings) {
     return settings;
 }
 
-async function handleStepsAndPagesSetup(settings: Settings) {
-    const { pages, steps } = settings;
+function initStepsAndPagesSetup(settings: Settings) {
+    watchStepsFiles(settings);
+    initHandlers(settings);
+    populateHandlers(settings);
+    validateStepsConfiguration(settings);
+}
+
+function validateStepsConfiguration(settings: Settings) {
+    const { steps } = settings;
     if (shouldHandleSteps(settings)) {
-        watchFiles(steps);
-        stepsHandler = new StepsHandler(workspaceRoot, settings);
         const sFile = '.vscode/settings.json';
         const diagnostics = stepsHandler.validateConfiguration(
             sFile,
@@ -191,33 +203,36 @@ async function handleStepsAndPagesSetup(settings: Settings) {
             diagnostics,
         });
     }
+}
+
+connection.onDidChangeConfiguration(async (change) => {
+    const settings = await getSettings(true);
+    // TODO - should we check that our settings were changed before do this?
+    initStepsAndPagesSetup(settings);
+    revalidateAllDocuments();
+});
+
+function initHandlers(settings: Settings) {
+    if (shouldHandleSteps(settings)) {
+        stepsHandler = new StepsHandler(workspaceRoot, settings);
+    }
     if (shouldHandlePages(settings)) {
-        if (pages) {
-            watchFiles(Object.keys(pages).map((key) => pages[key]));
-        }
         pagesHandler = new PagesHandler(workspaceRoot, settings);
     }
 }
 
-connection.onDidChangeConfiguration((change) => {
-    globalSettings = getSettingsFromBase(change.settings);
-    const settings = globalSettings;
-    handleStepsAndPagesSetup(settings);
-});
-
 function populateHandlers(settings: Settings) {
-    shouldHandleSteps(settings) &&
-    stepsHandler &&
-    stepsHandler.populate(workspaceRoot, settings.steps);
-    shouldHandlePages(settings) &&
-    pagesHandler &&
-    pagesHandler.populate(workspaceRoot, settings.pages);
+    if (shouldHandleSteps(settings)) {
+        stepsHandler?.populate(workspaceRoot, settings.steps);
+    }
+    if (shouldHandlePages(settings)) {
+        pagesHandler?.populate(workspaceRoot, settings.pages);
+    }
 }
 
 documents.onDidOpen(async () => {
-    const settings = await getSettings();
-    handleStepsAndPagesSetup(settings);
-    populateHandlers(settings);
+    const settings = await getSettings(true);
+    initStepsAndPagesSetup(settings);
 });
 
 connection.onCompletion(
