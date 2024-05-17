@@ -19,7 +19,7 @@ import {
     clearComments,
     getMD5Id,
     escapeRegExp,
-    escapeRegExpToGetTextSymbols,
+    escaprRegExpForPureText,
     getTextRange,
     getSortPrefix,
 } from './util';
@@ -212,20 +212,47 @@ export default class StepsHandler {
         return step;
     }
 
-    getRegTextForStep(step: string): string {
-    //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
-    //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
-        step = step.replace(/#{(.*?)}/g, '.*');
+    specialParameters = [
+        //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
+        //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
+        [/#{(.*?)}/g, '.*'],
 
         //Parameter-types
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
         //https://docs.cucumber.io/cucumber/cucumber-expressions/
-        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
-        step = step.replace(/{int}/g, '-?\\d+');
-        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
-        step = step.replace(/{word}/g, '[^\\s]+');
-        step = step.replace(/{string}/g, "(\"|')[^\\1]*\\1");
-        step = step.replace(/{}/g, '.*');
+        [/{float}/g, '-?\\d*\\.?\\d+'],
+        [/{int}/g, '-?\\d+'],
+        [/{stringInDoubleQuotes}/g, '"[^"]+"'],
+        [/{word}/g, '[^\\s]+'],
+        [/{string}/g, "(\"|')[^\\1]*\\1"],
+        [/{}/g, '.*'],
+    ] as const
+
+    getRegTextForPureStep(step: string): string {
+        
+        // Change all the special parameters
+        this.specialParameters.forEach(([parameter, change]) => {
+            step = step.replace(parameter, change)
+        })
+    
+        // Escape all special symbols
+        step = escaprRegExpForPureText(step)
+
+        // Escape all the special parameters back
+        this.specialParameters.forEach(([, change]) => {
+            const escapedChange = escaprRegExpForPureText(change);
+            step = step.replace(escapedChange, change)
+        })
+
+        // Compile the final regex
+        return `^${step}$`;
+    }
+
+    getRegTextForStep(step: string): string {
+
+        this.specialParameters.forEach(([parameter, change]) => {
+            step = step.replace(parameter, change)
+        })
 
         //Optional Text
         step = step.replace(/\(([a-z]+)\)/g, '($1)?');
@@ -251,7 +278,9 @@ export default class StepsHandler {
     getPartialRegParts(text: string): string[] {
     // We should separate got string into the parts by space symbol
     // But we should not touch /()/ RegEx elements
-        text = this.getRegTextForStep(text);
+        text = this.settings.pureTextSteps
+            ? this.getRegTextForPureStep(text)
+            : this.getRegTextForStep(text);
         let currString = '';
         let bracesMode = false;
         let openingBracesNum = 0;
@@ -383,6 +412,14 @@ export default class StepsHandler {
             res = res.replace(/"\[\^"\]\+"/g, '""');
         }
 
+        if (this.settings.pureTextSteps) {
+            // Replace all the escape chars for now
+            res = res.replace(/\\/g, '');
+            // Also remove start and end of the string - we don't need them in the completion
+            res = res.replace(/^\^/, '');
+            res = res.replace(/\$$/, '');
+        }
+
         return res;
     }
 
@@ -421,7 +458,10 @@ export default class StepsHandler {
             .filter((step) => {
                 //Filter invalid long regular expressions
                 try {
-                    new RegExp(this.getRegTextForStep(step));
+                    const regText = this.settings.pureTextSteps
+                        ? this.getRegTextForPureStep(step)
+                        : this.getRegTextForStep(step);
+                    new RegExp(regText);
                     return true;
                 } catch (err) {
                     //Todo - show some warning
@@ -430,9 +470,7 @@ export default class StepsHandler {
             })
             .map((step) => {
                 const regText = this.settings.pureTextSteps
-                    ? '^' +
-            escapeRegExpToGetTextSymbols(this.getRegTextForStep(step)) +
-            '$'
+                    ? this.getRegTextForPureStep(step)
                     : this.getRegTextForStep(step);
                 const reg = new RegExp(regText);
                 let partialReg;
@@ -580,7 +618,7 @@ export default class StepsHandler {
         return this.elements.find(
             (s) => {
                 const isGherkinOk = gherkin !== undefined ? s.gherkin === gherkin : true;
-                const isStepOk = this.settings.pureTextSteps ? s.text === text : s.reg.test(text);
+                const isStepOk = s.reg.test(text);
                 return isGherkinOk && isStepOk;
             }
         );

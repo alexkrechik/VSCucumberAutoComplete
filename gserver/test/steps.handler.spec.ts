@@ -599,14 +599,24 @@ describe('step as a pure text test', () => {
   const elements = customStepsHandler.getElements();
 
   it('should properly handle steps', () => {
-    expect(elements.length).toStrictEqual(1);
+    expect(elements.length).toStrictEqual(2);
     expect(elements[0].text).toStrictEqual('I give 3/4 and 5$');
+    expect(elements[1].text).toStrictEqual('Could drink {string} if his age is 21+');
+  });
+  
+  it('should properly validate steps', () => {
     expect(customStepsHandler.validate('When I give 3/4 and 5$', 1, '')).toBeNull();
+    expect(customStepsHandler.validate('When I give 4 and 5', 1, '')).not.toBeNull();
+    expect(customStepsHandler.validate('Then Could drink "tequila" if his age is 21+', 1, '')).toBeNull();
   });
 
   it('should return proper completion', () => {
-    const completion = customStepsHandler.getCompletion('When I', 1, '');
-    expect(completion![0].insertText).toStrictEqual('I give 3/4 and 5$');
+    const completion1 = customStepsHandler.getCompletion('When I', 1, '');
+    expect(completion1![0].insertText).toStrictEqual('I give 3/4 and 5$');
+    
+    const completion2 = customStepsHandler.getCompletion('Then C', 1, '');
+    // TODO - fix this, insert text should be prettier, but we already have ticket for this
+    expect(completion2![0].insertText).toStrictEqual('Could drink ("|\')${1:}1 if his age is 21+');
   });
 
   it('should return proper partial completion', () => {
