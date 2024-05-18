@@ -1,139 +1,251 @@
-'use strict';
+import * as glob from 'glob';
+import * as fs from 'fs';
 
 import {
-    IPCMessageReader,
-    IPCMessageWriter,
-    IConnection,
     createConnection,
     TextDocuments,
     InitializeResult,
     Diagnostic,
     TextDocumentPositionParams,
     CompletionItem,
-    Definition,
     Range,
     Position,
     DocumentFormattingParams,
     TextEdit,
     DocumentRangeFormattingParams,
     FormattingOptions,
-    Location
-} from 'vscode-languageserver';
+    Location,
+    ProposedFeatures,
+    InitializeParams,
+    DidChangeConfigurationNotification,
+    TextDocumentSyncKind,
+    DocumentDiagnosticReportKind,
+    DocumentDiagnosticReport,
+} from 'vscode-languageserver/node';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+
 import { format, clearText } from './format';
 import StepsHandler from './steps.handler';
 import PagesHandler from './pages.handler';
 import { getOSPath, clearGherkinComments } from './util';
-import * as glob from 'glob';
-import * as fs from 'fs';
+import { Settings, BaseSettings } from './types';
 
-//Create connection and setup communication between the client and server
-const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
-const documents: TextDocuments = new TextDocuments();
-documents.listen(connection);
+// Create a connection for the server, using Node's IPC as a transport.
+// Also include all preview / proposed LSP features.
+const connection = createConnection(ProposedFeatures.all);
+
+// Create a simple text document manager.
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+
+let hasConfigurationCapability = false;
+let hasWorkspaceFolderCapability = false;
+
 //Path to the root of our workspace
 let workspaceRoot: string;
 // Object, which contains current configuration
-let settings: Settings;
+let globalSettings: Settings | undefined;
 // Elements handlers
 let stepsHandler: StepsHandler;
 let pagesHandler: PagesHandler;
 
-connection.onInitialize((params): InitializeResult => {
-    workspaceRoot = params.rootPath;
-    return {
+connection.onInitialize((params: InitializeParams) => {
+    workspaceRoot = params.rootPath || '';
+
+    const capabilities = params.capabilities;
+
+    // Does the client support the `workspace/configuration` request?
+    // If not, we fall back using global settings.
+    hasConfigurationCapability = !!(
+        capabilities.workspace && !!capabilities.workspace.configuration
+    );
+    hasWorkspaceFolderCapability = !!(
+        capabilities.workspace && !!capabilities.workspace.workspaceFolders
+    );
+
+    const result: InitializeResult = {
         capabilities: {
             // Full text sync mode
-            textDocumentSync: documents.syncKind,
+            textDocumentSync: TextDocumentSyncKind.Full,
             //Completion will be triggered after every character pressing
             completionProvider: {
                 resolveProvider: true,
+            },
+            diagnosticProvider: {
+                interFileDependencies: false,
+                workspaceDiagnostics: false
             },
             definitionProvider: true,
             documentFormattingProvider: true,
             documentRangeFormattingProvider: true,
             documentOnTypeFormattingProvider: {
                 firstTriggerCharacter: ' ',
-                moreTriggerCharacter: ['@', '#', ':']
-            }
-        }
+                moreTriggerCharacter: ['@', '#', ':'],
+            },
+        },
     };
+    if (hasWorkspaceFolderCapability) {
+        result.capabilities.workspace = {
+            workspaceFolders: {
+                supported: true
+            }
+        };
+    }
+    return result;
 });
 
-function handleSteps(): boolean {
-    const s = settings.cucumberautocomplete.steps;
+connection.onInitialized(() => {
+    if (hasConfigurationCapability) {
+        // Register for all configuration changes.
+        connection.client.register(DidChangeConfigurationNotification.type, undefined);
+    }
+    if (hasWorkspaceFolderCapability) {
+        connection.workspace.onDidChangeWorkspaceFolders(_event => {
+            connection.console.log('Workspace folder change event received.');
+        });
+    }
+});
+
+async function getSettings(forceReset?: boolean) {
+    if (!globalSettings || forceReset) {
+        const baseSettings = await connection.workspace.getConfiguration({
+            section: 'cucumberautocomplete'
+        });
+        globalSettings = getSettingsFromBase(baseSettings);
+    }
+    return globalSettings;
+}
+
+function shouldHandleSteps(settings: Settings) {
+    const s = settings.steps;
     return s && s.length ? true : false;
 }
 
-function handlePages(): boolean {
-    const p = settings.cucumberautocomplete.pages;
+function shouldHandlePages(settings: Settings) {
+    const p = settings.pages;
     return p && Object.keys(p).length ? true : false;
 }
 
-function pagesPosition(line: string, char: number): boolean {
-    if (handlePages() && pagesHandler && pagesHandler.getFeaturePosition(line, char)) {
+function pagesPosition(line: string, char: number, settings: Settings) {
+    if (
+        shouldHandlePages(settings) &&
+    pagesHandler &&
+    pagesHandler.getFeaturePosition(line, char)
+    ) {
         return true;
     } else {
         return false;
     }
 }
 
-function watchFiles(stepsPathes: string[]): void {
-    stepsPathes.forEach(path => {
-        glob.sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
-            .forEach(f => {
-                fs.watchFile(f, () => {
-                    populateHandlers();
-                    documents.all().forEach((document) => {
-                        const text = document.getText();
-                        const diagnostics = validate(clearGherkinComments(text));
-                        connection.sendDiagnostics({ uri: document.uri, diagnostics });
-                    });
+async function revalidateAllDocuments() {
+    connection.languages.diagnostics.refresh();
+}
+
+function watchStepsFiles(settings: Settings) {    
+    settings.steps.forEach((path) => {
+        glob
+            .sync(workspaceRoot + '/' + path, { ignore: '.gitignore' })
+            .forEach((f) => {
+                fs.unwatchFile(f);
+                fs.watchFile(f, async () => {
+                    const settings = await getSettings();
+                    populateHandlers(settings);
+                    revalidateAllDocuments();
                 });
             });
     });
 }
 
-connection.onDidChangeConfiguration(change => {
-    settings = <Settings>change.settings;
-    //We should get array from step string if provided
-    settings.cucumberautocomplete.steps = Array.isArray(settings.cucumberautocomplete.steps)
-        ? settings.cucumberautocomplete.steps : [settings.cucumberautocomplete.steps];
-    if (handleSteps()) {
-        watchFiles(settings.cucumberautocomplete.steps);
-        stepsHandler = new StepsHandler(workspaceRoot, settings);
-        const sFile = '.vscode/settings.json';
-        const diagnostics = stepsHandler.validateConfiguration(sFile, settings.cucumberautocomplete.steps, workspaceRoot);
-        connection.sendDiagnostics({ uri: getOSPath(workspaceRoot + '/' + sFile), diagnostics });
+function getStepsArray(steps: BaseSettings['steps']) {
+    // Set empty array as steps if they were not provided
+    if (!steps) {
+        return [];
+    } 
+    if (Array.isArray(steps)) {
+        return steps;
     }
-    if (handlePages()) {
-        const { pages } = settings.cucumberautocomplete;
-        watchFiles(Object.keys(pages).map((key) => pages[key]));
-        pagesHandler = new PagesHandler(workspaceRoot, settings);
-    }
-});
-
-function populateHandlers() {
-    handleSteps() && stepsHandler && stepsHandler.populate(workspaceRoot, settings.cucumberautocomplete.steps);
-    handlePages() && pagesHandler && pagesHandler.populate(workspaceRoot, settings.cucumberautocomplete.pages);
+    return [steps];
 }
 
-documents.onDidOpen(() => {
-    populateHandlers();
+function getSettingsFromBase(baseSettings: BaseSettings) {
+    const settings: Settings = {
+        ...baseSettings,
+        steps: getStepsArray(baseSettings.steps),
+        pages: baseSettings.pages || {},
+    };
+    return settings;
+}
+
+function initStepsAndPagesSetup(settings: Settings) {
+    watchStepsFiles(settings);
+    initHandlers(settings);
+    populateHandlers(settings);
+    validateStepsConfiguration(settings);
+}
+
+function validateStepsConfiguration(settings: Settings) {
+    const { steps } = settings;
+    if (shouldHandleSteps(settings)) {
+        const sFile = '.vscode/settings.json';
+        const diagnostics = stepsHandler.validateConfiguration(
+            sFile,
+            steps,
+            workspaceRoot
+        );
+        connection.sendDiagnostics({
+            uri: getOSPath(workspaceRoot + '/' + sFile),
+            diagnostics,
+        });
+    }
+}
+
+connection.onDidChangeConfiguration(async (change) => {
+    const settings = await getSettings(true);
+    // TODO - should we check that our settings were changed before do this?
+    initStepsAndPagesSetup(settings);
+    revalidateAllDocuments();
 });
 
-connection.onCompletion((position: TextDocumentPositionParams): CompletionItem[] => {
-    const text = documents.get(position.textDocument.uri).getText();
-    const line = text.split(/\r?\n/g)[position.position.line];
-    const char = position.position.character;
-    if (pagesPosition(line, char) && pagesHandler) {
-        return pagesHandler.getCompletion(line, position.position);
+function initHandlers(settings: Settings) {
+    if (shouldHandleSteps(settings)) {
+        stepsHandler = new StepsHandler(workspaceRoot, settings);
     }
-    if (handleSteps() && stepsHandler) {
-        return stepsHandler.getCompletion(line, position.position.line, text);
+    if (shouldHandlePages(settings)) {
+        pagesHandler = new PagesHandler(workspaceRoot, settings);
     }
+}
+
+function populateHandlers(settings: Settings) {
+    if (shouldHandleSteps(settings)) {
+        stepsHandler?.populate(workspaceRoot, settings.steps);
+    }
+    if (shouldHandlePages(settings)) {
+        pagesHandler?.populate(workspaceRoot, settings.pages);
+    }
+}
+
+documents.onDidOpen(async () => {
+    const settings = await getSettings(true);
+    initStepsAndPagesSetup(settings);
 });
 
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+connection.onCompletion(
+    async (position: TextDocumentPositionParams) => {
+        const settings = await getSettings();
+        const textDocument = documents.get(position.textDocument.uri);
+        const text = textDocument?.getText() || '';
+        const line = text.split(/\r?\n/g)[position.position.line];
+        const char = position.position.character;
+        if (pagesPosition(line, char, settings) && pagesHandler) {
+            return pagesHandler.getCompletion(line, position.position);
+        }
+        if (shouldHandleSteps(settings) && stepsHandler) {
+            return stepsHandler.getCompletion(line, position.position.line, text);
+        }
+    }
+);
+
+connection.onCompletionResolve((item: CompletionItem) => {
     if (~item.data.indexOf('step')) {
         return stepsHandler.getCompletionResolve(item);
     }
@@ -143,79 +255,129 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
     return item;
 });
 
-function validate(text: string): Diagnostic[] {
+function validate(text: string, settings: Settings) {
     return text.split(/\r?\n/g).reduce((res, line, i) => {
         let diagnostic;
-        if (handleSteps() && stepsHandler && (diagnostic = stepsHandler.validate(line, i, text))) {
+        if (
+            shouldHandleSteps(settings) &&
+      stepsHandler &&
+      (diagnostic = stepsHandler.validate(line, i, text))
+        ) {
             res.push(diagnostic);
-        } else if (handlePages() && pagesHandler) {
+        } else if (shouldHandlePages(settings) && pagesHandler) {
             const pagesDiagnosticArr = pagesHandler.validate(line, i);
             res = res.concat(pagesDiagnosticArr);
         }
         return res;
-    }, []);
+    }, [] as Diagnostic[]);
 }
 
-documents.onDidChangeContent((change): void => {
-    const changeText = change.document.getText();
-    //Validate document
-    const diagnostics = validate(clearGherkinComments(changeText));
-    connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
+connection.languages.diagnostics.on(async (params) => {
+    const document = documents.get(params.textDocument.uri);
+    if (document !== undefined) {
+        const settings = await getSettings();
+        const text = document.getText();
+        const diagnostics = validate(clearGherkinComments(text), settings);
+        return {
+            kind: DocumentDiagnosticReportKind.Full,
+            items: diagnostics,
+        } satisfies DocumentDiagnosticReport;
+    } else {
+        // We don't know the document. We can either try to read it from disk
+        // or we don't report problems for it.
+        return {
+            kind: DocumentDiagnosticReportKind.Full,
+            items: []
+        } satisfies DocumentDiagnosticReport;
+    }
 });
 
-connection.onDefinition((position: TextDocumentPositionParams): Definition => {
-    const text = documents.get(position.textDocument.uri).getText();
+connection.onDefinition(async (position: TextDocumentPositionParams) => {
+    const settings = await getSettings();
+    const textDocument = documents.get(position.textDocument.uri);
+    const text = textDocument?.getText() || '';
     const line = text.split(/\r?\n/g)[position.position.line];
     const char = position.position.character;
     const pos = position.position;
     const { uri } = position.textDocument;
-    if (pagesPosition(line, char) && pagesHandler) {
+    if (pagesPosition(line, char, settings) && pagesHandler) {
         return pagesHandler.getDefinition(line, char);
     }
-    if (handleSteps() && stepsHandler) {
+    if (shouldHandleSteps(settings) && stepsHandler) {
         return stepsHandler.getDefinition(line, text);
     }
     return Location.create(uri, Range.create(pos, pos));
 });
 
-function getIndent(options: FormattingOptions): string {
+function getIndent(options: FormattingOptions) {
     const { insertSpaces, tabSize } = options;
     return insertSpaces ? ' '.repeat(tabSize) : '\t';
 }
 
-connection.onDocumentFormatting((params: DocumentFormattingParams): TextEdit[] => {
-    const text = documents.get(params.textDocument.uri).getText();
-    const textArr = text.split(/\r?\n/g);
-    const indent = getIndent(params.options);
-    const range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
-    const formattedText = format(indent, text, settings);
-    const clearedText = clearText(formattedText);
-    return [TextEdit.replace(range, clearedText)];
-});
-
-connection.onDocumentRangeFormatting((params: DocumentRangeFormattingParams): TextEdit[] => {
-    const text = documents.get(params.textDocument.uri).getText();
-    const textArr = text.split(/\r?\n/g);
-    const range = params.range;
-    const indent = getIndent(params.options);
-    const finalRange = Range.create(Position.create(range.start.line, 0), Position.create(range.end.line, textArr[range.end.line].length));
-    const finalText = textArr.splice(finalRange.start.line, finalRange.end.line - finalRange.start.line + 1).join('\r\n');
-    const formattedText = format(indent, finalText, settings);
-    const clearedText = clearText(formattedText);
-    return [TextEdit.replace(finalRange, clearedText)];
-});
-
-connection.onDocumentOnTypeFormatting((params: DocumentFormattingParams): TextEdit[] => {
-    if (settings.cucumberautocomplete.onTypeFormat === true) {
-        const text = documents.get(params.textDocument.uri).getText();
+connection.onDocumentFormatting(
+    async (params: DocumentFormattingParams) => {
+        const settings = await getSettings();
+        const textDocument = documents.get(params.textDocument.uri);
+        const text = textDocument?.getText() || '';
         const textArr = text.split(/\r?\n/g);
         const indent = getIndent(params.options);
-        const range = Range.create(Position.create(0, 0), Position.create(textArr.length - 1, textArr[textArr.length - 1].length));
+        const range = Range.create(
+            Position.create(0, 0),
+            Position.create(textArr.length - 1, textArr[textArr.length - 1].length)
+        );
         const formattedText = format(indent, text, settings);
-        return [TextEdit.replace(range, formattedText)];
-    } else {
-        return [];
-    };
-});
+        const clearedText = clearText(formattedText);
+        return [TextEdit.replace(range, clearedText)];
+    }
+);
 
+connection.onDocumentRangeFormatting(
+    async (params: DocumentRangeFormattingParams) => {
+        const settings = await getSettings();
+        const textDocument = documents.get(params.textDocument.uri);
+        const text = textDocument?.getText() || '';
+        const textArr = text.split(/\r?\n/g);
+        const range = params.range;
+        const indent = getIndent(params.options);
+        const finalRange = Range.create(
+            Position.create(range.start.line, 0),
+            Position.create(range.end.line, textArr[range.end.line].length)
+        );
+        const finalText = textArr
+            .splice(
+                finalRange.start.line,
+                finalRange.end.line - finalRange.start.line + 1
+            )
+            .join('\r\n');
+        const formattedText = format(indent, finalText, settings);
+        const clearedText = clearText(formattedText);
+        return [TextEdit.replace(finalRange, clearedText)];
+    }
+);
+
+connection.onDocumentOnTypeFormatting(
+    async (params: DocumentFormattingParams) => {
+        const settings = await getSettings();
+        if (settings.onTypeFormat === true) {
+            const textDocument = documents.get(params.textDocument.uri);
+            const text = textDocument?.getText() || '';
+            const textArr = text.split(/\r?\n/g);
+            const indent = getIndent(params.options);
+            const range = Range.create(
+                Position.create(0, 0),
+                Position.create(textArr.length - 1, textArr[textArr.length - 1].length)
+            );
+            const formattedText = format(indent, text, settings);
+            return [TextEdit.replace(range, formattedText)];
+        } else {
+            return [];
+        }
+    }
+);
+
+// Make the text document manager listen on the connection
+// for open, change and close text document events
+documents.listen(connection);
+
+// Listen on the connection
 connection.listen();

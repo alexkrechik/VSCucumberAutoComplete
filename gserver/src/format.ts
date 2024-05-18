@@ -1,15 +1,4 @@
-import { escapeRegExp } from './util';
-
-type FormatConfVal = number | 'relative' | 'relativeUp';
-
-interface FormatConf {
-    [key: string]: FormatConfVal
-}
-
-interface ResolvedFormat {
-    symbol: string;
-    value: FormatConfVal;
-}
+import { Settings, FormatConf  } from './types';
 
 const FORMAT_CONF: FormatConf = {
     'Ability': 0,
@@ -26,8 +15,8 @@ const FORMAT_CONF: FormatConf = {
     'Then': 2,
     'And': 2,
     'But': 2,
-    '\\*': 2,
-    '\\|': 3,
+    '*': 2,
+    '|': 3,
     '"""': 3,
     '#': 'relative',
     '@': 'relative',
@@ -36,20 +25,24 @@ const FORMAT_CONF: FormatConf = {
 const cjkRegex = /[\u3000-\u9fff\uac00-\ud7af\uff01-\uff60]/g;
 
 
-function findIndentation(line: string, settings: Settings): FormatConfVal | null {
+function findIndentation(line: string, settings: Settings) {
     const format = findFormat(line, settings);
     return format ? format.value : null;
 }
 
-function findFormat(line: string, settings: Settings): ResolvedFormat | null {
-    const settingsFormatConf = settings.cucumberautocomplete.formatConfOverride || {};
-    const fnFormatFinder = (conf: FormatConf): ResolvedFormat | null => {
-        const symbol = Object.keys(conf).find(key => !!~line.search(new RegExp(escapeRegExp('^\\s*' + key))));
-        return symbol ? { symbol, value: conf[symbol] } : null;
-    };
-    const settingsFormat = fnFormatFinder(settingsFormatConf);
-    const presetFormat = fnFormatFinder(FORMAT_CONF);
-    return (settingsFormat === null) ? presetFormat : settingsFormat;
+function findFormat(line: string, settings: Settings) {
+    const settingsFormatConf = settings.formatConfOverride || {};
+    const mergedConfig = Object
+        .keys(FORMAT_CONF)
+        .reduce((acc, key) => {
+            acc[key] = settingsFormatConf[key] !== undefined ? settingsFormatConf[key] : FORMAT_CONF[key];
+            return acc;
+        }, {} as FormatConf);
+    const clearLine = line.trim();
+    const symbol = Object
+        .keys(mergedConfig)
+        .find((symbol) => clearLine.startsWith(symbol));
+    return symbol ? { symbol, value: mergedConfig[symbol] } : null;
 }
 
 export function clearText(text: string) {
@@ -66,17 +59,17 @@ export function clearText(text: string) {
         .join('\r\n');
 }
 
-export function correctIndents(text, indent, settings: Settings) {
+export function correctIndents(text: string, indent: string, settings: Settings) {
     let commentsMode = false;
     const defaultIndentation = 0;
     let insideRule = false;
-    const ruleValue = findFormat('Rule:', settings).value;
+    const ruleValue = findFormat('Rule:', settings)?.value;
     const ruleIndentation = typeof ruleValue === 'number' ? ruleValue : 0;
     return text
         .split(/\r?\n/g)
         .map((line, i, textArr) => {
             //Lines, that placed between comments, should not be formatted
-            if (settings.cucumberautocomplete.skipDocStringsFormat) {
+            if (settings.skipDocStringsFormat) {
                 if (~line.search(/^\s*'''\s*/) || ~line.search(/^\s*"""\s*/)) {
                     commentsMode = !commentsMode;
                 } else {
@@ -88,7 +81,7 @@ export function correctIndents(text, indent, settings: Settings) {
             if (format && format.symbol === 'Rule:') {
                 insideRule = true;
             }
-            let indentCount;
+            let indentCount: number;
             if (~line.search(/^\s*$/)) { indentCount = 0; }
             else if (format && typeof format.value === 'number') {
                 indentCount = format.value + (insideRule && format.symbol !== 'Rule:' ? ruleIndentation : 0);
@@ -97,12 +90,13 @@ export function correctIndents(text, indent, settings: Settings) {
                 // In case of 'relative' or unknown option - look for the nearest next string with some numeric indentation
                 const nextOrPrevLines = format && format.value === 'relativeUp'
                     ? textArr.slice(0, i).reverse()
-                    : textArr.slice(i + 1)
-                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number')
+                    : textArr.slice(i + 1);
+                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number');
                 
                 if (nextOrPrevLine) {
                     const nextLineIndentation = findIndentation(nextOrPrevLine, settings);
-                    indentCount = nextLineIndentation === null ? defaultIndentation : nextLineIndentation;
+                    // TODO - review
+                    indentCount = nextLineIndentation === null ? defaultIndentation : (nextLineIndentation as number);
                 } else {
                     indentCount = defaultIndentation;
                 }
@@ -120,13 +114,13 @@ interface Block {
     data: string[]
 }
 
-function formatTables(text) {
+function formatTables(text: string) {
 
     let blockNum = 0;
-    let textArr = text.split(/\r?\n/g);
+    const textArr = text.split(/\r?\n/g);
 
     //Get blocks with data in cucumber tables
-    const blocks: Block[] = textArr
+    const blocks = textArr
         .reduce((res, l, i, arr) => {
             if (~l.search(/^\s*\|.*\|/)) {
                 res.push({
@@ -140,7 +134,7 @@ function formatTables(text) {
                                 prev && prev.endsWith('\\')
                                     ? [...acc.slice(0, acc.length - 1), prev + '|' + curr]
                                     : [...acc, curr]
-                            )(acc.slice(-1)[0]), [])
+                            )(acc.slice(-1)[0]), new Array<string>)
                         .map(cell => cell.trim())
                 });
             } else {
@@ -149,7 +143,7 @@ function formatTables(text) {
                 }
             }
             return res;
-        }, []);
+        }, new Array<Block>);
 
     //Get max value for each table cell
     const maxes = blocks.reduce((res, b) => {
@@ -160,7 +154,7 @@ function formatTables(text) {
             res[block] = b.data.map(v => stringBytesLen(v));
         }
         return res;
-    }, []);
+    }, new Array<number[]>);
 
     //Change all the 'block' lines in our document using correct distance between words
     blocks.forEach(block => {
@@ -176,23 +170,23 @@ function formatTables(text) {
 
 
 function formatJson(textBody: string, indent: string) {
-    let rxTextBlock = /^\s*""".*$([\s\S.]*?)"""/gm;
-    let rxQuoteBegin = /""".*$/gm;
+    const rxTextBlock = /^\s*""".*$([\s\S.]*?)"""/gm;
+    const rxQuoteBegin = /""".*$/gm;
 
-    let textArr = textBody.match(rxTextBlock);
+    const textArr = textBody.match(rxTextBlock);
 
     if (textArr === null) {
         return textBody;
     }
 
-    for (let txt of textArr) {
-        let header = txt.match(rxQuoteBegin)[0]
+    for (const txt of textArr) {
+        const header = txt.match(rxQuoteBegin)![0];
         let preJson = txt.replace(rxQuoteBegin, '');
-        let taggedMap = {};
+        const taggedMap = {} as Record<string, string>;
         let taggedTexts;
         while ((taggedTexts = /<.*?>/g.exec(preJson)) !== null) {
-            taggedTexts.forEach(function (tag, index) {
-                let uuid = createUUID();
+            taggedTexts.forEach(function (tag) {
+                const uuid = createUUID();
 
                 taggedMap[uuid] = tag;
                 preJson = preJson.replace(tag, uuid);
@@ -202,17 +196,17 @@ function formatJson(textBody: string, indent: string) {
             continue;
         }
 
-        let rxIndentTotal = /^([\s\S]*?)"""/;
-        let textIndentTotal = txt.match(rxIndentTotal);
-        let textIndent = textIndentTotal[0].replace(rxQuoteBegin, '').replace(/\n/g, '');
+        const rxIndentTotal = /^([\s\S]*?)"""/;
+        const textIndentTotal = txt.match(rxIndentTotal);
+        const textIndent = textIndentTotal![0].replace(rxQuoteBegin, '').replace(/\n/g, '');
 
         let jsonTxt = JSON.stringify(JSON.parse(preJson), null, indent);
         jsonTxt = '\n' + header + '\n' + jsonTxt + '\n"""';
         jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json
-        for (let uuid in taggedMap) {
-            if (taggedMap.hasOwnProperty(uuid)) {
+        for (const uuid in taggedMap) {
+            if (Object.hasOwnProperty.call(taggedMap, uuid)) {
                 jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
             }
         }
@@ -221,7 +215,7 @@ function formatJson(textBody: string, indent: string) {
     return textBody;
 }
 
-function isJson(str) {
+function isJson(str: string) {
     try {
         JSON.parse(str);
     } catch (e) {

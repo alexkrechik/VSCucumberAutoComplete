@@ -1,33 +1,32 @@
 {
   "name": "cucumberautocomplete-server",
-  "description": "Server part of VsCucumberAutoComplete extension",
-  "version": "2.15.2",
+  "description": "Node.JS server part of VsCucumberAutoComplete extension",
+  "version": "3.0.0",
   "author": "Alexander Krechik",
+  "license": "MIT",
   "engines": {
     "node": "*"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
+  },
   "dependencies": {
+    "doctrine": "^2.1.0",
     "glob": "^7.1.1",
     "md5": "^2.2.1",
-    "strip-comments": "^0.4.4",
-    "vscode-languageserver": "^3.5.0",
-    "doctrine": "^2.1.0"
+    "strip-comments": "^2.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11"
   },
   "devDependencies": {
-    "@types/chai": "^3.4.34",
-    "@types/mocha": "^2.2.48",
-    "@types/node": "7.0.7",
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0",
+    "@types/doctrine": "^0.0.9",
+    "@types/glob": "^8.1.0",
+    "@types/md5": "^2.3.5",
+    "@types/node": "^18.14.6",
+    "@types/strip-comments": "^2.0.1",
     "ts-node": "^2.0.0",
-    "tslint": "^4.2.0",
     "typescript": "~2.3.0",
     "vscode": "^1.1.10"
-  },
-  "scripts": {
-    "compile": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../gclient ./package.json ./tsconfig.json && tsc --watch -p .",
-    "test": "./node_modules/.bin/mocha -r ts-node/register test/**/*.spec.ts",
-    "lint": "./node_modules/.bin/tslint 'src/**/*.ts'"
   }
 }

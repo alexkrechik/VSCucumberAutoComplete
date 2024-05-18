@@ -1,11 +1,190 @@
 {
+  "name": "cucumberautocomplete",
+  "version": "3.0.0",
+  "publisher": "alexkrechik",
+  "author": "Alexander Krechik",
+  "license": "MIT",
+  "displayName": "Cucumber (Gherkin) Full Support",
+  "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
+  "homepage": "https://github.com/alexkrechik/VSCucumberAutoComplete",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
+  },
+  "bugs": {
+    "url": "https://github.com/alexkrechik/VSCucumberAutoComplete/issues"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "gherkin",
+    "cucumber",
+    "feature",
+    "autocomplete"
+  ],
+  "main": "./gclient/out/extension",
+  "icon": "img/icon.png",
+  "contributes": {
+    "languages": [
+      {
+        "id": "feature",
+        "aliases": [
+          "feature",
+          "gherkin",
+          "Gherkin",
+          "cucumber"
+        ],
+        "extensions": [
+          ".feature",
+          ".testcase"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "feature",
+        "scopeName": "text.gherkin.feature",
+        "path": "./syntaxes/feature.tmLanguage.json"
+      },
+      {
+        "injectTo": [
+          "text.gherkin.feature"
+        ],
+        "scopeName": "text.gherkin.feature.json",
+        "path": "./syntaxes/json-embed.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.json": "json"
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "feature",
+        "path": "./snippets.json"
+      }
+    ],
+    "configuration": {
+      "title": "Cucumber Auto Complete settings",
+      "properties": {
+        "cucumberautocomplete.steps": {
+          "description": "Path or array of glob-style-pathes to the steps files",
+          "type": [
+            "array",
+            "string"
+          ],
+          "required": false
+        },
+        "cucumberautocomplete.pages": {
+          "description": "Object, which consists of 'page name' => 'page object file path' pairs",
+          "type": "object",
+          "required": false
+        },
+        "cucumberautocomplete.syncfeatures": {
+          "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
+          "type": [
+            "boolean",
+            "string"
+          ],
+          "required": false,
+          "default": "test/features/*.feature"
+        },
+        "cucumberautocomplete.strictGherkinCompletion": {
+          "description": "Strict comparing of declaration func and gherkin word (ex. show only steps, declared via 'When()' func for the 'When ' string",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.strictGherkinValidation": {
+          "description": "Compare step body and gherkin word during steps validation",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.smartSnippets": {
+          "description": "Change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.stepsInvariants": {
+          "description": "Show all the 'or' steps parts as separate suggestions (ex. show `I use a` and `I use b` steps suggestions for the `I use (a|b)` step",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.customParameters": {
+          "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs. Parameter could be string or RegEx object",
+          "type": "array",
+          "required": false,
+          "default": []
+        },
+        "cucumberautocomplete.skipDocStringsFormat": {
+          "description": "Skip format of strings, that placed between ''' or \"\"\" strings",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.formatConfOverride": {
+          "description": "Override some formatting via format conf strings = {[key: String]: num | 'relative'}, where key - beggining of the string, num - numeric value of indents",
+          "type": "object",
+          "required": false,
+          "default": {}
+        },
+        "cucumberautocomplete.onTypeFormat": {
+          "description": "Enable ontype formattings (activating after pressing on space, @ and : keys)",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.gherkinDefinitionPart": {
+          "description": "Provide step definition name part of regex(ex. '@(given|when|then|step)\\(' in case of python-like steps. Please ensure, that they are placed in regex match '()' braces",
+          "type": "string",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.stepRegExSymbol": {
+          "description": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
+          "type": "string",
+          "required": false,
+          "default": false
+        },
+        "cucumberautocomplete.pureTextSteps": {
+          "description": "Using steps definitions as a text strings with custom cucumber expressions support",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      }
+    }
+  },
   "scripts": {
-    "install": "cd gserver && npm i && cd ../gclient && npm i",
-    "patch": "cd gserver && npm version patch --no-git-version && cd ../gclient && npm version patch --no-git-version",
-    "minor": "cd gserver && npm version minor --no-git-version && cd ../gclient && npm version minor --no-git-version",
-    "server": "cd gserver && npm run watch",
-    "compile": "cd gserver && npm run compile",
-    "publish": "cd gserver && npm run compile && npm run test && cd ../gclient && npm run publish",
-    "test": "cd gserver && npm run test"
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "package": "vsce package",
+    "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
+    "lint:fix": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx --fix",
+    "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",
+    "publish": "vsce publish",
+    "test:server": "jest",
+    "test": "npm run test:server"
+  },
+  "types": "gserver/src/typings.d.ts",
+  "devDependencies": {
+    "@types/node": "^18.14.6",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "@vscode/vsce": "^2.26.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.12"
   }
 }

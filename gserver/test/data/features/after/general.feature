@@ -57,7 +57,7 @@ Feature: Formatting feature
 					"json": "text"
 				}
 			]
-
+			"""
 
 
 	@Other
@@ -88,7 +88,7 @@ Scenario Outline: feeding a suckler cow
 			| 500    | 29500000             | 245     |
 			| 575    | 31500                | 255     |
 			| 600000 | 37000                | 305     |
-			| 345    | 340 \|350 \|360      | 100     |
-			| 345    | 340  \| 350 \|   360 | 100     |
+			| 345    | 340\|350\|360        | 100     |
+			| 346    | 340  \| 350 \|   360 | 100     |
 
 #Last string with comment

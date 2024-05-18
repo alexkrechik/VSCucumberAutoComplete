@@ -1,186 +1,22 @@
 {
-    "name": "cucumberautocomplete",
-    "version": "2.15.2",
-    "publisher": "alexkrechik",
-    "engines": {
-        "vscode": "^1.18.0"
-    },
-    "license": "MIT",
-    "displayName": "Cucumber (Gherkin) Full Support",
-    "description": "VSCode Cucumber (Gherkin) Full Language Support + Formatting + Autocomplete",
-    "homepage": "https://github.com/alexkrechik/VSCucumberAutoComplete",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
-    },
-    "bugs": {
-        "url": "https://github.com/alexkrechik/VSCucumberAutoComplete/issues"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "keywords": [
-        "gherkin",
-        "cucumber",
-        "feature",
-        "autocomplete"
-    ],
-    "main": "./out/src/extension",
-    "activationEvents": [
-        "onLanguage:feature",
-        "onLanguage:testcase",
-        "workspaceContains:.vscode/settings.json"
-    ],
-    "author": "Alexander Krechik",
-    "icon": "img/icon.png",
-    "contributes": {
-        "languages": [
-            {
-                "id": "feature",
-                "aliases": [
-                    "feature",
-                    "gherkin",
-                    "Gherkin",
-                    "cucumber"
-                ],
-                "extensions": [
-                    ".feature",
-                    ".testcase"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "feature",
-                "scopeName": "text.gherkin.feature",
-                "path": "./syntaxes/feature.tmLanguage"
-            },
-            {
-                "injectTo": [
-                    "text.gherkin.feature"
-                ],
-                "scopeName": "text.gherkin.feature.json",
-                "path": "./syntaxes/json-embed.json",
-                "embeddedLanguages": {
-                    "meta.embedded.block.json": "json"
-                }
-            }
-        ],
-        "snippets": [
-            {
-                "language": "feature",
-                "path": "snippets.json"
-            }
-        ],
-        "configuration": {
-            "title": "Cucumber Auto Complete settings",
-            "properties": {
-                "cucumberautocomplete.steps": {
-                    "description": "Path or array of glob-style-pathes to the steps files",
-                    "type": [
-                        "array",
-                        "string"
-                    ],
-                    "required": false
-                },
-                "cucumberautocomplete.pages": {
-                    "description": "Object, which consists of 'page name' => 'page object file path' pairs",
-                    "type": "object",
-                    "required": false
-                },
-                "cucumberautocomplete.syncfeatures": {
-                    "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "required": false,
-                    "default": "test/features/*.feature"
-                },
-                "cucumberautocomplete.strictGherkinCompletion": {
-                    "description": "Strict comparing of declaration func and gherkin word (ex. show only steps, declared via 'When()' func for the 'When ' string",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.strictGherkinValidation": {
-                    "description": "Compare step body and gherkin word during steps validation",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.smartSnippets": {
-                    "description": "Change all the parts, that requires some user input (like .*, ([a-z]+), \\w{1,3}) to snippets",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.stepsInvariants": {
-                    "description": "Show all the 'or' steps parts as separate suggestions (ex. show `I use a` and `I use b` steps suggestions for the `I use (a|b)` step",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.customParameters": {
-                    "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs. Parameter could be string or RegEx object",
-                    "type": "array",
-                    "required": false,
-                    "default": []
-                },
-                "cucumberautocomplete.skipDocStringsFormat": {
-                    "description": "Skip format of strings, that placed between ''' or \"\"\" strings",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.formatConfOverride": {
-                    "description": "Override some formatting via format conf strings = {[key: String]: num | 'relative'}, where key - beggining of the string, num - numeric value of indents",
-                    "type": "object",
-                    "required": false,
-                    "default": {}
-                },
-                "cucumberautocomplete.onTypeFormat": {
-                    "description": "Enable ontype formattings (activating after pressing on space, @ and : keys)",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.gherkinDefinitionPart": {
-                    "description": "Provide step definition name part of regex(ex. '@(given|when|then|step)\\(' in case of python-like steps. Please ensure, that they are placed in regex match '()' braces",
-                    "type": "string",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.stepRegExSymbol": {
-                    "description": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
-                    "type": "string",
-                    "required": false,
-                    "default": false
-                },
-                "cucumberautocomplete.pureTextSteps": {
-                    "description": "Using steps definitions as a text strings with custom cucumber expressions support",
-                    "type": "boolean",
-                    "required": false,
-                    "default": false
-                }
-            }
-        }
-    },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "update-vscode": "node ./node_modules/vscode/bin/install",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "publish": "vsce publish"
-    },
-    "devDependencies": {
-        "@types/node": "7.0.7",
-        "typescript": "~2.3.0",
-        "vsce": "^2.7.0",
-        "vscode": "^1.1.10"
-    },
-    "dependencies": {
-        "vscode-languageclient": "3.5.1"
-    }
+  "name": "cucumberautocomplete-client",
+  "description": "VSCode client part of VsCucumberAutoComplete extension",
+  "author": "Alexander Krechik",
+  "license": "MIT",
+  "version": "3.0.0",
+  "publisher": "alexkrechik",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexkrechik/VSCucumberAutoComplete"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.1",
+    "@vscode/test-electron": "^2.3.9"
+  }
 }
