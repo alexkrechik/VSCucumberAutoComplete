@@ -8,17 +8,17 @@ const butWords = escapeRegExp('Maar|لكن|Pero|Բայց|Peru|Yeah nah|Amma|Anca
 const otherWords = escapeRegExp('\\*');
 export const allGherkinWords = `${givenWords}|${whenWords}|${thenWords}|${andWords}|${butWords}|${otherWords}`;
 
-const givenWordsArr = givenWords.split('|');
-const whenWordsArr = whenWords.split('|');
-const thenWordsArr = thenWords.split('|');
-const andWordsArr = andWords.split('|');
-const butWordsArr = butWords.split('|');
+const givenWordsSet = new Set(givenWords.split('|'));
+const whenWordsSet = new Set(whenWords.split('|'));
+const thenWordsSet = new Set(thenWords.split('|'));
+const andWordsSet = new Set(andWords.split('|'));
+const butWordsSet = new Set(butWords.split('|'));
 
-const givenWordsArrLower = givenWords.toLowerCase().split('|');
-const whenWordsArrLower = whenWords.toLowerCase().split('|');
-const thenWordsArrLower = thenWords.toLowerCase().split('|');
-const andWordsArrLower = andWords.toLowerCase().split('|');
-const butWordsArrLower = butWords.toLowerCase().split('|');
+const givenWordsSetLower = new Set(givenWords.toLowerCase().split('|'));
+const whenWordsSetLower = new Set(whenWords.toLowerCase().split('|'));
+const thenWordsSetLower = new Set(thenWords.toLowerCase().split('|'));
+const andWordsSetLower = new Set(andWords.toLowerCase().split('|'));
+const butWordsSetLower = new Set(butWords.toLowerCase().split('|'));
 
 export enum GherkinType {
     Given,
@@ -30,19 +30,19 @@ export enum GherkinType {
 }
 
 export const getGherkinType = (word: string): GherkinType => {
-    if (~givenWordsArr.indexOf(word)) {
+    if (givenWordsSet.has(word)) {
         return GherkinType.Given;
     }
-    if (~whenWordsArr.indexOf(word)) {
+    if (whenWordsSet.has(word)) {
         return GherkinType.When;
     }
-    if (~thenWordsArr.indexOf(word)) {
+    if (thenWordsSet.has(word)) {
         return GherkinType.Then;
     }
-    if (~andWordsArr.indexOf(word)) {
+    if (andWordsSet.has(word)) {
         return GherkinType.And;
     }
-    if (~butWordsArr.indexOf(word)) {
+    if (butWordsSet.has(word)) {
         return GherkinType.But;
     }
     return GherkinType.Other;
@@ -50,19 +50,19 @@ export const getGherkinType = (word: string): GherkinType => {
 
 export const getGherkinTypeLower = (word: string): GherkinType => {
     const lowerWord = word.toLowerCase();
-    if (~givenWordsArrLower.indexOf(lowerWord)) {
+    if (givenWordsSetLower.has(lowerWord)) {
         return GherkinType.Given;
     }
-    if (~whenWordsArrLower.indexOf(lowerWord)) {
+    if (whenWordsSetLower.has(lowerWord)) {
         return GherkinType.When;
     }
-    if (~thenWordsArrLower.indexOf(lowerWord)) {
+    if (thenWordsSetLower.has(lowerWord)) {
         return GherkinType.Then;
     }
-    if (~andWordsArrLower.indexOf(lowerWord)) {
+    if (andWordsSetLower.has(lowerWord)) {
         return GherkinType.And;
     }
-    if (~butWordsArrLower.indexOf(lowerWord)) {
+    if (butWordsSetLower.has(lowerWord)) {
         return GherkinType.But;
     }
     return GherkinType.Other;

@@ -615,7 +615,7 @@ describe('step as a pure text test', () => {
     expect(completion1![0].insertText).toStrictEqual('I give 3/4 and 5$');
     
     const completion2 = customStepsHandler.getCompletion('Then C', 1, '');
-    // TODO - fix this, insert text should be prettier, but we already have ticket for this
+    // TODO - fix this, insert text should be prettier, but we already have ticket for {string}
     expect(completion2![0].insertText).toStrictEqual('Could drink ("|\')${1:}1 if his age is 21+');
   });
 
