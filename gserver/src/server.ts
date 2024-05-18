@@ -139,12 +139,6 @@ function pagesPosition(line: string, char: number, settings: Settings) {
 
 async function revalidateAllDocuments() {
     connection.languages.diagnostics.refresh();
-    const settings = await getSettings();
-    documents.all().forEach((document) => {
-        const text = document.getText();
-        const diagnostics = validate(clearGherkinComments(text), settings);
-        connection.sendDiagnostics({ uri: document.uri, diagnostics });
-    });
 }
 
 function watchStepsFiles(settings: Settings) {    
