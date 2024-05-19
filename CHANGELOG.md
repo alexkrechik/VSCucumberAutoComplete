@@ -1,16 +1,20 @@
 ## 3.0.0
 * Extension updates:
-1. Added pureTextSteps option with an ability to use steps as a text (not as a RegExp) with some cucumber expressions supported
-2. Added `relativeUp` formatting option. Now line could look up for the nearest formatting to find num of spaces.
-3. Pack of table pipes formatting fixes
-*. Full list of Features/Improvements/Bugfixes could be found [Here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.0.0)
-* Big development updates:
-1. Moved to the latest version of all the vscode libraries - improved extension speed, security and develop/debug experience.
-2. Moved to the latest version of typescript. Now application is more error resistant due to error typings.
-3. Moved to the Jest from Chai+Mocka, improved monorepo-like extension usage, some other smaller updates.
-* BREAKING CHANGES:
-1. `*` and `|` keys for the `formatConfOverride` settings options should not be escaped now, so write `{ "*": 3 }` instead of `{ "\\*": 3 }` for the `cucumberautocomplete.formatConfOverride` option.
+1. Added the `pureTextSteps` option, enabling the use of steps as plain text (not as RegExp), with support for some Cucumber expressions.
+2. Introduced the `relativeUp` formatting option. Now, lines can look up to the nearest formatting to determine the number of spaces.
+3. Improved table pipes formatting.
+4. Added an icon for feature files.
 
+* Development Tech Dept updates:
+1. Upgraded to the latest versions of all VSCode libraries, enhancing extension speed, security, and the development/debugging experience.
+2. Upgraded to the latest version of TypeScript, making the application more error-resistant due to improved typings.
+3. Transitioned from Chai+Mocha to Jest.
+4. Improved monorepo-like extension usage.
+
+* BREAKING CHANGES:
+1. The `*` and `|` keys for the `formatConfOverride` settings no longer need to be escaped. Use `{ "*": 3 }` instead of `{ "\\*": 3 }` for the `cucumberautocomplete.formatConfOverride` option.
+
+* Full list of features, improvements, and bug fixes can be found [here](https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.0.0).
 
 ## 2.15.2
 * Fixed app compiling issues..
