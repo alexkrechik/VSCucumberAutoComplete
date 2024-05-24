@@ -1,3 +1,9 @@
+## 3.1.0
+* Extension updates:
+
+* Development Tech Debt updates:
+1. Corrected options default values, handling and typings.
+
 ## 3.0.0
 * Extension updates:
 1. Added the `pureTextSteps` option, enabling the use of steps as plain text (not as RegExp), with support for some Cucumber expressions.
@@ -5,7 +11,7 @@
 3. Improved table pipes formatting.
 4. Added an icon for feature files.
 
-* Development Tech Dept updates:
+* Development Tech Debt updates:
 1. Upgraded to the latest versions of all VSCode libraries, enhancing extension speed, security, and the development/debugging experience.
 2. Upgraded to the latest version of TypeScript, making the application more error-resistant due to improved typings.
 3. Transitioned from Chai+Mocha to Jest.

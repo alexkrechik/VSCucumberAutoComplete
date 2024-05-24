@@ -1,10 +1,9 @@
 import { format, clearText } from '../src/format';
-import { Settings } from '../src/types';
 import { getFileContent } from '../src/util';
+import { defaultSettings } from './data/defaultSettings';
 
-const generalSettings: Settings = {
-  steps: [],
-  pages: {},
+const generalSettings = {
+  ...defaultSettings,
   skipDocStringsFormat: true,
   formatConfOverride: {
     But: 3,
@@ -18,8 +17,7 @@ const generalSettings: Settings = {
 };
 
 const ruleSettings = {
-  steps: [],
-  pages: {},
+  ...defaultSettings,
 };
 
 describe('format', () => {

@@ -1,7 +1,8 @@
 import PagesHandler from '../src/pages.handler';
+import { defaultSettings } from './data/defaultSettings';
 
 const settings = {
-  steps: [],
+  ...defaultSettings,
   pages: {
     page: '/data/page.objects.js',
     page2: '/data/*.java',

@@ -202,7 +202,7 @@ export default class StepsHandler {
 
     handleCustomParameters(step: string): string {
         const { customParameters } = this.settings;
-        if (!customParameters) {
+        if (!customParameters.length) {
             return step;
         }
         customParameters.forEach((p: CustomParameter) => {

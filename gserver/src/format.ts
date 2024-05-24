@@ -31,7 +31,7 @@ function findIndentation(line: string, settings: Settings) {
 }
 
 function findFormat(line: string, settings: Settings) {
-    const settingsFormatConf = settings.formatConfOverride || {};
+    const settingsFormatConf = settings.formatConfOverride;
     const mergedConfig = Object
         .keys(FORMAT_CONF)
         .reduce((acc, key) => {
