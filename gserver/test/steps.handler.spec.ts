@@ -1,10 +1,11 @@
 import StepsHandler from '../src/steps.handler';
 import { GherkinType } from '../src/gherkin';
 import { getFileContent } from '../src/util';
+import { defaultSettings } from './data/defaultSettings';
 
 const settings = {
+  ...defaultSettings,
   steps: ['/data/steps/test.steps*.js'],
-  pages: {},
   syncfeatures: '/data/features/test.feature',
   smartSnippets: true,
   stepsInvariants: true,
@@ -277,9 +278,8 @@ describe('validateConfiguration', () => {
 
 describe('Documentation parser', () => {
   const sDocumentation = new StepsHandler(__dirname, {
+    ...defaultSettings,
     steps: ['/data/steps/test.documentation*.js'],
-    pages: {},
-    customParameters: [],
   });
 
   it('should extract JSDOC properties when available', () => {

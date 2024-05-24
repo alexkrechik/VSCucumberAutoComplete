@@ -156,22 +156,10 @@ function watchStepsFiles(settings: Settings) {
     });
 }
 
-function getStepsArray(steps: BaseSettings['steps']) {
-    // Set empty array as steps if they were not provided
-    if (!steps) {
-        return [];
-    } 
-    if (Array.isArray(steps)) {
-        return steps;
-    }
-    return [steps];
-}
-
 function getSettingsFromBase(baseSettings: BaseSettings) {
     const settings: Settings = {
         ...baseSettings,
-        steps: getStepsArray(baseSettings.steps),
-        pages: baseSettings.pages || {},
+        steps: new Array<string>().concat(baseSettings.steps),
     };
     return settings;
 }

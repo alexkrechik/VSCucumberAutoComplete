@@ -1,15 +1,15 @@
 //https://github.com/cucumber/cucumber-expressions
 
 import StepsHandler from '../src/steps.handler';
+import { defaultSettings } from './data/defaultSettings';
 
 const settings = {
-  pages: {},
+  ...defaultSettings,
   steps: ['/data/steps/cucumberExpressions.steps.js'],
   syncfeatures: '/data/features/cucumberExpressions.feature',
   smartSnippets: true,
   stepsInvariants: true,
   strictGherkinCompletion: true,
-  customParameters: [],
 };
 
 const stepsDefinitionNum = 8;

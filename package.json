@@ -81,12 +81,14 @@
             "array",
             "string"
           ],
-          "required": false
+          "required": false,
+          "default": []
         },
         "cucumberautocomplete.pages": {
           "description": "Object, which consists of 'page name' => 'page object file path' pairs",
           "type": "object",
-          "required": false
+          "required": false,
+          "default": {}
         },
         "cucumberautocomplete.syncfeatures": {
           "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
@@ -148,14 +150,12 @@
         "cucumberautocomplete.gherkinDefinitionPart": {
           "description": "Provide step definition name part of regex(ex. '@(given|when|then|step)\\(' in case of python-like steps. Please ensure, that they are placed in regex match '()' braces",
           "type": "string",
-          "required": false,
-          "default": false
+          "required": false
         },
         "cucumberautocomplete.stepRegExSymbol": {
           "description": "Provide step regex symbol. Ex. it would be \"'\" for When('I do something') definition",
           "type": "string",
-          "required": false,
-          "default": false
+          "required": false
         },
         "cucumberautocomplete.pureTextSteps": {
           "description": "Using steps definitions as a text strings with custom cucumber expressions support",
@@ -173,7 +173,9 @@
     "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
     "lint:fix": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx --fix",
     "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",
+    "vscode:prepublish": "npm run compile",
     "publish": "vsce publish",
+    "login": "vsce login",
     "test:server": "jest",
     "test": "npm run test:server"
   },
