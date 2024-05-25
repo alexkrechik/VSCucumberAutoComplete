@@ -51,6 +51,7 @@ And here is a docstring with explicit content type
 @Other
 Scenario: Some other scenario
 
+Wenn ich Deutsch lerne
 When I do something
 And do another thing
 Then I should have a valid result

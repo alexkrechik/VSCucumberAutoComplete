@@ -14,6 +14,7 @@ const generalSettings: Settings = {
     // 'asdasd' as value of '#' in theory could be passed
     // because not strong typing for theVsCode settings
     '#': 'asdasd' as any,
+    Wenn: 2,
   },
 };
 

@@ -33,11 +33,11 @@ function findIndentation(line: string, settings: Settings) {
 function findFormat(line: string, settings: Settings) {
     const settingsFormatConf = settings.formatConfOverride || {};
     const mergedConfig = Object
-        .keys(FORMAT_CONF)
-        .reduce((acc, key) => {
-            acc[key] = settingsFormatConf[key] !== undefined ? settingsFormatConf[key] : FORMAT_CONF[key];
+        .entries(settingsFormatConf)
+        .reduce((acc, [key, value]) => {
+            acc[key] = value;
             return acc;
-        }, {} as FormatConf);
+        }, FORMAT_CONF);
     const clearLine = line.trim();
     const symbol = Object
         .keys(mergedConfig)
