@@ -1,3 +1,6 @@
+## 3.0.1
+* Fixed regression issue with non-English languages formatting
+
 ## 3.0.0
 * Extension updates:
 1. Added the `pureTextSteps` option, enabling the use of steps as plain text (not as RegExp), with support for some Cucumber expressions.
