@@ -10,7 +10,7 @@ const generalSettings: Settings = {
     But: 3,
     And: 'relativeUp',
     SomeTestKey: 12,
-    'Scenario Outline:': 0,
+    'Scenario Outline': 0,
     // 'asdasd' as value of '#' in theory could be passed
     // because not strong typing for theVsCode settings
     '#': 'asdasd' as any,

@@ -64,7 +64,7 @@ Scenario: Should properly format star gherkin word
 * I do something
 
 
-Scenario Outline: feeding a suckler cow
+				Scenario Outline: feeding a suckler cow
 
 Given the cow weighs <weight> kg
 When we calculate the feeding requirements
