@@ -1,4 +1,4 @@
-## 3.0.2
+## 3.0.3
 * Fixed regression issue with non-English languages formatting
 * Fixed wrong format selecting in case of no semicolon in the settings
 
