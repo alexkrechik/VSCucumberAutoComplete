@@ -5,13 +5,7 @@ import * as process from 'process';
 import { Range } from 'vscode-languageserver';
 
 export function getOSPath(path: string): string {
-    /* Add suffics for the provided path
-     * 'file://' for the non-windows OS's or file:/// for Windows */
-    if (/^win/.test(process.platform)) {
-        return 'file:///' + path;
-    } else {
-        return 'file:' + path;
-    }
+    return 'file:' + path;
 }
 
 export function getFileContent(filePath: string): string {

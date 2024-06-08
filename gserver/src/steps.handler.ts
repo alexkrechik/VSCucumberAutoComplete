@@ -83,7 +83,7 @@ export default class StepsHandler {
 
     setElementsHash(path: string): void {
         this.elemenstCountHash = {};
-        const files = glob.sync(path, { ignore: '.gitignore' });
+        const files = glob.sync(path);
         files.forEach((f) => {
             const text = getFileContent(f);
             text.split(/\r?\n/g).forEach((line) => {
@@ -573,7 +573,7 @@ export default class StepsHandler {
         workSpaceRoot: string
     ) {
         return stepsPathes.reduce((res, path) => {
-            const files = glob.sync(path, { ignore: '.gitignore' });
+            const files = glob.sync(path);
             if (!files.length) {
                 const searchTerm = path.replace(workSpaceRoot + '/', '');
                 const range = getTextRange(
@@ -596,7 +596,7 @@ export default class StepsHandler {
         this.elements = stepsPathes
             .reduce(
                 (files, path) =>
-                    files.concat(glob.sync(root + '/' + path, { ignore: '.gitignore' })),
+                    files.concat(glob.sync(root + '/' + path, { absolute: true })),
                 new Array<string>()
             )
             .reduce(
