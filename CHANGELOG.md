@@ -1,4 +1,5 @@
-## 3.0.3
+## 3.0.5
+* Used absolute pathes for the glob sync to fix "Go To Definition" problem on some Window PCs
 * Fixed regression issue with non-English languages formatting
 * Fixed wrong format selecting in case of no semicolon in the settings
 
