@@ -16,8 +16,9 @@ const settings = {
       value: '([a-zA-Z0-9_-]+ dictionary|"[^"]*")',
     },
     {
-      parameter: /\{a.*\}/,
+      parameter: "\\{a.*\\}",
       value: 'aa',
+      isRegexp: true,
     },
   ],
 };
