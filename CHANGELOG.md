@@ -1,6 +1,7 @@
 ## 3.1.0
 * Extension updates:
-1. Fixed error with space in the optional text 
+1. Fixed error with space in the optional text
+2. Added `isRegexp` for `cucumberautocomplete.customParameters` to treat `parameter` as a regular-expression pattern string. Added optional `flags` for regexp-based custom parameters (for example, use `g` for global replacement).
 
 * Development Tech Debt updates:
 1. Corrected options default values, handling and typings.

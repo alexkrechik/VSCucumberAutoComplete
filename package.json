@@ -124,7 +124,7 @@
           "default": false
         },
         "cucumberautocomplete.customParameters": {
-          "description": "Change some steps RegEx parts depending on array of 'parameter' - 'value' key pairs. Parameter could be string or RegEx object",
+          "description": "Change step RegEx parts using 'parameter'/'value' pairs. Set 'isRegexp': true to interpret 'parameter' as a regular expression string (optional 'flags').",
           "type": "array",
           "required": false,
           "default": []

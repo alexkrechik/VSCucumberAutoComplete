@@ -16,8 +16,19 @@ const settings = {
       value: '([a-zA-Z0-9_-]+ dictionary|"[^"]*")',
     },
     {
-      parameter: "\\{a.*\\}",
+      parameter: '{a.*}',
       value: 'aa',
+      isRegexp: true,
+    },
+    {
+      parameter: '{c.*?}',
+      value: 'cc',
+      isRegexp: true,
+      flags: 'g',
+    },
+    {
+      parameter: '{d.*?}',
+      value: 'dd',
       isRegexp: true,
     },
   ],
@@ -139,8 +150,10 @@ describe('handleCustomParameters', () => {
         'I use ${dictionaryObject} and ${dictionaryObject}',
         'I use ([a-zA-Z0-9_-]+ dictionary|"[^"]*") and ([a-zA-Z0-9_-]+ dictionary|"[^"]*")',
       ],
-      ['I use {aTest} parameter', 'I use aa parameter'],
+      ['I use {aTest} parameter {aTest}', 'I use aa'],
       ['I use {bTest} parameter', 'I use {bTest} parameter'],
+      ['I use {cTest} parameter {cTest}', 'I use cc parameter cc'],
+      ['I use {dTest} parameter {dTest}', 'I use dd parameter {dTest}'],
     ];
     data.forEach((d) => {
       expect(s.handleCustomParameters(d[0])).toStrictEqual(d[1]);

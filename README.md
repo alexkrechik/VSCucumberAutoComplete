@@ -151,7 +151,8 @@ By default, all the `' ' "` symbols will be used do define start and the end of 
         {
             "parameter":"\\{a.*\\}",
             "value":"a",
-            "isRegexp": true
+            "isRegexp": true,
+            "flags": "gi",
         },
     ],
     "cucumberautocomplete.pages": {
