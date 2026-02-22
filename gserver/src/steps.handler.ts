@@ -19,7 +19,7 @@ import {
     clearComments,
     getMD5Id,
     escapeRegExp,
-    escaprRegExpForPureText,
+    escapeRegExpForPureText,
     getTextRange,
     getSortPrefix,
 } from './util';
@@ -246,11 +246,11 @@ export default class StepsHandler {
         })
     
         // Escape all special symbols
-        step = escaprRegExpForPureText(step)
+        step = escapeRegExpForPureText(step)
 
         // Escape all the special parameters back
         this.specialParameters.forEach(([, change]) => {
-            const escapedChange = escaprRegExpForPureText(change);
+            const escapedChange = escapeRegExpForPureText(change);
             step = step.replace(escapedChange, change)
         })
 

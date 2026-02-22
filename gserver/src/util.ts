@@ -48,7 +48,7 @@ export function escapeRegExp(str: string): string {
     return str;
 }
 
-export function escaprRegExpForPureText(str: string): string {
+export function escapeRegExpForPureText(str: string): string {
     return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
