@@ -1,3 +1,9 @@
+## 3.1.1
+* Replace {string} and {word} to the proper text when autocompleting a step
+
+(https://github.com/alexkrechik/VSCucumberAutoComplete/issues?q=milestone%3A3.1.1).
+
+
 ## 3.1.0
 * Extension updates:
 1. Fixed error with space in the optional text

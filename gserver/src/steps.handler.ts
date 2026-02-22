@@ -430,6 +430,8 @@ export default class StepsHandler {
             res = res.replace(/\$$/, '');
         }
 
+        // we can replace each ("|')${xx}\\1 by "${xx}"
+        res = res.replace(/\(\"\|\'\)(\$\{.+?\})\\1/g, '"$1"');
         return res;
     }
 

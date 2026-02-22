@@ -102,12 +102,12 @@ describe('geStepDefinitionMatch', () => {
   });
 
   describe('invalid lines', () => {
-    const inbvalidStrings = [
+    const invalidStrings = [
       'iGiven(\'I do something\')',
       'Giveni(\'I do something\')',
       'console.log("but i do \'Something\'");',
     ];
-    inbvalidStrings.forEach((str) => {
+    invalidStrings.forEach((str) => {
       it(`should not parse "${str}" string`, () => {
         const match = s.geStepDefinitionMatch(str);
         expect(match).toBeNull();
@@ -124,7 +124,7 @@ describe('geStepDefinitionMatch', () => {
 });
 
 describe('getStepInvariants', () => {
-  it('should correctly handle or experssions', () => {
+  it('should correctly handle or expressions', () => {
     const str = 'I do (a|b) and then I do (c|d|(?:e|f))';
     const res = [
       'I do a and then I do c',
@@ -340,22 +340,22 @@ describe('validate', () => {
   it('should not check non-Gherkin steps', () => {
     expect(s.validate('Non_gherkin_word do something else', 1, '')).toBeNull();
   });
-  it('should return an diagnostic for lines beggining with Given', () => {
+  it('should return an diagnostic for lines beginning with Given', () => {
     expect(s.validate('Given I do something else', 1, '')).not.toBeNull();
   });
-  it('should return an diagnostic for lines beggining with When', () => {
+  it('should return an diagnostic for lines beginning with When', () => {
     expect(s.validate('When I do something else', 1, '')).not.toBeNull();
   });
-  it('should return an diagnostic for lines beggining with Then', () => {
+  it('should return an diagnostic for lines beginning with Then', () => {
     expect(s.validate('Then I do something else', 1, '')).not.toBeNull();
   });
-  it('should return an diagnostic for lines beggining with And', () => {
+  it('should return an diagnostic for lines beginning with And', () => {
     expect(s.validate('And I do something else', 1, '')).not.toBeNull();
   });
-  it('should return an diagnostic for lines beggining with But', () => {
+  it('should return an diagnostic for lines beginning with But', () => {
     expect(s.validate('But I do something else', 1, '')).not.toBeNull();
   });
-  it('should return an diagnostic for lines beggining with *', () => {
+  it('should return an diagnostic for lines beginning with *', () => {
     expect(s.validate('* I do something else', 1, '')).not.toBeNull();
   });
   it('should correctly handle outline steps', () => {
@@ -615,9 +615,10 @@ describe('step as a pure text test', () => {
   const elements = customStepsHandler.getElements();
 
   it('should properly handle steps', () => {
-    expect(elements.length).toStrictEqual(2);
+    expect(elements.length).toStrictEqual(3);
     expect(elements[0].text).toStrictEqual('I give 3/4 and 5$');
     expect(elements[1].text).toStrictEqual('Could drink {string} if his age is 21+');
+    expect(elements[2].text).toStrictEqual('I ask {string} and {string} to {word}');
   });
   
   it('should properly validate steps', () => {
@@ -634,6 +635,11 @@ describe('step as a pure text test', () => {
     // TODO - fix this, insert text should be prettier, but we already have ticket for {string}
     expect(completion2![0].insertText).toStrictEqual('Could drink ("|\')${1:}1 if his age is 21+');
   });
+
+  it('should return proper completion for string snippet', () => {
+    const completion = customStepsHandler.getCompletion('When I ask ', 1, '');
+    expect(completion?.[0].insertText).toBe('"${1:}" and "${2:}" to ${3:}');
+  })
 
   it('should return proper partial completion', () => {
     const completion = customStepsHandler.getCompletion('When I give 3', 1, '');
