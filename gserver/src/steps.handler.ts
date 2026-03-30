@@ -111,18 +111,24 @@ export default class StepsHandler {
         return this.elemenstCountHash[id] || 0;
     }
 
-    getStepRegExp() {
-    //Actually, we dont care what the symbols are before our 'Gherkin' word
-    //But they shouldn't end with letter
+    getStepPrefix() {
+        //Actually, we dont care what the symbols are before our 'Gherkin' word
+        //But they shouldn't end with letter
         const startPart = "^((?:[^'\"/]*?[^\\w])|.{0})";
 
         //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
         const gherkinPart =
-      this.settings.gherkinDefinitionPart ||
-      `(${allGherkinWords}|defineStep|Step|StepDefinition)`;
+            this.settings.gherkinDefinitionPart ||
+            `(${allGherkinWords}|defineStep|Step|StepDefinition)`;
 
         //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
         const nonStepStartSymbols = '[^/\'"`\\w]*?';
+
+        return startPart + gherkinPart + nonStepStartSymbols;
+    }
+
+    getStepRegExp() {
+        const stepPrefix = this.getStepPrefix();
 
         // Step part getting
         const { stepRegExSymbol } = this.settings;
@@ -136,12 +142,10 @@ export default class StepsHandler {
 
         //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
         const r = new RegExp(
-            startPart +
-        gherkinPart +
-        nonStepStartSymbols +
-        stepStart +
-        stepBody +
-        stepEnd,
+            stepPrefix +
+            stepStart +
+            stepBody +
+            stepEnd,
             'i'
         );
 
@@ -149,8 +153,17 @@ export default class StepsHandler {
         return r;
     }
 
-    geStepDefinitionMatch(line: string) {
+
+    getStepPrefixRegExp() {
+        return new RegExp(this.getStepPrefix(), 'i');
+    }
+
+    getStepDefinitionMatch(line: string) {
         return line.match(this.getStepRegExp());
+    }
+
+    getStepPrefixMatch(line: string) {
+        return line.match(this.getStepPrefixRegExp());
     }
 
     getOutlineVars(text: string) {
@@ -541,26 +554,7 @@ export default class StepsHandler {
         return definitionFile
             .split(/\r?\n/g)
             .reduce((steps, line, lineIndex, lines) => {
-                //TODO optimize
-                let match;
-                let finalLine = '';
-                const currLine = this.handleCustomParameters(line);
-                const currentMatch = this.geStepDefinitionMatch(currLine);
-                //Add next line to our string to handle two-lines step definitions
-                const nextLine = this.handleCustomParameters(lines[lineIndex + 1] || '');
-                if (currentMatch) {
-                    match = currentMatch;
-                    finalLine = currLine;
-                } else if (nextLine) {
-                    const nextLineMatch = this.geStepDefinitionMatch(nextLine);
-                    const bothLinesMatch = this.geStepDefinitionMatch(
-                        currLine + nextLine
-                    );
-                    if (bothLinesMatch && !nextLineMatch) {
-                        match = bothLinesMatch;
-                        finalLine = currLine + nextLine;
-                    }
-                }
+                const { match, finalLine } = this.getStepDefinition(line, lineIndex, lines);
                 if (match) {
                     const [, beforeGherkin, gherkinString, , stepPart] = match;
                     const gherkin = getGherkinTypeLower(gherkinString);
@@ -749,5 +743,32 @@ export default class StepsHandler {
     getCompletionResolve(item: CompletionItem) {
         this.incrementElementCount(item.data);
         return item;
+    }
+
+    getStepDefinition(line: string, lineIndex: number, lines: string[]) {
+        //TODO optimize
+        let match: RegExpMatchArray | null = null;
+        let finalLine = '';
+        const currLine = this.handleCustomParameters(line);
+        const currentMatch = this.getStepDefinitionMatch(currLine);
+        if (currentMatch) {
+            match = currentMatch;
+            finalLine = currLine;
+        } else {
+            // Look for a multi-line step definition
+            const currentPrefixMatch = this.getStepPrefixMatch(line);
+            if (currentPrefixMatch) {
+                // This line is the start of a step definition
+                finalLine = line.trim();
+                for (let i = lineIndex + 1; i < lines.length && !match; i++) {
+                    finalLine += lines[i].trim();
+
+                    // Check if the combined lines now match a step definition
+                    match = this.getStepDefinitionMatch(this.handleCustomParameters(finalLine));
+                }
+            }
+        }
+
+        return { match, finalLine };
     }
 }
