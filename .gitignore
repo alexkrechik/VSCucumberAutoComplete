@@ -3,4 +3,3 @@ node_modules
 client/server
 .vscode-test
 *.DS_Store
-!.travis.yml
