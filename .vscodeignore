@@ -1,4 +1,8 @@
 .vscode/**
+.vscode-test.mjs
+.vscode-test/**
+coverage/**
+gclient/test/**
 **/*.ts
 **/*.map
 .gitignore

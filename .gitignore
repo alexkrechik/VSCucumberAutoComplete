@@ -2,4 +2,5 @@ out
 node_modules
 client/server
 .vscode-test
+coverage
 *.DS_Store

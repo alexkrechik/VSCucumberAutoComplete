@@ -81,6 +81,10 @@
             "array",
             "string"
           ],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
           "required": false,
           "default": []
         },
@@ -170,13 +174,19 @@
     "compile": "tsc -b",
     "watch": "tsc -b -w",
     "package": "vsce package",
-    "lint": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx",
-    "lint:fix": "eslint ./gclient/src ./gserver/src --ext .ts,.tsx --fix",
+    "lint": "eslint ./gclient/src ./gclient/test/suite ./gserver/src --ext .ts,.tsx",
+    "lint:fix": "eslint ./gclient/src ./gclient/test/suite ./gserver/src --ext .ts,.tsx --fix",
     "postinstall": "cd gclient && npm install && cd ../gserver && npm install && cd ..",
     "vscode:prepublish": "npm run compile",
     "publish": "vsce publish",
     "login": "vsce login",
     "test:server": "jest",
+    "test:coverage:jest": "jest --coverage",
+    "compile:e2e": "npm run compile && tsc -p ./gclient/test/tsconfig.json",
+    "test:e2e": "npm run compile:e2e && vscode-test",
+    "test:e2e:coverage": "node -e \"require('node:fs').rmSync('coverage/e2e',{recursive:true,force:true})\" && npm run compile:e2e && vscode-test --coverage --coverage-output coverage/e2e",
+    "coverage:check": "node ./scripts/check-combined-coverage.mjs",
+    "test:coverage": "npm run test:coverage:jest && npm run test:e2e:coverage && npm run coverage:check",
     "test": "npm run test:server"
   },
   "types": "gserver/src/typings.d.ts",
@@ -184,9 +194,14 @@
     "@types/node": "^18.14.6",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
+    "@vscode/test-cli": "0.0.15",
+    "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^2.26.0",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.1.7",
     "ts-jest": "^29.1.2",
     "typescript": "^5.3.3"
   },

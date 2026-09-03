@@ -46,6 +46,7 @@ VSCode Cucumber (Gherkin) Language Support + Format + Steps/PageObjects Autocomp
 All the files, that match path provided, will be handled by the extension. So, ideally, this path should be as strict as possible (ex. `test/features/step_definitions/*.steps.js` is better then `test/**/*.steps.js` and much better then `**/*.steps.js`)
 The Node will watch steps files for change and will automatically update steps in them.
 All the paths are relative to the app root.
+Empty or non-string values are ignored, so malformed workspace configuration does not crash the extension.
 
 **`cucumberautocomplete.syncfeatures`** - Will get steps using count from the glob-style path.
 Same with the `steps` setting - this path should be as strict as possible.

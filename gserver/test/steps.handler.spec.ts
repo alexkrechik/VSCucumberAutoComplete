@@ -160,6 +160,19 @@ describe('handleCustomParameters', () => {
       expect(s.handleCustomParameters(d[0])).toStrictEqual(d[1]);
     });
   });
+
+  it('should ignore invalid custom parameter regular expressions', () => {
+    const customStepsHandler = new StepsHandler(__dirname, {
+      ...defaultSettings,
+      customParameters: [
+        { parameter: '[', value: 'replacement', isRegex: true as const },
+      ],
+    });
+
+    expect(
+      customStepsHandler.handleCustomParameters('I keep [ unchanged')
+    ).toStrictEqual('I keep [ unchanged');
+  });
 });
 
 describe('getRegTextForStep', () => {
@@ -258,6 +271,44 @@ describe('constructor', () => {
     expect(e[2]).toHaveProperty('text', 'I say a');
     expect(e[3]).toHaveProperty('text', 'I say b');
   });
+
+  it('should count usage from the default recursive feature glob', () => {
+    const recursiveSyncHandler = new StepsHandler(__dirname, {
+      ...settings,
+      syncfeatures: true,
+    });
+
+    expect(
+      recursiveSyncHandler.getElements().some((step) => step.count > 0)
+    ).toStrictEqual(true);
+  });
+});
+
+describe('getSteps', () => {
+  it('should use the complete regexp when the partial regexp is invalid', () => {
+    const definition: Location = {
+      uri: 'file:/steps.js',
+      range: {
+        start: { line: 0, character: 0 },
+        end: { line: 0, character: 0 },
+      },
+    };
+    // Used error emultaion on a method to simulate invalid partial regexp
+    // TODO - add real regexp fail case
+    jest.spyOn(s, 'getPartialRegText').mockImplementationOnce(() => {
+      throw new Error('invalid partial regexp');
+    });
+
+    const [step] = s.getSteps(
+      'When(/I recover/)',
+      '^I recover$',
+      definition,
+      GherkinType.When,
+      {}
+    );
+
+    expect(step.partialReg).toBe(step.reg);
+  });
 });
 
 describe('populate', () => {
@@ -319,6 +370,12 @@ describe('Documentation parser', () => {
         (step) => step.documentation === 'Overriding description'
       )
     ).toStrictEqual(true);
+  });
+
+  it('should keep the raw comment when it has no supported documentation', () => {
+    const comment = '/**\n * @example an unsupported tag\n */';
+
+    expect(sDocumentation.getDocumentation(comment)).toStrictEqual(comment);
   });
 });
 
@@ -427,6 +484,9 @@ describe('getDefinition', () => {
     const definition = s.getDefinition('   When I do something', '');
     expect(definition).not.toBeNull();
   });
+  it('should not return definition for a non-Gherkin line', () => {
+    expect(s.getDefinition('Feature: no step here', '')).toBeNull();
+  });
 });
 
 describe('getCompletion', () => {
@@ -447,6 +507,9 @@ describe('getCompletion', () => {
   it('should not return completion for non-existing steps', () => {
     const completion = s.getCompletion('When non-existent step', 1, '');
     expect(completion).toBeNull();
+  });
+  it('should return completion when the step body is empty', () => {
+    expect(s.getCompletion('When ', 0, 'When ')).not.toBeNull();
   });
   it('should return proper sortText', () => {
     const completion = s.getCompletion(' When I do', 1, '');
@@ -501,6 +564,35 @@ describe('getCompletionInsertText', () => {
       const res = s.getCompletionInsertText(regExpText, step);
       expect(res).toStrictEqual(prefix);
     });
+  });
+
+  it('should simplify quoted capture groups when smart snippets are disabled', () => {
+    const nonSnippetHandler = new StepsHandler(__dirname, {
+      ...settings,
+      smartSnippets: false,
+    });
+
+    expect(
+      nonSnippetHandler.getCompletionInsertText('I use "[^"]+"', '')
+    ).toStrictEqual('I use ""');
+  });
+});
+
+describe('getCompletionResolve', () => {
+  it('should raise the resolved step in subsequent completion ordering', () => {
+    const completionHandler = new StepsHandler(__dirname, settings);
+    const before = completionHandler.getCompletion(' When I do', 1, '');
+    const item = before!.find(({ label }) => label === 'I do something');
+
+    expect(item).toBeDefined();
+    expect(item!.sortText).toStrictEqual('ZZZZX_I do something');
+    expect(completionHandler.getCompletionResolve(item!)).toBe(item);
+    expect(completionHandler.getElementCount(item!.data)).toStrictEqual(3);
+
+    const after = completionHandler.getCompletion(' When I do', 1, '');
+    expect(
+      after!.find(({ label }) => label === 'I do something')!.sortText
+    ).toStrictEqual('ZZZZW_I do something');
   });
 });
 

@@ -13,7 +13,6 @@ import {
     DocumentFormattingParams,
     TextEdit,
     DocumentRangeFormattingParams,
-    FormattingOptions,
     Location,
     ProposedFeatures,
     InitializeParams,
@@ -24,11 +23,12 @@ import {
 } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { format, clearText } from './format';
+import { format, clearText, getIndent } from './format';
 import StepsHandler from './steps.handler';
 import PagesHandler from './pages.handler';
+import { normalizeSettings } from './settings';
 import { getOSPath, clearGherkinComments } from './util';
-import { Settings, BaseSettings } from './types';
+import { Settings } from './types';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -110,14 +110,13 @@ async function getSettings(forceReset?: boolean) {
         const baseSettings = await connection.workspace.getConfiguration({
             section: 'cucumberautocomplete'
         });
-        globalSettings = getSettingsFromBase(baseSettings);
+        globalSettings = normalizeSettings(baseSettings);
     }
     return globalSettings;
 }
 
 function shouldHandleSteps(settings: Settings) {
-    const s = settings.steps;
-    return s && s.length ? true : false;
+    return settings.steps.length > 0;
 }
 
 function shouldHandlePages(settings: Settings) {
@@ -154,14 +153,6 @@ function watchStepsFiles(settings: Settings) {
                 });
             });
     });
-}
-
-function getSettingsFromBase(baseSettings: BaseSettings) {
-    const settings: Settings = {
-        ...baseSettings,
-        steps: new Array<string>().concat(baseSettings.steps ?? []),
-    };
-    return settings;
 }
 
 function initStepsAndPagesSetup(settings: Settings) {
@@ -296,11 +287,6 @@ connection.onDefinition(async (position: TextDocumentPositionParams) => {
     }
     return Location.create(uri, Range.create(pos, pos));
 });
-
-function getIndent(options: FormattingOptions) {
-    const { insertSpaces, tabSize } = options;
-    return insertSpaces ? ' '.repeat(tabSize) : '\t';
-}
 
 connection.onDocumentFormatting(
     async (params: DocumentFormattingParams) => {
