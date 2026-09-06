@@ -13,9 +13,14 @@
     "vscode": "^1.75.0"
   },
   "dependencies": {
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
-    "@types/vscode": "^1.75.1"
+    "@types/node": "18.19.130",
+    "@types/vscode": "1.75.1"
+  },
+  "overrides": {
+    "brace-expansion": "2.1.4",
+    "minimatch": "5.1.9"
   }
 }

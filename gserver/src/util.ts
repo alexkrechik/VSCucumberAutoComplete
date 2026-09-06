@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import * as strip from 'strip-comments';
-import * as md5 from 'md5';
+import strip from 'strip-comments';
+import md5 from 'md5';
 import * as process from 'process';
 import { pathToFileURL } from 'node:url';
 import { Range } from 'vscode-languageserver';
