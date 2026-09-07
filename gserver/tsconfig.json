@@ -2,12 +2,13 @@
 	"compilerOptions": {
 		"target": "es2020",
 		"lib": ["es2020"],
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"sourceMap": true,
 		"strict": true,
 		"outDir": "out",
-		"rootDir": "src"
+		"rootDir": "src",
+		"types": ["node"]
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", ".vscode-test", "test"]

@@ -9,7 +9,6 @@ import {
     Diagnostic,
     DiagnosticSeverity,
     CompletionItemKind,
-    TextEdit,
 } from 'vscode-languageserver';
 
 import * as glob from 'glob';
@@ -20,7 +19,7 @@ export type Page = {
   id: string;
   text: string;
   desc: string;
-  def: Definition;
+  def: Location;
   objects: PageObject[];
 };
 
@@ -28,7 +27,7 @@ export type PageObject = {
   id: string;
   text: string;
   desc: string;
-  def: Definition;
+  def: Location;
 };
 
 type FeaturePosition =
@@ -100,7 +99,9 @@ export default class PagesHandler {
     populate(root: string, settings: PagesSettings) {
         this.elements = Object.keys(settings).reduce((res, p) => {
             const page = this.getPage(p, root + '/' + settings[p]);
-            page && res.push(page);
+            if (page) {
+                res.push(page);
+            }
             return res;
         }, new Array<Page>());
     }

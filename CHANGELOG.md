@@ -1,3 +1,15 @@
+## 3.1.1
+
+* Extension fixes:
+  * Corrected file URIs used by Go to Definition, including paths containing spaces or special characters.
+  * Fixed completion ordering to reflect updated step usage counts.
+  * Ignore invalid or empty entries in `cucumberautocomplete.steps` instead of passing them to step-file discovery.
+
+* Maintenance:
+  * Moved CI to GitHub Actions and added Linux and Windows extension tests.
+  * Expanded regression tests and added combined unit and extension-host coverage reporting.
+  * Documented project maintenance and testing guidelines, and updated development tooling and dependencies.
+
 ## 3.1.0
 * Extension updates:
 1. Fixed error with space in the optional text

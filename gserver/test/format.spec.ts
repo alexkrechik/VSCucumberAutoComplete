@@ -1,4 +1,4 @@
-import { format, clearText } from '../src/format';
+import { format, clearText, correctIndents, getIndent } from '../src/format';
 import { getFileContent } from '../src/util';
 import { defaultSettings } from './data/defaultSettings';
 
@@ -45,5 +45,47 @@ describe('format', () => {
           expect(formatted[i]).toStrictEqual(after[i]))
       );
     });
+  });
+
+  it('formats a feature without doc strings', () => {
+    const feature = ['Feature: Plain feature', 'Scenario: Plain scenario'].join(
+      '\n'
+    );
+
+    expect(format('  ', feature, defaultSettings)).toBe(
+      ['Feature: Plain feature', '  Scenario: Plain scenario'].join('\r\n')
+    );
+  });
+
+  it('uses nearby indentation when Rule has a relative override', () => {
+    const settings = {
+      ...defaultSettings,
+      formatConfOverride: {
+        'Rule:': 'relative' as const,
+      },
+    };
+    const feature = [
+      'Feature: Rule indentation',
+      'Rule: Relative rule',
+      'Scenario: Nested scenario',
+    ].join('\n');
+
+    expect(correctIndents(feature, '  ', settings)).toBe(
+      [
+        'Feature: Rule indentation',
+        '  Rule: Relative rule',
+        '  Scenario: Nested scenario',
+      ].join('\r\n')
+    );
+  });
+});
+
+describe('getIndent', () => {
+  it('uses the configured number of spaces', () => {
+    expect(getIndent({ insertSpaces: true, tabSize: 3 })).toBe('   ');
+  });
+
+  it('uses a tab when spaces are disabled', () => {
+    expect(getIndent({ insertSpaces: false, tabSize: 4 })).toBe('\t');
   });
 });

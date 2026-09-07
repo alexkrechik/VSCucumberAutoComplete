@@ -1,11 +1,12 @@
 import * as fs from 'fs';
-import * as strip from 'strip-comments';
-import * as md5 from 'md5';
+import strip from 'strip-comments';
+import md5 from 'md5';
 import * as process from 'process';
+import { pathToFileURL } from 'node:url';
 import { Range } from 'vscode-languageserver';
 
-export function getOSPath(path: string): string {
-    return 'file:' + path;
+export function getOSPath(filePath: string): string {
+    return pathToFileURL(filePath).toString();
 }
 
 export function getFileContent(filePath: string): string {

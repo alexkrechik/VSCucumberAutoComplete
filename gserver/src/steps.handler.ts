@@ -738,7 +738,10 @@ export default class StepsHandler {
                     kind: CompletionItemKind.Snippet,
                     data: step.id,
                     documentation: step.documentation,
-                    sortText: getSortPrefix(step.count, 5) + '_' + step.text,
+                    sortText:
+                        getSortPrefix(this.getElementCount(step.id), 5) +
+                        '_' +
+                        step.text,
                     insertText: this.getCompletionInsertText(step.text, stepPart),
                     insertTextFormat: InsertTextFormat.Snippet,
                 };

@@ -25,6 +25,23 @@
       "type": "node"
     },
     {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "testConfiguration": "${workspaceFolder}/.vscode-test.mjs",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": [
+        "${workspaceFolder}/.vscode-test/out/**/*.js",
+        "${workspaceFolder}/gclient/out/**/*.js",
+        "${workspaceFolder}/gserver/out/**/*.js"
+      ],
+      "autoAttachChildProcesses": true,
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "compile:e2e"
+      }
+    },
+    {
       "name": "Debug Server Tests",
       "request": "launch",
       "runtimeArgs": [

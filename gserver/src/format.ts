@@ -1,3 +1,5 @@
+import type { FormattingOptions } from 'vscode-languageserver/node';
+
 import { Settings, FormatConf  } from './types';
 
 const FORMAT_CONF: FormatConf = {
@@ -24,6 +26,10 @@ const FORMAT_CONF: FormatConf = {
 
 const cjkRegex = /[\u3000-\u9fff\uac00-\ud7af\uff01-\uff60]/g;
 
+export function getIndent(options: FormattingOptions) {
+    const { insertSpaces, tabSize } = options;
+    return insertSpaces ? ' '.repeat(tabSize) : '\t';
+}
 
 function findIndentation(line: string, settings: Settings) {
     const format = findFormat(line, settings);
@@ -95,15 +101,11 @@ export function correctIndents(text: string, indent: string, settings: Settings)
                 const nextOrPrevLines = format && format.value === 'relativeUp'
                     ? textArr.slice(0, i).reverse()
                     : textArr.slice(i + 1);
-                const nextOrPrevLine = nextOrPrevLines.find(l => typeof findIndentation(l, settings) === 'number');
-                
-                if (nextOrPrevLine) {
-                    const nextLineIndentation = findIndentation(nextOrPrevLine, settings);
-                    // TODO - review
-                    indentCount = nextLineIndentation === null ? defaultIndentation : (nextLineIndentation as number);
-                } else {
-                    indentCount = defaultIndentation;
-                }
+                const nearbyIndentation = nextOrPrevLines
+                    .map(line => findIndentation(line, settings))
+                    .find((value): value is number => typeof value === 'number');
+
+                indentCount = nearbyIndentation ?? defaultIndentation;
 
                 indentCount += (insideRule ? ruleIndentation : 0);
             }
@@ -209,10 +211,8 @@ function formatJson(textBody: string, indent: string) {
         jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json
-        for (const uuid in taggedMap) {
-            if (Object.hasOwnProperty.call(taggedMap, uuid)) {
-                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
-            }
+        for (const [uuid, tag] of Object.entries(taggedMap)) {
+            jsonTxt = jsonTxt.replace(uuid, tag);
         }
         textBody = textBody.replace(txt, jsonTxt);
     }
