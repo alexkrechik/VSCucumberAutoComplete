@@ -18,6 +18,9 @@
       "include": "#step_keyword"
     },
     {
+      "include": "#json_docstring"
+    },
+    {
       "include": "#strings_triple_quote"
     },
     {
@@ -115,8 +118,25 @@
         }
       ]
     },
+    "json_docstring": {
+      "name": "string.quoted.docstring.json",
+      "begin": "(\"\"\")(?i)(json)",
+      "end": "(\"\"\")",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.string.begin.feature" },
+        "2": { "name": "entity.name.tag.embedded.language.gherkin" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.string.end.feature" }
+      },
+      "patterns": [
+        {
+          "include": "source.json"
+        }
+      ]
+    },
     "strings_triple_quote": {
-      "begin": "\"\"\".*",
+      "begin": "\"\"\"",
       "end": "\"\"\"",
       "name": "string.quoted.single"
     },
