@@ -211,10 +211,8 @@ function formatJson(textBody: string, indent: string) {
         jsonTxt = jsonTxt.replace(/^/gm, textIndent);
 
         // Restore tagged json
-        for (const uuid in taggedMap) {
-            if (Object.hasOwnProperty.call(taggedMap, uuid)) {
-                jsonTxt = jsonTxt.replace(uuid, taggedMap[uuid]);
-            }
+        for (const [uuid, tag] of Object.entries(taggedMap)) {
+            jsonTxt = jsonTxt.replace(uuid, tag);
         }
         textBody = textBody.replace(txt, jsonTxt);
     }

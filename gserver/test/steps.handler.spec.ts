@@ -39,6 +39,45 @@ const stepsDefinitionNum = 7;
 
 const s = new StepsHandler(__dirname, settings);
 
+describe('constructor', () => {
+  it('does not count feature usage when synchronization is disabled', () => {
+    const handler = new StepsHandler(__dirname, {
+      ...settings,
+      syncfeatures: false,
+    });
+
+    expect(handler.elemenstCountHash).toStrictEqual({});
+    expect(handler.getElements().every((step) => step.count === 0)).toBe(true);
+  });
+});
+
+describe('getOutlineVars', () => {
+  it('ignores outline variables without a corresponding example value', () => {
+    const feature = [
+      'Scenario Outline: incomplete example',
+      'Examples:',
+      '| first | second |',
+      '| value | |',
+    ].join('\n');
+
+    expect(s.getOutlineVars(feature)).toStrictEqual({ first: 'value' });
+  });
+});
+
+describe('getStrictGherkinType', () => {
+  it('ignores preceding non-Gherkin lines', () => {
+    expect(
+      s.getStrictGherkinType('And', 1, 'Feature: example\nAnd current step')
+    ).toStrictEqual(GherkinType.Other);
+  });
+
+  it('ignores preceding And steps when no concrete step type is available', () => {
+    expect(
+      s.getStrictGherkinType('And', 1, 'And previous step\nAnd current step')
+    ).toStrictEqual(GherkinType.Other);
+  });
+});
+
 describe('geStepDefinitionMatch', () => {
   describe('gherkin strings types', () => {
     const strings = [

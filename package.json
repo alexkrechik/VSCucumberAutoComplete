@@ -1,6 +1,6 @@
 {
   "name": "cucumberautocomplete",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "publisher": "alexkrechik",
   "author": "Alexander Krechik",
   "license": "MIT",
@@ -191,6 +191,7 @@
   },
   "types": "gserver/src/typings.d.ts",
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@types/jest": "30.0.0",
     "@types/node": "18.19.130",
     "@typescript-eslint/eslint-plugin": "8.69.0",
