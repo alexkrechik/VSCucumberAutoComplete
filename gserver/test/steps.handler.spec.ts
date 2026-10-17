@@ -526,6 +526,20 @@ describe('getDefinition', () => {
   it('should not return definition for a non-Gherkin line', () => {
     expect(s.getDefinition('Feature: no step here', '')).toBeNull();
   });
+  it('should prefer a whole-string match over an earlier partial match', () => {
+    const prefixHandler = new StepsHandler(__dirname, {
+      ...defaultSettings,
+      steps: ['/data/steps/overlapping.steps.js'],
+      syncfeatures: false,
+    });
+    expect(prefixHandler.getElements()).toHaveLength(2);
+    expect(
+      prefixHandler.getDefinition(
+        'When the user selects "edit" option from the menu',
+        ''
+      )
+    ).toStrictEqual(prefixHandler.getElements()[1].def);
+  });
 });
 
 describe('getCompletion', () => {

@@ -625,13 +625,16 @@ export default class StepsHandler {
     }
 
     getStepByText(text: string, gherkin?: GherkinType) {
-        return this.elements.find(
+        const matches = this.elements.filter(
             (s) => {
                 const isGherkinOk = gherkin !== undefined ? s.gherkin === gherkin : true;
                 const isStepOk = s.reg.test(text);
                 return isGherkinOk && isStepOk;
             }
         );
+        return matches.find(
+            (s) => new RegExp(`^(?:${s.reg.source})$`, s.reg.flags).test(text)
+        ) ?? matches[0];
     }
 
     validate(line: string, lineNum: number, text: string) {
