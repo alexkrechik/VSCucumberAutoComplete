@@ -39,6 +39,69 @@ export function clearGherkinComments(text: string): string {
     return strip(text, { preserveNewlines: true });
 }
 
+
+export function clearPythonComments(text: string): string {
+    // Clear all single and multiline comments
+    let commentsMode: 'none' | 'singleTriplet' | 'doubleTriplet' = 'none';
+    text = text.split(/\r?\n/g).map(l => {
+            switch (commentsMode) {
+                case 'singleTriplet': {
+                    const match = l.match(/^.*(''')/);
+                    if (match) {
+                        commentsMode = 'none';
+                        const offset = match[0].length - match[1].length;
+                        return ' '.repeat(offset) + l.substring(offset);
+                    }
+                }
+                    break;
+
+                case 'doubleTriplet': {
+                    const match = l.match(/^.*(""")/);
+                    if (match) {
+                        commentsMode = 'none';
+                        const offset = match[0].length - match[1].length;
+                        return ' '.repeat(offset) + l.substring(offset);
+                    }
+                }
+                    break;
+
+                case 'none':
+                default: {
+                    const match = l.match(/^.*f?("""|''')/);
+                    if (match) {
+                        if (match[1] === "'''") {
+                            commentsMode = 'singleTriplet';
+                        } else if (match[1] === '"""') {
+                            commentsMode = 'doubleTriplet';
+                        }
+
+                        // Check if it's a single-line triple-quote comment
+                        const closingTripleQuote = l.match(/(''')|(""")/g);
+                        if (closingTripleQuote && closingTripleQuote.length === 2) {
+                            commentsMode = 'none';
+                            return '';
+                        }
+
+                        // Strip the content after the match
+                        return l.substring(0, match[0].length);
+                    }
+                }
+                    return l;
+            }
+        })
+        .join('\r\n');
+
+    // Clear all line comments
+    text = text
+        .split(/\r?\n/g)
+        .map(l => {
+            return l.replace(/#.*$/gm, '');
+        })
+        .join('\r\n');
+
+    return text;
+}
+
 export function getMD5Id(str: string): string {
     return md5(str);
 }
